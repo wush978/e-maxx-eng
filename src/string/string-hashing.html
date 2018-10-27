@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title String Hashing-->
+<h1 id="string-hashing">String Hashing</h1>
+<p>Hashing algorithms are helpful in solving a lot of problems.</p>
+<p>The problem we want to solve is the problem, we want to compare strings efficiently. The brute force way of doing so is just to compare the letters of both strings, which has a time complexity of <span class="math inline"><em>O</em>(min(<em>n</em><sub>1</sub>, <em>n</em><sub>2</sub>))</span> if <span class="math inline"><em>n</em><sub>1</sub></span> and <span class="math inline"><em>n</em><sub>2</sub></span> are the sizes of the two strings. We want to do better. The idea behind strings is the following: we convert each string into an integer, and compare those instead of the strings. Comparing two strings is then an <span class="math inline"><em>O</em>(1)</span> operation.</p>
+<p>For the conversion we need a so-called <strong>hash function</strong>. The goal of it is to convert a string into a integer, the so-called <strong>hash</strong> of the string. The following condition has to hold: if two two strings <span class="math inline"><em>s</em></span> and <span class="math inline"><em>t</em></span> are equal (<span class="math inline"><em>s</em> = <em>t</em></span>), then also their hashes have to be equal (<span class="math inline">hash(<em>s</em>)=hash(<em>t</em>)</span>). Otherwise we will not be able to compare strings.</p>
+<p>Notice, the opposite direction doesn't have to hold. It the hashes are equal (<span class="math inline">hash(<em>s</em>)=hash(<em>t</em>)</span>), then the strings do not necessarily have to be equal. E.g. a valid hash function would be simply <span class="math inline">hash(<em>s</em>)=0</span> for each <span class="math inline"><em>s</em></span>. Now, this is just a stupid example, because this function will be completely useless, but it is a valid hash function. The reason why the opposite direction doesn't have to hold, if because there are exponential many strings. If we only want this hash function to distinguish between all strings consisting of lowercase characters of length smaller than 15, then already the hash wouldn't fit into a 64 bit integer (e.g. unsigned long long) any more, because there are so many of them. And of course we don't want to compare arbitrary long integers, because this will also have the complexity <span class="math inline"><em>O</em>(<em>n</em>)</span>.</p>
+<p>So usually we want the hash function to map strings onto numbers of a fixed range <span class="math inline">[0, <em>m</em>)</span>, then comparing strings is just comparison of two integers with fixed length. And of course we want <span class="math inline">hash(<em>s</em>)≠hash(<em>t</em>)</span> to be very likely, if <span class="math inline"><em>s</em> ≠ <em>t</em></span>.</p>
+<p>That's the important part that you have to keep in mind. Using hashing will not be 100% deterministically correct, because two complete different strings might have the same hash (the hashes collide). However, in a wide majority of tasks this can be safely ignored as the probability of the hashes of two different strings colliding is still very small. And we will discuss some techniques in this article how to keep the probability of collisions very low.</p>
+<h2 id="calculation-of-the-hash-of-a-string">Calculation of the hash of a string</h2>
+<p>The good and widely used way to define the hash of a string <span class="math inline"><em>s</em></span> of length <span class="math inline"><em>n</em></span> is <br /><span class="math display">$$\begin{align}
+\text{hash}(s) &amp;= s[0] + s[1] \cdot p + s[2] \cdot p^2 + ... + s[n-1] \cdot p^{n-1} \mod m \\\\
+&amp;= \sum_{i=0}^{n-1} s[i] \cdot p^i \mod m,
+\end{align}$$</span><br /> where <span class="math inline"><em>p</em></span> and <span class="math inline"><em>m</em></span> are some chosen, positive numbers. It is called a <strong>polynomial rolling hash function</strong>.</p>
+<p>It is reasonable to make <span class="math inline"><em>p</em></span> a prime number roughly equal to the number of characters in the input alphabet. For example, if the input is composed of only lowercase letters of English alphabet, <span class="math inline"><em>p</em> = 31</span> is a good choice. If the input may contain both uppercase and lowercase letters, then <span class="math inline"><em>p</em> = 53</span> is a possible choice. The code in this article will use <span class="math inline"><em>p</em> = 31</span>.</p>
+<p>Obviously <span class="math inline"><em>m</em></span> should be a large number, since the probability of two random strings colliding is about <span class="math inline">$\approx \frac{1}{m}$</span>. Sometimes <span class="math inline"><em>m</em> = 2<sup>64</sup></span> is chosen, since then the integer overflows of 64 bit integers work exactly like the modulo operation. However there exists a method, which generates colliding strings (which work independent from the choice of <span class="math inline"><em>p</em></span>). So in practice <span class="math inline"><em>m</em> = 2<sup>64</sup></span> is not recommended. A good choice for <span class="math inline"><em>m</em></span> is some large prime number. The code in this article will just use <span class="math inline"><em>m</em> = 10<sup>9</sup> + 9</span>. This is a large number, but still small enough so that we can perform multiplication of two values using 64 bit integers.</p>
+<p>Here is an example of calculating the hash of a string <span class="math inline"><em>s</em></span>, which contains only lowercase letters. We convert each character of <span class="math inline"><em>s</em></span> to an integer. Here we use the conversion <span class="math inline"><em>a</em> → 1</span>, <span class="math inline"><em>b</em> → 2</span>, <span class="math inline">…</span>, <span class="math inline"><em>z</em> → 26</span>. Converting <span class="math inline"><em>a</em> → 0</span> is not a good idea, because then the hashes of the strings <span class="math inline"><em>a</em></span>, <span class="math inline"><em>a</em><em>a</em></span>, <span class="math inline"><em>a</em><em>a</em><em>a</em></span>, <span class="math inline">…</span> all evaluate to <span class="math inline">0</span>.</p>
+<p><code>cpp hashing_function long long compute_hash(string const&amp; s) {     const int p = 31;     const int m = 1e9 + 9;     long long hash_value = 0;     long long p_pow = 1;     for (char c : s) {         hash_value = (hash_value + (c - 'a' + 1) * p_pow) % m;         p_pow = (p_pow * p) % m;     }     return hash_value; }</code></p>
+<p>Precomputing the powers of <span class="math inline"><em>p</em></span> might give a performance boost.</p>
+<h2 id="example-tasks">Example tasks</h2>
+<h3 id="search-for-duplicate-strings-in-an-array-of-strings">Search for duplicate strings in an array of strings</h3>
+<p>Problem: Given a list of <span class="math inline"><em>n</em></span> strings <span class="math inline"><em>s</em><sub><em>i</em></sub></span>, each no longer than <span class="math inline"><em>m</em></span> characters, find all the duplicate strings and divide them into groups.</p>
+<p>From the obvious algorithm involving sorting the strings, we would get a time complexity of <span class="math inline"><em>O</em>(<em>n</em><em>m</em>log<em>n</em>)</span> where the sorting requires <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> comparisons and each comparison take <span class="math inline"><em>O</em>(<em>m</em>)</span> time. However by using hashes, we reduce the comparison time to <span class="math inline"><em>O</em>(1)</span>, giving us an algorithm that runs in <span class="math inline"><em>O</em>(<em>n</em><em>m</em> + <em>n</em>log<em>n</em>)</span> time.</p>
+<p>We calculate the hash for each string, sort the hashes together with the indices, and then group the indices by identical hashes.</p>
+<p>```cpp hashing_group_identical_strings vector<vector<int>&gt; group_identical_strings(vector<string> const&amp; s) { int n = s.size(); vector<pair<long long, int>&gt; hashes(n); for (int i = 0; i &lt; n; i++) hashes[i] = {compute_hash(s[i]), i};</p>
+<pre><code>sort(hashes.begin(), hashes.end());
+
+vector&lt;vector&lt;int&gt;&gt; groups;
+for (int i = 0; i &lt; n; i++) {
+    if (i == 0 || hashes[i].first != hashes[i-1].first)
+        groups.emplace_back();
+    groups.back().push_back(hashes[i].second);
+}
+return groups;</code></pre>
+<p>} ```</p>
+<h3 id="fast-hash-calculation-of-substrings-of-given-string">Fast hash calculation of substrings of given string</h3>
+<p>Problem: Given a string <span class="math inline"><em>s</em></span> and indices <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>, find the hash of the substring <span class="math inline"><em>s</em>[<em>i</em>…<em>j</em>]</span>.</p>
+<p>By definition, we have: <br /><span class="math display">$$\text{hash}(s[i \dots j]) = \sum_{k = i}^j s[k] \cdot p^{k-i} \mod m$$</span><br /> Multiplying by <span class="math inline"><em>p</em><sup><em>i</em></sup></span> gives: <br /><span class="math display">$$\begin{align}
+\text{hash}(s[i \dots j]) \cdot p^i &amp;= \sum_{k = i}^j s[k] \cdot p^k \mod m \\\\
+&amp;= \text{hash}(s[0 \dots j]) - \text{hash}(s[0 \dots i-1]) \mod m
+\end{align}$$</span><br /></p>
+<p>So by knowing the hash value of each prefix of the string <span class="math inline"><em>s</em></span>, we can compute the hash of any substring directly using this formula. The only problem that we face in calculating it is that we must be able to divide <span class="math inline">hash(<em>s</em>[0…<em>j</em>]) − hash(<em>s</em>[0…<em>i</em> − 1])</span> by <span class="math inline"><em>p</em><sup><em>i</em></sup></span>. Therefore we need to find the <a href="./algebra/module-inverse.html">modular multiplicative inverse</a> of <span class="math inline"><em>p</em><sup><em>i</em></sup></span> and then perform multiplication with this inverse. We can precompute the inverse of every <span class="math inline"><em>p</em><sup><em>i</em></sup></span>, which allows computing the hash of any substring of <span class="math inline"><em>s</em></span> in <span class="math inline"><em>O</em>(1)</span> time.</p>
+<p>However, there does exist an easier way. In most cases, rather than calculating the hashes of substring exactly, it is enough to compute the hash multiplied by some power of <span class="math inline"><em>p</em></span>. Suppose we have two hashes of two substrings, one multiplied by <span class="math inline"><em>p</em><sup><em>i</em></sup></span> and the other by <span class="math inline"><em>p</em><sup><em>j</em></sup></span>. If <span class="math inline"><em>i</em> &lt; <em>j</em></span> then we multiply the first hash by <span class="math inline"><em>p</em><sup><em>j</em> − <em>i</em></sup></span>, otherwise we multiply the second hash by <span class="math inline"><em>p</em><sup><em>i</em> − <em>j</em></sup></span>. By doing this, we get both the hashes multiplied by the same power of <span class="math inline"><em>p</em></span> (which is the maximum of <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>) and now these hashes can be compared easily with no need for any division.</p>
+<h2 id="applications-of-hashing">Applications of Hashing</h2>
+<p>Here are some typical applications of Hashing:</p>
+<ul>
+<li><a href="./string/rabin-karp.html">Rabin-Karp algorithm</a> for pattern matching in a string in <span class="math inline"><em>O</em>(<em>n</em>)</span> time</li>
+<li>Calculating the number of different substrings of a string in <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>log<em>n</em>)</span> (see below)</li>
+<li>Calculating the number of palindromic substrings in a string.</li>
+</ul>
+<h3 id="determine-the-number-of-different-substrings-in-a-string">Determine the number of different substrings in a string</h3>
+<p>Problem: Given a string <span class="math inline"><em>s</em></span> of length <span class="math inline"><em>n</em></span>, consisting only of lowercase English letters, find the number of different substrings in this string.</p>
+<p>To solve this problem, we iterate over all substring lengths <span class="math inline"><em>l</em> = 1…<em>n</em></span>. For every substring length <span class="math inline"><em>l</em></span> we construct an array of hashes of all substrings of length <span class="math inline"><em>l</em></span> multiplied by the same power of <span class="math inline"><em>p</em></span>. The number of different elements in the array is equal to the number of distinct substrings of length <span class="math inline"><em>l</em></span> in the string. This number is added to the final answer.</p>
+<p>For convenience we will use <span class="math inline"><em>h</em>[<em>i</em>]</span> as the hash of the prefix with <span class="math inline"><em>i</em></span> characters, and define <span class="math inline"><em>h</em>[0]=0</span>.</p>
+<p>```cpp hashing_count_unique_substrings int count_unique_substrings(string const&amp; s) { int n = s.size();</p>
+<pre><code>const int p = 31;
+const int m = 1e9 + 9;
+vector&lt;long long&gt; p_pow(n);
+p_pow[0] = 1;
+for (int i = 1; i &lt; n; i++)
+    p_pow[i] = (p_pow[i-1] * p) % m;
+
+vector&lt;long long&gt; h(n + 1, 0);
+for (int i = 0; i &lt; n; i++)
+    h[i+1] = (h[i] + (s[i] - &#39;a&#39; + 1) * p_pow[i]) % m;
+
+int cnt = 0;
+for (int l = 1; l &lt;= n; l++) {
+    set&lt;long long&gt; hs;
+    for (int i = 0; i &lt;= n - l; i++) {
+        long long cur_h = (h[i + l] + m - h[i]) % m;
+        cur_h = (cur_h * p_pow[n-i-1]) % m;
+        hs.insert(cur_h);
+    }
+    cnt += hs.size();
+}
+return cnt;</code></pre>
+<p>} ```</p>
+<h2 id="improve-no-collision-probability">Improve no-collision probability</h2>
+<p>Quite often the above mentioned polynomial hash is good enough, and no collisions will happen during tests. Remember, the probability that collision happens is only <span class="math inline">$\approx \frac{1}{m}$</span>. For <span class="math inline"><em>m</em> = 10<sup>9</sup> + 9</span> the probability is <span class="math inline">≈10<sup>−9</sup></span> which is quite low. But notice, that we only did one comparison. What if we compared a string <span class="math inline"><em>s</em></span> with <span class="math inline">10<sup>6</sup></span> different strings. The probability that the at least one collision happens is now <span class="math inline">≈10<sup>−3</sup></span>. And if we want to compare <span class="math inline">10<sup>6</sup></span> different strings with each other (e.g. by counting how many unique strings exists), then the probability of at least one collision happening is already <span class="math inline">≈1</span>. It is pretty much guaranteed that this task will end will a collision and returns the wrong result.</p>
+<p>There is a really easy trick to get better probabilities. We can just compute two different hashes for each string (by using two different <span class="math inline"><em>p</em></span>, and/or different <span class="math inline"><em>m</em></span>, and compare these pairs instead. If <span class="math inline"><em>m</em></span> is about <span class="math inline">10<sup>9</sup></span> for each of the two hash functions, than this is more or less equivalent as having one hash function with <span class="math inline"><em>m</em> ≈ 10<sup>18</sup></span>. When comparing <span class="math inline">10<sup>6</sup></span> strings with each other, the probability that at least one collision happens is now reduced to <span class="math inline">≈10<sup>−6</sup></span>.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/NHAY/">A Needle in the Haystack - SPOJ</a></li>
+<li><a href="http://codeforces.com/problemset/problem/154/C">Double Profiles - Codeforces</a></li>
+<li><a href="http://codeforces.com/problemset/problem/126/B">Password - Codeforces</a></li>
+<li><a href="http://www.spoj.com/problems/SUB_PROB/">SUB_PROB - SPOJ</a></li>
+<li><a href="https://www.codechef.com/problems/INSQ15_A">INSQ15_A</a></li>
+<li><a href="http://www.spoj.com/problems/ADACLEAN/">SPOJ - Ada and Spring Cleaning</a></li>
+<li><a href="http://codeforces.com/gym/101466/problem/E">GYM - Text Editor</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=3163">12012 - Detection of Extraterrestrial</a></li>
+<li><a href="http://codeforces.com/contest/727/problem/E">Codeforces - Games on a CD</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2955">UVA 11855 - Buzzwords</a></li>
+<li><a href="http://codeforces.com/contest/752/problem/D">Codeforces - Santa Claus and a Palindrome</a></li>
+<li><a href="http://codeforces.com/contest/825/problem/F">Codeforces - String Compression</a></li>
+<li><a href="http://codeforces.com/contest/835/problem/D">Codeforces - Palindromic Characteristics</a></li>
+<li><a href="http://www.spoj.com/problems/CF25E/">SPOJ - Test</a></li>
+<li><a href="http://codeforces.com/contest/7/problem/D">Codeforces - Palindrome Degree</a></li>
+<li><a href="http://codeforces.com/contest/19/problem/C">Codeforces - Deletion of Repeats</a></li>
+</ul>
+</body>
+</html>

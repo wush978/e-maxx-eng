@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Finding bridges in a graph in O(N+M) -->
+<h1 id="finding-bridges-in-a-graph-in-onm">Finding bridges in a graph in <span class="math inline"><em>O</em>(<em>N</em> + <em>M</em>)</span></h1>
+<p>We are given an undirected graph. A bridge is defined as an edge which, when removed, makes the graph disconnected (or more precisely, increases the number of connected components in the graph). The task is to find all bridges in the given graph.</p>
+<p>Informally, the problem is formulated as follows: given a map of cities connected with roads, find all &quot;important&quot; roads, i.e. roads which, when removed, cause disappearance of a path between some pair of cities.</p>
+<p>The algorithm described here is based on <a href="./graph/depth-first-search.html">depth first search</a> and has <span class="math inline"><em>O</em>(<em>N</em> + <em>M</em>)</span> complexity, where <span class="math inline"><em>N</em></span> is the number of vertices and <span class="math inline"><em>M</em></span> is the number of edges in the graph.</p>
+<p>Note that there also is also the article <a href="./graph/bridge-searching-online.html">Finding Bridges Online</a> - unlike the offline algorithm described here, the online algorithm is able to maintain the list of all bridges in a changing graph (assuming that the only type of change is addition of new edges).</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>Pick an arbitrary vertex of the graph <span class="math inline"><em>r</em><em>o</em><em>o</em><em>t</em></span> and run <a href="./graph/depth-first-search.html">depth first search</a> from it. Note the following fact (which is easy to prove):</p>
+<ul>
+<li>Let's say we are in the DFS, looking through the edges starting from vertex <span class="math inline"><em>v</em></span>. The current edge <span class="math inline">(<em>v</em>, <em>t</em><em>o</em>)</span> is a bridge if and only if none of the vertices <span class="math inline"><em>t</em><em>o</em></span> and its descendants in the DFS traversal tree has a back-edge to vertex <span class="math inline"><em>v</em></span> or any of its ancestors. Indeed, this condition means that there is no other way from <span class="math inline"><em>v</em></span> to <span class="math inline"><em>t</em><em>o</em></span> except for edge <span class="math inline">(<em>v</em>, <em>t</em><em>o</em>)</span>.</li>
+</ul>
+<p>Now we have to learn to check this fact for each vertex efficiently. We'll use &quot;time of entry into node&quot; computed by the depth first search.</p>
+<p>So, let <span class="math inline"><em>t</em><em>i</em><em>n</em>[<em>v</em>]</span> denote entry time for node <span class="math inline"><em>v</em></span>. We introduce an array <span class="math inline"><em>f</em><em>u</em><em>p</em></span> which will let us check the fact for each vertex <span class="math inline"><em>v</em></span>. <span class="math inline"><em>f</em><em>u</em><em>p</em>[<em>v</em>]</span> is the minimum of <span class="math inline"><em>t</em><em>i</em><em>n</em>[<em>v</em>]</span>, the entry times <span class="math inline"><em>t</em><em>i</em><em>n</em>[<em>p</em>]</span> for each node <span class="math inline"><em>p</em></span> that is connected to node <span class="math inline"><em>v</em></span> via a back-edge <span class="math inline">(<em>v</em>, <em>p</em>)</span> and the values of <span class="math inline"><em>f</em><em>u</em><em>p</em>[<em>t</em><em>o</em>]</span> for each vertex <span class="math inline"><em>t</em><em>o</em></span> which is a direct descendant of <span class="math inline"><em>v</em></span> in the DFS tree:</p>
+<p><br /><span class="math display">$$fup[v] = \min \begin{cases} tin[v] \\\\ tin[p]&amp; \text{ for all }p\text{ for which }(v, p)\text{ is a back edge} \\\ fup[to]&amp; \text{ for all }to\text{ for which }(v, to)\text{ is a tree edge} \end{cases}$$</span><br /></p>
+<p>Now, there is a back edge from vertex <span class="math inline"><em>v</em></span> or one of its descendants to one of its ancestors if and only if vertex <span class="math inline"><em>v</em></span> has a child <span class="math inline"><em>t</em><em>o</em></span> for which <span class="math inline"><em>f</em><em>u</em><em>p</em>[<em>t</em><em>o</em>]≤<em>t</em><em>i</em><em>n</em>[<em>v</em>]</span>. If <span class="math inline"><em>f</em><em>u</em><em>p</em>[<em>t</em><em>o</em>]=<em>t</em><em>i</em><em>n</em>[<em>v</em>]</span>, the back edge comes directly to <span class="math inline"><em>v</em></span>, otherwise it comes to one of the ancestors of <span class="math inline"><em>v</em></span>.</p>
+<p>Thus, the current edge <span class="math inline">(<em>v</em>, <em>t</em><em>o</em>)</span> in the DFS tree is a bridge if and only if <span class="math inline"><em>f</em><em>u</em><em>p</em>[<em>t</em><em>o</em>]&gt;<em>t</em><em>i</em><em>n</em>[<em>v</em>]</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>The implementation needs to distinguish three cases: when we go down the edge in DFS tree, when we find a back edge to an ancestor of the vertex and when we return to a parent of the vertex. These are the cases:</p>
+<ul>
+<li><span class="math inline"><em>v</em><em>i</em><em>s</em><em>i</em><em>t</em><em>e</em><em>d</em>[<em>t</em><em>o</em>]=<em>f</em><em>a</em><em>l</em><em>s</em><em>e</em></span> - the edge is part of DFS tree;</li>
+<li><span class="math inline"><em>v</em><em>i</em><em>s</em><em>i</em><em>t</em><em>e</em><em>d</em>[<em>t</em><em>o</em>]=<em>t</em><em>r</em><em>u</em><em>e</em></span> &amp;&amp; <span class="math inline"><em>t</em><em>o</em> ≠ <em>p</em><em>a</em><em>r</em><em>e</em><em>n</em><em>t</em></span> - the edge is back edge to one of the ancestors;</li>
+<li><span class="math inline"><em>t</em><em>o</em> = <em>p</em><em>a</em><em>r</em><em>e</em><em>n</em><em>t</em></span> - the edge leads back to parent in DFS tree.</li>
+</ul>
+<p>To implement this, we need a depth first search function which accepts the parent vertex of the current node.</p>
+<p>C++ implementation <span class="toggle-code">Show/Hide</span></p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> n; <span class="co">// number of nodes</span>
+vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; adj; <span class="co">// adjacency list of graph</span>
+
+vector&lt;<span class="dt">bool</span>&gt; visited;
+vector&lt;<span class="dt">int</span>&gt; tin, fup;
+<span class="dt">int</span> timer;
+ 
+<span class="dt">void</span> dfs(<span class="dt">int</span> v, <span class="dt">int</span> p = <span class="dv">-1</span>) {
+    visited[v] = <span class="kw">true</span>;
+    tin[v] = fup[v] = timer++;
+    <span class="kw">for</span> (<span class="dt">int</span> to : adj[v]) {
+        <span class="kw">if</span> (to == p) <span class="kw">continue</span>;
+        <span class="kw">if</span> (visited[to]) {
+            fup[v] = min(fup[v], tin[to]);
+        } <span class="kw">else</span> {
+            dfs(to, v);
+            fup[v] = min(fup[v], fup[to]);
+            <span class="kw">if</span> (fup[to] &gt; tin[v])
+                IS_BRIDGE(v, to);
+        }
+    }
+}
+ 
+<span class="dt">void</span> find_bridges() {
+    timer = <span class="dv">0</span>;
+    visited.assign(n, <span class="kw">false</span>);
+    tin.assign(n, <span class="dv">-1</span>);
+    fup.assign(n, <span class="dv">-1</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">if</span> (!visited[i])
+            dfs(i);
+    }
+}</code></pre></div>
+<p>Main function is <code>find_bridges</code>; it performs necessary initialization and starts depth first search in each connected component of the graph.</p>
+<p>Function <code>IS_BRIDGE(a, b)</code> is some function that will process the fact that edge <span class="math inline">(<em>a</em>, <em>b</em>)</span> is a bridge, for example, print it.</p>
+<p>Note that this implementation malfunctions if the graph has multiple edges, since it ignores them. Of course, multiple edges will never be a part of the answer, so <code>IS_BRIDGE</code> can check additionally that the reported bridge does is not a multiple edge. Alternatively it's possible to pass to <code>dfs</code> the index of the edge used to enter the vertex instead of the parent vertex (and store the indices of all vertices).</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=737">UVA #796 &quot;Critical Links&quot;</a> [difficulty: low]</li>
+<li><a href="http://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=551">UVA #610 &quot;Street Directions&quot;</a> [difficulty: medium]</li>
+<li><a href="http://codeforces.com/problemset/problem/555/E">Case of the Computer Network (Codeforces Round #310 Div. 1 E)</a> [difficulty: hard]</li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=3785">UVA 12363 - Hedge Mazes</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=251">UVA 315 - Network</a></li>
+<li><a href="http://codeforces.com/gym/100114">GYM - Computer Network (J)</a></li>
+<li><a href="http://www.spoj.com/problems/GRAFFDEF/">SPOJ - King Graffs Defense</a></li>
+<li><a href="http://www.spoj.com/problems/EC_P/">SPOJ - Critical Edges</a></li>
+<li><a href="http://codeforces.com/contest/700/problem/C">Codeforces - Break Up</a></li>
+<li><a href="http://codeforces.com/contest/732/problem/F">Codeforces - Tourist Reform</a></li>
+</ul>
+</body>
+</html>

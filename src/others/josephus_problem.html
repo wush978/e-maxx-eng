@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Josephus Problem -->
+<h1 id="josephus-problem">Josephus Problem</h1>
+<p>Problem situation - Given the natural numbers <span class="math inline"><em>n</em></span> and <span class="math inline"><em>k</em></span>. All natural numbers from <span class="math inline">1</span> to <span class="math inline"><em>n</em></span> are written in a circle. First count the <span class="math inline"><em>k</em></span>-th number starting from the first one and delete it. Then <span class="math inline"><em>k</em></span> numbers are counted starting from the next one and the <span class="math inline"><em>k</em></span>-th one is removed again, and so on. The process stops when one number remains. It is required to find the last number.</p>
+<p>This task was set by <strong>Flavius Josephus</strong> in the 1st century (though in a somewhat narrower formulation: for <span class="math inline"><em>k</em> = 2</span>).</p>
+<p>This problem can be solved by modeling the procedure. Brute force modeling will work <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span>. Using a <a href="/data_structures/segment_tree.html">segment tree</a> we can improve it to <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>. We want something better though.</p>
+<h2 id="modeling-a-on-solution">Modeling a <span class="math inline"><em>O</em>(<em>n</em>)</span> solution</h2>
+<p>We will try to find a pattern expressing the answer for the problem <span class="math inline"><em>J</em><sub><em>n</em>, <em>k</em></sub></span> through the solution of the previous problems.</p>
+<p>Using brute force modeling we can construct a table of values, for example, the following:</p>
+<p><br /><span class="math display">$$\begin{array}{ccccccccccc}
+n\setminus k &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 &amp; 6 &amp; 7 &amp; 8 &amp; 9 &amp; 10 \\\\
+1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 \\\\
+2 &amp; 2 &amp; 1 &amp; 2 &amp; 1 &amp; 2 &amp; 1 &amp; 2 &amp; 1 &amp; 2 &amp; 1 \\\\
+3 &amp; 3 &amp; 3 &amp; 2 &amp; 2 &amp; 1 &amp; 1 &amp; 3 &amp; 3 &amp; 2 &amp; 2 \\\\
+4 &amp; 4 &amp; 1 &amp; 1 &amp; 2 &amp; 2 &amp; 3 &amp; 2 &amp; 3 &amp; 3 &amp; 4 \\\\
+5 &amp; 5 &amp; 3 &amp; 4 &amp; 1 &amp; 2 &amp; 4 &amp; 4 &amp; 1 &amp; 2 &amp; 4 \\\\
+6 &amp; 6 &amp; 5 &amp; 1 &amp; 5 &amp; 1 &amp; 4 &amp; 5 &amp; 3 &amp; 5 &amp; 2 \\\\
+7 &amp; 7 &amp; 7 &amp; 4 &amp; 2 &amp; 6 &amp; 3 &amp; 5 &amp; 4 &amp; 7 &amp; 5 \\\\
+8 &amp; 8 &amp; 1 &amp; 7 &amp; 6 &amp; 3 &amp; 1 &amp; 4 &amp; 4 &amp; 8 &amp; 7 \\\\
+9 &amp; 9 &amp; 3 &amp; 1 &amp; 1 &amp; 8 &amp; 7 &amp; 2 &amp; 3 &amp; 8 &amp; 8 \\\\
+10 &amp; 10 &amp; 5 &amp; 4 &amp; 5 &amp; 3 &amp; 3 &amp; 9 &amp; 1 &amp; 7 &amp; 8 \\\\
+\end{array}$$</span><br /></p>
+<p>And here we can clearly see the following <strong>pattern</strong>:</p>
+<p><br /><span class="math display">$$J_ {n, k} = (J _ {(n-1), k} + k - 1) \ \bmod n + 1 $$</span><br /> <br /><span class="math display"><em>J</em><sub>1, <em>k</em></sub> = 1</span><br /></p>
+<p>Here, 1-indexing somewhat spoils the elegance of the formula; if you number the positions from 0, you get a very clear formula:</p>
+<p><br /><span class="math display">$$J_ {n, k} = (J _ {(n-1), k} + k) \ \bmod n$$</span><br /></p>
+<p>So, we found a solution to the problem of Joseph, working in <span class="math inline"><em>O</em>(<em>n</em>)</span> operations.</p>
+<p>Simple <strong>recursive implementation</strong> (in 1-indexing)</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> josephus(<span class="dt">int</span> n, <span class="dt">int</span> k) {
+    <span class="kw">return</span> n &gt; <span class="dv">1</span> ? (joseph(n<span class="dv">-1</span>, k) + k - <span class="dv">1</span>) % n + <span class="dv">1</span> : <span class="dv">1</span>;
+}</code></pre></div>
+<p><strong>Non-recursive form</strong> :</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> josephus(<span class="dt">int</span> n, <span class="dt">int</span> k) {
+    <span class="dt">int</span> res = <span class="dv">0</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= n; ++i)
+      res = (res + k) % i;
+    <span class="kw">return</span> res + <span class="dv">1</span>;
+}</code></pre></div>
+<p>This formula can also be found analytically. Again here we assume 0-indexed. After we killed the first person, we have <span class="math inline"><em>n</em> − 1</span> people left. And when we repeat the procedure then we will start with the person that had originally the index <span class="math inline">$k \bmod m$</span>. <span class="math inline"><em>J</em><sub>(<em>n</em> − 1),<em>k</em></sub></span> would be the answer for the remaining circle, if we start counting at <span class="math inline">0</span>, but because we actually start with <span class="math inline"><em>k</em></span> we have <span class="math inline">$J_ {n, k} = (J _ {(n-1), k} + k) \ \bmod n$</span>.</p>
+<h2 id="modeling-a-ok-log-n-solution">Modeling a <span class="math inline"><em>O</em>(<em>k</em>log<em>n</em>)</span> solution</h2>
+<p>For relatively small <span class="math inline"><em>k</em></span> we can come up with a better solution than the above recursive solution in <span class="math inline"><em>O</em>(<em>n</em>)</span>. If <span class="math inline"><em>k</em></span> is a lot smaller than <span class="math inline"><em>n</em></span>, then we can kill multiple people (<span class="math inline">$\lfloor \frac{n}{k} \rfloor$</span>) in one run without looping over. Afterwards we have <span class="math inline">$n - \lfloor \frac{n}{k} \rfloor$</span> people left, and we start with the <span class="math inline">$(\lfloor \frac{n}{k} \rfloor \cdot n)$</span>-th person. So we have to shift by that many. We can notice that <span class="math inline">$\lfloor \frac{n}{k} \rfloor \cdot n$</span> is simply <span class="math inline">$n \bmod k$</span>. And since we removed every <span class="math inline"><em>k</em></span>-th person, we have to add the number of people that we removed before the result index.</p>
+<p>Also, we need to handle the case when <span class="math inline"><em>n</em></span> becomes less than <span class="math inline"><em>k</em></span> - in this case, the above optimization would degenerate into an infinite loop.</p>
+<p><strong>Implementation</strong> (for convenience in 0-indexing):</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> josephus(<span class="dt">int</span> n, <span class="dt">int</span> k) {
+    <span class="kw">if</span> (n == <span class="dv">1</span>)
+        <span class="kw">return</span> <span class="dv">0</span>;
+    <span class="kw">if</span> (k == <span class="dv">1</span>)
+        <span class="kw">return</span> n<span class="dv">-1</span>;
+    <span class="kw">if</span> (k &gt; n)
+        <span class="kw">return</span> (joseph(n<span class="dv">-1</span>, k) + k) % n;
+    <span class="dt">int</span> cnt = n / k;
+    <span class="dt">int</span> res = joseph(n - cnt, k);
+    res -= n % k;
+    <span class="kw">if</span> (res &lt; <span class="dv">0</span>)
+        res += n;
+    <span class="kw">else</span>
+        res += res / (k - <span class="dv">1</span>);
+    <span class="kw">return</span> res;
+}</code></pre></div>
+<p>Let us estimate the <strong>complexity</strong> of this algorithm. Immediately note that the case <span class="math inline"><em>n</em> &lt; <em>k</em></span> is analyzed by the old solution, which will work in this case for <span class="math inline"><em>O</em>(<em>k</em>)</span>. Now consider the algorithm itself. In fact, on each iteration of it, instead of <span class="math inline"><em>n</em></span> numbers, we get about <span class="math inline">$n \left( 1 - \frac{1}{k} \right)$</span> numbers, so the total number of <span class="math inline"><em>x</em></span> iterations of the algorithm can be found roughly from the following equation:</p>
+<p><br /><span class="math display">$$ n \left(1 - \frac{1}{k} \right) ^ x = 1, $$</span><br /></p>
+<p>on taking logarithm, we obtain:</p>
+<p><br /><span class="math display">$$\ln n + x \ln \left(1 - \frac{1}{k} \right) = 0,$$</span><br /> <br /><span class="math display">$$x = - \frac{\ln n}{\ln \left(1 - \frac{1}{k} \right)},$$</span><br /></p>
+<p>using the decomposition of the logarithm into Taylor series, we obtain an approximate estimate:</p>
+<p><br /><span class="math display"><em>x</em> ≈ <em>k</em>ln<em>n</em></span><br /></p>
+<p>Thus, the complexity of the algorithm is actually <span class="math inline"><em>O</em>(<em>k</em>log<em>n</em>)</span>.</p>
+<h2 id="analytical-solution-for-k-2">Analytical solution for <span class="math inline"><em>k</em> = 2</span></h2>
+<p>In this particular case (in which this task was set by Josephus Flavius) the problem is solved much easier.</p>
+<p>In the case of even <span class="math inline"><em>n</em></span> we get that all even numbers will be crossed out, and then there will be a problem remaining for <span class="math inline">$\frac{n}{2}$</span>, then the answer for <span class="math inline"><em>n</em></span> will be obtained from the answer for <span class="math inline">$\frac{n}{2}$</span> by multiplying by two and subtracting one (by shifting positions):</p>
+<p><br /><span class="math display"><em>J</em><sub>2<em>n</em>, 2</sub> = 2<em>J</em><sub><em>n</em>, 2</sub> − 1</span><br /></p>
+<p>Similarly, in the case of an odd <span class="math inline"><em>n</em></span>, all even numbers will be crossed out, then the first number, and the problem for <span class="math inline">$\frac{n-1}{2}$</span> will remain, and taking into account the shift of positions, we obtain the second formula:</p>
+<p><br /><span class="math display"><em>J</em><sub>2<em>n</em> + 1, 2</sub> = 2<em>J</em><sub><em>n</em>, 2</sub> + 1</span><br /></p>
+<p>We can use this recurrent dependency directly in our implementation. This pattern can be translated into another form: <span class="math inline"><em>J</em><sub><em>n</em>, 2</sub></span> represents a sequence of all odd numbers, &quot;restarting&quot; from one whenever <span class="math inline"><em>n</em></span> turns out to be a power of two. This can be written as a single formula:</p>
+<p><br /><span class="math display"><em>J</em><sub><em>n</em>, 2</sub> = 1 + 2(<em>n</em>−2<sup>⌊log<sub>2</sub><em>n</em>⌋</sup>)</span><br /></p>
+<h2 id="analytical-solution-for-k-2-1">Analytical solution for <span class="math inline"><em>k</em> &gt; 2</span></h2>
+<p>Despite the simple form of the problem and a large number of articles on this and related problems, a simple analytical representation of the solution of Joseph's problem has not yet been found. For small <span class="math inline"><em>k</em></span>, some formulas are derived, but apparently they are all difficult to apply in practice (for example, see Halbeisen, Hungerbuhler &quot;the Josephus Problem&quot; and Odlyzko, Wilf &quot;Functional iteration and the Josephus problem&quot;).</p>
+</body>
+</html>

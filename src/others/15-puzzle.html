@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title 15 Puzzle Game: Existence Of The Solution -->
+<h1 id="puzzle-game-existence-of-the-solution">15 Puzzle Game: Existence Of The Solution</h1>
+<p>This game is played on a <span class="math inline">4 × 4</span> board. On this board there are 15 playing tiles numbered from 1 to 15. One cell is left empty (denoted by 0). You need to get the board to the position presented below by repeatedly moving one of the tiles to the free space:</p>
+<p><br /><span class="math display">$$\begin{matrix} 1 &amp; 2 &amp; 3 &amp; 4 \\\\ 5 &amp; 6 &amp; 7 &amp; 8 \\\\ 9 &amp; 10 &amp; 11 &amp; 12 \\\\ 13 &amp; 14 &amp; 15 &amp; 0 \end{matrix}$$</span><br /></p>
+<p>The game &quot;15 Puzzle” was created by Noyes Chapman in 1880.</p>
+<h2 id="existence-of-the-solution">Existence Of The Solution</h2>
+<p>Let's consider this problem: given position on the board, determine whether a sequence of moves which leads to a solution exists.</p>
+<p>Suppose we have some position on the board:</p>
+<p><br /><span class="math display">$$\begin{matrix} a_1 &amp; a_2 &amp; a_3 &amp; a_4 \\\\ a_5 &amp; a_6 &amp; a_7 &amp; a_8 \\\\ a_9 &amp; a_{10} &amp; a_{11} &amp; a_{12} \\\\ a_{13} &amp; a_{14} &amp; a_{15} &amp; a_{16} \end{matrix}$$</span><br /></p>
+<p>where one of the elements equals zero and indicates an empty cell <span class="math inline"><em>a</em><sub><em>z</em></sub> = 0</span></p>
+<p>Let’s consider the permutation:</p>
+<p><br /><span class="math display"><em>a</em><sub>1</sub><em>a</em><sub>2</sub>...<em>a</em><sub><em>z</em> − 1</sub><em>a</em><sub><em>z</em> + 1</sub>...<em>a</em><sub>15</sub><em>a</em><sub>16</sub></span><br /></p>
+<p>(i.e. the permutation of numbers corresponding to the position on the board without a zero element)</p>
+<p>Let <span class="math inline"><em>N</em></span> be the number of inversions in this permutation (i.e. the number of such elements <span class="math inline"><em>a</em><sub><em>i</em></sub></span> and <span class="math inline"><em>a</em><sub><em>j</em></sub></span> that <span class="math inline"><em>i</em> &lt; <em>j</em></span>, but <span class="math inline"><em>a</em><sub><em>i</em></sub> &gt; <em>a</em><sub><em>j</em></sub></span>).</p>
+<p>Suppose <span class="math inline"><em>K</em></span> is an index of a row where the empty element is located (i.e. in our indications <span class="math inline"><em>K</em> = (<em>z</em> − 1) <em>d</em><em>i</em><em>v</em> 4 + 1</span>).</p>
+<p>Then, <strong>the solution exists iff <span class="math inline"><em>N</em> + <em>K</em></span> is even</strong>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>The algorithm above can be illustrated with the following program code:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> a[<span class="dv">16</span>];
+<span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;<span class="dv">16</span>; ++i)
+    cin &gt;&gt; a[i];
+
+<span class="dt">int</span> inv = <span class="dv">0</span>;
+<span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;<span class="dv">16</span>; ++i)
+    <span class="kw">if</span> (a[i])
+        <span class="kw">for</span> (<span class="dt">int</span> j=<span class="dv">0</span>; j&lt;i; ++j)
+            <span class="kw">if</span> (a[j] &gt; a[i])
+                ++inv;
+<span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;<span class="dv">16</span>; ++i)
+    <span class="kw">if</span> (a[i] == <span class="dv">0</span>)
+        inv += <span class="dv">1</span> + i / <span class="dv">4</span>;
+
+puts ((inv &amp; <span class="dv">1</span>) ? <span class="st">&quot;No Solution&quot;</span> : <span class="st">&quot;Solution Exists&quot;</span>);</code></pre></div>
+<h2 id="proof">Proof</h2>
+<p>In 1879 Johnson proved that if <span class="math inline"><em>N</em> + <em>K</em></span> is odd, then the solution doesn’t exist, and in the same year Story proved that all positions when <span class="math inline"><em>N</em> + <em>K</em></span> is even have a solution.</p>
+<p>However, all these proofs were quite complex.</p>
+<p>In 1999 Archer proposed a much simpler proof (you can download his article <a href="http://www.cs.cmu.edu/afs/cs/academic/class/15859-f01/www/notes/15-puzzle.pdf">here</a>).</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://www.hackerrank.com/challenges/n-puzzle">Hackerrank - N-puzzle</a></li>
+</ul>
+</body>
+</html>

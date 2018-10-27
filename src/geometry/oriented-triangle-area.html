@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Oriented area of a triangle-->
+<h1 id="oriented-area-of-a-triangle">Oriented area of a triangle</h1>
+<p>Given three points <span class="math inline"><em>p</em><sub>1</sub></span>, <span class="math inline"><em>p</em><sub>2</sub></span> and <span class="math inline"><em>p</em><sub>3</sub></span>, calculate an oriented (signed) area of a triangle formed by them. The sign of the area is determined in the following way: imagine you are standing in the plane at point <span class="math inline"><em>p</em><sub>1</sub></span> and are facing <span class="math inline"><em>p</em><sub>2</sub></span>. You go to <span class="math inline"><em>p</em><sub>2</sub></span> and if <span class="math inline"><em>p</em><sub>3</sub></span> is to your right (then we say the three vectors turn &quot;clockwise&quot;), the sign of the area is positive, otherwise it is negative. If the three points are collinear, the area is zero.</p>
+<p>Using this signed area, we can both get the regular unsigned area (as the absolute value of the signed area) and determine if the points lie clockwise or counterclockwise in their specified order (which is useful, for example, in convex hull algorithms).</p>
+<h2 id="calculation">Calculation</h2>
+<p>We can use the fact that a determinant of a <span class="math inline">2 × 2</span> matrix is equal to the signed area of a parallelogram spanned by column (or row) vectors of the matrix. This is analog to the definition of the cross product in 2D (see <a href="geometry/basic-geometry.html">Basic Geometry</a>). By dividing this area by two we get the area of a triangle that we are interested in. We will use <span class="math inline">$\vec{p_1p_2}$</span> and <span class="math inline">$\vec{p_2p_3}$</span> as the column vectors and calculate a <span class="math inline">2 × 2</span> determinant: <br /><span class="math display">$$2S=\left|\begin{matrix}x_2-x_1 &amp; x_3-x_2\\\\y_2-y_1 &amp; y_3-y_2\end{matrix}\right|=(x_2-x_1)(y_3-y_2)-(x_3-x_2)(y_2-y_1)$$</span><br /></p>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> signed_area_parallelogram(point2d p1, point2d p2, point2d p3) {
+    <span class="kw">return</span> cross(p2 - p1, p3 - p2);
+}
+
+<span class="dt">double</span> triangle_area(point2d p1, point2d p2, point2d p3) {
+    <span class="kw">return</span> abs(signed_area_parallelogram(p1, p2, p3)) / <span class="fl">2.0</span>;
+}
+
+<span class="dt">bool</span> clockwise(point2d p1, point2d p2, point2d p3) {
+    <span class="kw">return</span> signed_area_parallelogram(p1, p2, p3) &lt; <span class="dv">0</span>;
+}
+
+<span class="dt">bool</span> counter_clockwise(point2d p1, point2d p2, point2d p3) {
+    <span class="kw">return</span> signed_area_parallelogram(p1, p2, p3) &gt; <span class="dv">0</span>;
+}</code></pre></div>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://www.codechef.com/problems/CHEFPOLY">Codechef - Chef and Polygons</a></li>
+</ul>
+</body>
+</html>

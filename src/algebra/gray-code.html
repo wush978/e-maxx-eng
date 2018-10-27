@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Gray Code-->
+<h1 id="gray-code">Gray code</h1>
+<p>Gray code is a binary numeral system where two successive values differ in only one bit.</p>
+<p>For example, the sequence of Gray codes for 3-bit numbers is: 000, 001, 011, 010, 110, 111, 101, 100, so <span class="math inline"><em>G</em>(4)=6</span>.</p>
+<p>This code was invented by Frank Gray in 1953.</p>
+<h2 id="finding-gray-code">Finding Gray code</h2>
+<p>Let's look at the bits of number <span class="math inline"><em>n</em></span> and the bits of number <span class="math inline"><em>G</em>(<em>n</em>)</span>. Notice that <span class="math inline"><em>i</em></span>-th bit of <span class="math inline"><em>G</em>(<em>n</em>)</span> equals 1 only when <span class="math inline"><em>i</em></span>-th bit of <span class="math inline"><em>n</em></span> equals 1 and <span class="math inline"><em>i</em> + 1</span>-th bit equals 0 or the other way around (<span class="math inline"><em>i</em></span>-th bit equals 0 and <span class="math inline"><em>i</em> + 1</span>-th bit equals 1). Thus, <span class="math inline"><em>G</em>(<em>n</em>)=<em>n</em> ⊕ (<em>n</em> &gt; &gt;1)</span>:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> g (<span class="dt">int</span> n) {
+    <span class="kw">return</span> n ^ (n &gt;&gt; <span class="dv">1</span>);
+}</code></pre></div>
+<h2 id="finding-inverse-gray-code">Finding inverse Gray code</h2>
+<p>Given Gray code <span class="math inline"><em>g</em></span>, restore the original number <span class="math inline"><em>n</em></span>.</p>
+<p>We will move from the most significant bits to the least significant ones (the least significant bit has index 1 and the most significant bit has index <span class="math inline"><em>k</em></span>). The relation between the bits <span class="math inline"><em>n</em><sub><em>i</em></sub></span> of number <span class="math inline"><em>n</em></span> and the bits <span class="math inline"><em>g</em><sub><em>i</em></sub></span> of number <span class="math inline"><em>g</em></span>:</p>
+<p><br /><span class="math display">$$\begin{align}
+  n_k &amp;= g_k, \\\\
+  n_{k-1} &amp;= g_{k-1} \oplus n_k = g_k \oplus g_{k-1}, \\\\
+  n_{k-2} &amp;= g_{k-2} \oplus n_{k-1} = g_k \oplus g_{k-1} \oplus g_{k-2}, \\\\
+  n_{k-3} &amp;= g_{k-3} \oplus n_{k-2} = g_k \oplus g_{k-1} \oplus g_{k-2} \oplus g_{k-3}, \\\\
+  \vdots
+\end{align}$$</span><br /></p>
+<p>The easiest way to write it in code is:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> rev_g (<span class="dt">int</span> g) {
+  <span class="dt">int</span> n = <span class="dv">0</span>;
+  <span class="kw">for</span> (; g; g &gt;&gt;= <span class="dv">1</span>)
+    n ^= g;
+  <span class="kw">return</span> n;
+}</code></pre></div>
+<h2 id="practical-applications">Practical applications</h2>
+<p>Gray codes have some useful applications, sometimes quite unexpected:</p>
+<ul>
+<li><p>Gray code of <span class="math inline"><em>n</em></span> bits forms a Hamiltonian cycle on a hypercube, where each bit corresponds to one dimension.</p></li>
+<li><p>Gray codes are used to minimize the errors in digital-to-analog signals conversion (for example, in sensors).</p></li>
+<li><p>Gray code can be used to solve the Towers of Hanoi problem. Let <span class="math inline"><em>n</em></span> denote number of disks. Start with Gray code of length <span class="math inline"><em>n</em></span> which consists of all zeroes (<span class="math inline"><em>G</em>(0)</span>) and move between consecutive Gray codes (from <span class="math inline"><em>G</em>(<em>i</em>)</span> to <span class="math inline"><em>G</em>(<em>i</em> + 1)</span>). Let <span class="math inline"><em>i</em></span>-th bit of current Gray code represent <span class="math inline"><em>n</em></span>-th disk (the least significant bit corresponds to the smallest disk and the most significant bit to the biggest disk). Since exactly one bit changes on each step, we can treat changing <span class="math inline"><em>i</em></span>-th bit as moving <span class="math inline"><em>i</em></span>-th disk. Notice that there is exactly one move option for each disk (except the smallest one) on each step (except start and finish positions). There are always two move options for the smallest disk but there is a strategy which will always lead to answer: if <span class="math inline"><em>n</em></span> is odd then sequence of the smallest disk moves looks like <span class="math inline"><em>f</em> → <em>t</em> → <em>r</em> → <em>f</em> → <em>t</em> → <em>r</em> → ...</span> where <span class="math inline"><em>f</em></span> is the initial rod, <span class="math inline"><em>t</em></span> is the terminal rod and <span class="math inline"><em>r</em></span> is the remaining rod), and if <span class="math inline"><em>n</em></span> is even: <span class="math inline"><em>f</em> → <em>r</em> → <em>t</em> → <em>f</em> → <em>r</em> → <em>t</em> → ...</span>.</p></li>
+<li><p>Gray codes are also used in genetic algorithms theory.</p></li>
+</ul>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li>&lt;a href=&quot;http://acm.sgu.ru/problem.php?contest=0&amp;problem=249&quot;&gt;SGU #249 <b>&quot;Matrix&quot;</b>      [Difficulty: medium]</a></li>
+</ul>
+</body>
+</html>

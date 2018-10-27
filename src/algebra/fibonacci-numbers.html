@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Fibonacci Numbers -->
+<h1 id="fibonacci-numbers">Fibonacci Numbers</h1>
+<p>The Fibonacci sequence is defined as follows:</p>
+<p><br /><span class="math display"><em>F</em><sub>0</sub> = 0, <em>F</em><sub>1</sub> = 1, <em>F</em><sub><em>n</em></sub> = <em>F</em><sub><em>n</em> − 1</sub> + <em>F</em><sub><em>n</em> − 2</sub></span><br /></p>
+<p>The first elements of the sequence (<a href="http://oeis.org/A000045">OEIS A000045</a>) are:</p>
+<p><br /><span class="math display">0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ...</span><br /></p>
+<h2 id="properties">Properties</h2>
+<p>Fibonacci numbers possess a lot of interesting properties. Here are a few of them:</p>
+<ul>
+<li><p>Cassini's identity: <br /><span class="math display"><em>F</em><sub><em>n</em> − 1</sub><em>F</em><sub><em>n</em> + 1</sub> − <em>F</em><sub><em>n</em></sub><sup>2</sup> = ( − 1)<sup><em>n</em></sup></span><br /></p></li>
+<li><p>The &quot;addition&quot; rule: <br /><span class="math display"><em>F</em><sub><em>n</em> + <em>k</em></sub> = <em>F</em><sub><em>k</em></sub><em>F</em><sub><em>n</em> + 1</sub> + <em>F</em><sub><em>k</em> − 1</sub><em>F</em><sub><em>n</em></sub></span><br /></p></li>
+<li><p>Applying the previous identity to the case <span class="math inline"><em>k</em> = <em>n</em></span>, we get: <br /><span class="math display"><em>F</em><sub>2<em>n</em></sub> = <em>F</em><sub><em>n</em></sub>(<em>F</em><sub><em>n</em> + 1</sub> + <em>F</em><sub><em>n</em> − 1</sub>)</span><br /></p></li>
+<li><p>From this we can prove by induction that for any positive integer <span class="math inline"><em>k</em></span>, <span class="math inline"><em>F</em><sub><em>n</em><em>k</em></sub></span> is multiple of <span class="math inline"><em>F</em><sub><em>n</em></sub></span>.</p></li>
+<li><p>The inverse is also true: if <span class="math inline"><em>F</em><sub><em>m</em></sub></span> is multiple of <span class="math inline"><em>F</em><sub><em>n</em></sub></span>, then <span class="math inline"><em>m</em></span> is multiple of <span class="math inline"><em>n</em></span>.</p></li>
+<li><p>GCD identity: <br /><span class="math display"><em>G</em><em>C</em><em>D</em>(<em>F</em><sub><em>m</em></sub>, <em>F</em><sub><em>n</em></sub>)=<em>F</em><sub><em>G</em><em>C</em><em>D</em>(<em>m</em>, <em>n</em>)</sub></span><br /></p></li>
+<li><p>Fibonacci numbers are the worst possible inputs for Euclidean algorithm (see Lame's theorem in <a href="./algebra/euclid-algorithm.html">Euclidean algorithm</a>)</p></li>
+</ul>
+<h2 id="fibonacci-coding">Fibonacci Coding</h2>
+<p>We can use the sequence to encode positive integers into binary code words. According to Zeckendorf's theorem, any natural number <span class="math inline"><em>n</em></span> can be uniquely represented as a sum of Fibonacci numbers:</p>
+<p><br /><span class="math display"><em>N</em> = <em>F</em><sub><em>k</em><sub>1</sub></sub> + <em>F</em><sub><em>k</em><sub>2</sub></sub> + … + <em>F</em><sub><em>k</em><sub><em>r</em></sub></sub></span><br /></p>
+<p>such that <span class="math inline"><em>k</em><sub>1</sub> ≥ <em>k</em><sub>2</sub> + 2,  <em>k</em><sub>2</sub> ≥ <em>k</em><sub>3</sub> + 2,  …, <em>k</em><sub><em>r</em></sub> ≥ 2</span> (i.e.: the representation cannot use two consecutive Fibonacci numbers).</p>
+<p>It follows that any number can be uniquely encoded in the Fibonacci coding, for example:</p>
+<p><br /><span class="math display">$$\begin{eqnarray}
+1 &amp;=&amp; 1 &amp;=&amp; F_2 &amp;=&amp; (11)_F \\\
+2 &amp;=&amp; 2 &amp;=&amp; F_3 &amp;=&amp; (011)_F \\\
+6 &amp;=&amp; 5 + 1 &amp;=&amp; F_5 + F_2 &amp;=&amp; (10011)_F \\\
+8 &amp;=&amp; 8 &amp;=&amp; F_6 &amp;=&amp; (000011)_F \\\
+9 &amp;=&amp; 8 + 1 &amp;=&amp; F_6 + F_2 &amp;=&amp; (100011)_F \\\
+19 &amp;=&amp; 13 + 5 + 1 &amp;=&amp; F_7 + F_5 + F_2 &amp;=&amp; (1010011)_F
+\end{eqnarray}$$</span><br /></p>
+<p>and there are no consecutive 1-bits, except for the ending <span class="math inline">1</span> bit, which simply indicates the end of the code word.</p>
+<p>The encoding of an integer <span class="math inline"><em>n</em></span> can be done with a simple greedy algorithm:</p>
+<ol style="list-style-type: decimal">
+<li><p>Iterate through the Fibonacci numbers from the largest to the smallest until you find one less than or equal to <span class="math inline"><em>n</em></span>.</p></li>
+<li><p>Suppose this number was <span class="math inline"><em>F</em><sub><em>i</em></sub></span>. Subtract <span class="math inline"><em>F</em><sub><em>i</em></sub></span> from <span class="math inline"><em>n</em></span> and put a <span class="math inline">1</span> in the <span class="math inline"><em>i</em> − 2</span> position of the code word (indexing from 0 from the leftmost to the rightmost bit).</p></li>
+<li><p>Repeat until there is no remainder.</p></li>
+<li><p>Add a final <span class="math inline">1</span> to the codeword to indicate its end.</p></li>
+</ol>
+<p>To decode a code word, first remove the final <span class="math inline">1</span>. Then, if the <span class="math inline"><em>i</em></span>-th bit is set (indexing from 0 from the leftmost to the rightmost bit), sum <span class="math inline"><em>F</em><sub><em>i</em> + 2</sub></span> to the number.</p>
+<h2 id="formulas-for-the-n-th-fibonacci-number">Formulas for the n-th Fibonacci number</h2>
+<p>The <span class="math inline"><em>n</em></span>-th Fibonacci number can be easily found in <span class="math inline"><em>O</em>(<em>n</em>)</span> by computing the numbers one by one up to <span class="math inline"><em>n</em></span>. However, there are also faster ways, as we will see.</p>
+<h3 id="closed-form-expression">Closed-form expression</h3>
+<p>There is a formula known as &quot;Binet's formula&quot;, even though it was already known by Moivre:</p>
+<p><br /><span class="math display">$$F_n = \frac{\left(\frac{1 + \sqrt{5}}{2}\right)^n - \left(\frac{1 - \sqrt{5}}{2}\right)^n}{\sqrt{5}}$$</span><br /></p>
+<p>This formula is easy to prove by induction, but it can be deduced with the help of the concept of generating functions or by solving a functional equation.</p>
+<p>You can immediately notice that the second term's absolute value is always less than <span class="math inline">1</span>, and it also decreases very rapidly (exponentially). Hence the value of the first term alone is &quot;almost&quot; <span class="math inline"><em>F</em><sub><em>n</em></sub></span>. This can be written strictly as:</p>
+<p><br /><span class="math display">$$F_n = \left[\frac{\left(\frac{1 + \sqrt{5}}{2}\right)^n}{\sqrt{5}}\right]$$</span><br /></p>
+<p>where the square brackets denote rounding to the nearest integer.</p>
+<p>As these two formulas would require very high accuracy when working with fractional numbers, they are of little use in practical calculations.</p>
+<h3 id="matrix-form">Matrix form</h3>
+<p>It is easy to prove the following relation:</p>
+<p><br /><span class="math display">$$\begin{pmatrix}F_{n-1} &amp; F_{n} \cr\end{pmatrix} = \begin{pmatrix}F_{n-2} &amp; F_{n-1} \cr\end{pmatrix} \cdot \begin{pmatrix}0 &amp; 1 \cr 1 &amp; 1 \cr\end{pmatrix}$$</span><br /></p>
+<p>Denoting <span class="math inline">$P \equiv \begin{pmatrix}0 &amp; 1 \cr 1 &amp; 1 \cr\end{pmatrix}$</span>, we have:</p>
+<p><br /><span class="math display">$$\begin{pmatrix}F_n &amp; F_{n+1} \cr\end{pmatrix} = \begin{pmatrix}F_0 &amp; F_1 \cr\end{pmatrix} \cdot P^n$$</span><br /></p>
+<p>Thus, in order to find <span class="math inline"><em>F</em><sub><em>n</em></sub></span>, we must raise the matrix <span class="math inline"><em>P</em></span> to <span class="math inline"><em>n</em></span>. This can be done in <span class="math inline"><em>O</em>(log<em>n</em>)</span> (see <a href="./algebra/binary-exp.html">Binary exponentiation</a>).</p>
+<h3 id="fast-doubling-method">Fast Doubling Method</h3>
+<p>Using above method we can find these equations: <br /><span class="math display">$$ \begin{array}{rll}
+                        F_{2k} &amp;= F_k \left( 2F_{k+1} - F_{k} \right). \\\
+                        F_{2k+1} &amp;= F_{k+1}^2 + F_{k}^2.
+\end{array}$$</span><br /> Thus using above two equations Fibonacci numbers can be calculated easily by the following code:</p>
+<p>The above code returns <span class="math inline"><em>F</em><sub><em>n</em></sub></span> and <span class="math inline"><em>F</em><sub><em>n</em> + 1</sub></span> as a pair.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">pair&lt;<span class="dt">int</span>, <span class="dt">int</span>&gt; fib (<span class="dt">int</span> n) {
+    <span class="kw">if</span> (n == <span class="dv">0</span>)
+        <span class="kw">return</span> {<span class="dv">0</span>, <span class="dv">1</span>};
+
+    <span class="kw">auto</span> p = fib(n &gt;&gt; <span class="dv">1</span>);
+    <span class="dt">int</span> c = p.first * (<span class="dv">2</span> * p.second - p.first);
+    <span class="dt">int</span> d = p.first * p.first + p.second * p.second;
+    <span class="kw">if</span> (n &amp; <span class="dv">1</span>)
+        <span class="kw">return</span> {d, c + d};
+    <span class="kw">else</span>
+        <span class="kw">return</span> {c, d};
+}</code></pre></div>
+<h2 id="periodicity-modulo-p">Periodicity modulo p</h2>
+<p>Consider the Fibonacci sequence modulo <span class="math inline"><em>p</em></span>. We will prove the sequence is periodic and the period begins with <span class="math inline"><em>F</em><sub>1</sub> = 1</span> (that is, the pre-period contains only <span class="math inline"><em>F</em><sub>0</sub></span>).</p>
+<p>Let us prove this by contradiction. Consider the first <span class="math inline"><em>p</em><sup>2</sup> + 1</span> pairs of Fibonacci numbers taken modulo <span class="math inline"><em>p</em></span>:</p>
+<p><br /><span class="math display">(<em>F</em><sub>1</sub>,  <em>F</em><sub>2</sub>), (<em>F</em><sub>2</sub>,  <em>F</em><sub>3</sub>), …, (<em>F</em><sub><em>p</em><sup>2</sup> + 1</sub>,  <em>F</em><sub><em>p</em><sup>2</sup> + 2</sub>)</span><br /></p>
+<p>There can only be <span class="math inline"><em>p</em></span> different remainders modulo <span class="math inline"><em>p</em></span>, and at most <span class="math inline"><em>p</em><sup>2</sup></span> different remainders, so there are at least two identical pairs among them. Thus the sequence is periodic.</p>
+<p>We now choose two pairs of identical remainders with the smallest indices in the sequence. Let the pairs be <span class="math inline">(<em>F</em><sub><em>a</em></sub>,  <em>F</em><sub><em>a</em> + 1</sub>)</span> and <span class="math inline">(<em>F</em><sub><em>b</em></sub>,  <em>F</em><sub><em>b</em> + 1</sub>)</span>. We will prove that <span class="math inline"><em>a</em> = 1</span>. If this was false, there would be two previous pairs <span class="math inline">(<em>F</em><sub><em>a</em> − 1</sub>,  <em>F</em><sub><em>a</em></sub>)</span> and <span class="math inline">(<em>F</em><sub><em>b</em> − 1</sub>,  <em>F</em><sub><em>b</em></sub>)</span>, which, by the property of Fibonacci numbers, would also be equal. However, this contradicts the fact that we had chosen pairs with the smallest indices, completing our proof.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/MAIN74/">SPOJ - Euclid Algorithm Revisited</a></li>
+<li><a href="http://www.spoj.com/problems/FIBOSUM/">SPOJ - Fibonacci Sum</a></li>
+<li><a href="https://www.hackerrank.com/contests/codesprint5/challenges/is-fibo/problem">HackerRank - Is Fibo</a></li>
+<li><a href="https://www.hackerrank.com/contests/projecteuler/challenges/euler002/problem">Project Euler - Even Fibonacci numbers</a></li>
+</ul>
+</body>
+</html>

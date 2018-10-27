@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Demo Article-->
+<h1 id="demo-article">Demo Article</h1>
+<p><em>You can <a href="https://raw.githubusercontent.com/e-maxx-eng/e-maxx-eng/master/src/demo-article.md">see the source of this article</a> to better understand formatting features.</em></p>
+<p>The header is made of line starting with <code>#</code> (hash) symbol. Note that also we need to add a magical <code>?title</code> comment which defines the title of the resulting HTML page for browser and search engines (see the source of this page - it is in the top).</p>
+<p>Text is written in paragraphs, separated with empty lines. Line breaks in paragraphs are regarded as ordinary spaces. If you add a couple of extra spaces in the line end, they will create &quot;hard line-break&quot; in that place.</p>
+<p>The code snippets are created of blocks indented with 4 spaces:</p>
+<pre><code>#include &lt;stdio.h&gt;
+int main() {
+    printf(&quot;Hello, World\n&quot;);
+}</code></pre>
+<p>For long blocks it would be good to add &quot;show/hide&quot; button. It is created by adding small magic span in the end of the preceding paragraph <span class="toggle-code">Show/Hide</span></p>
+<pre><code>int phi(int n) {
+    int result = n;
+    for(int i = 2; i * i &lt;= n; ++i)
+        if(n % i == 0) {
+            while(n % i == 0)
+                n /= i;
+            result -= result / i;
+        }
+    if(n &gt; 1)
+        result -= result / n;
+    return result;
+}</code></pre>
+<h3 id="tex-and-markdown-references">TeX and Markdown references</h3>
+<p>We use <a href="https://daringfireball.net/projects/markdown">Markdown</a> for source texts and convert them automatically to HTML. Some <a href="https://michelf.ca/projects/php-markdown/extra/">extra</a> features also could be used.</p>
+<p>Formulas could be added thanks to <code>MathJax</code> library. Simply use <code>TeX</code> expressions inside single or double dollar marks <code>$</code>, for example:</p>
+<p>here is an inline equation: <span class="math inline"><em>P</em> ≠ <em>N</em><em>P</em></span></p>
+<p>And here is the formula in the separate block:</p>
+<p><br /><span class="math display"><em>E</em> = <em>m</em><em>c</em><sup>2</sup></span><br /></p>
+<h3 id="adding-images">Adding images</h3>
+<p>Small images could be pushed along with texts to the <a href="https://github.com/e-maxx-eng/e-maxx-eng/tree/master/img">/img</a> subfolder. Let them be in <code>PNG</code> format and less than <code>200kb</code>. Then you can refer to them inside the article like this (see the source here):</p>
+<div class="figure">
+<img src="&amp;imgroot&amp;/search-bridge-formula.png" alt="some image description" />
+<p class="caption">some image description</p>
+</div>
+<p>Note that file name is prefixed with <code>imgroot</code> variable (in ampersands) which will expand to proper url prefix when shown at the site (so you need not know the precise prefix of github raw data). It would be good if you use it instead of full path urls.</p>
+<p>Larger images should be posted to some image-hosting, like <a href="http://postimage.org">PostImage</a> or <a href="http://imgur.com/">ImgUr</a> - they will then give you the url to insert into the page.</p>
+<p>You can also embed videos from youtube, as it is done in the <a href="./contrib.html">contrib.md</a> file.</p>
+</body>
+</html>

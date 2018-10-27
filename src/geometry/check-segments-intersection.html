@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Check if two segments intersect -->
+<h1 id="check-if-two-segments-intersect">Check if two segments intersect</h1>
+<p>You are given two segments <span class="math inline">(<em>a</em>, <em>b</em>)</span> and <span class="math inline">(<em>c</em>, <em>d</em>)</span>. You have to check if they intersect. Of course, you may find their intersection and check if it isn't empty, but this can't be done in integers for segments with integer coordinates. The approach described here can work in integers.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>Firstly, consider the case when the segments are part of the same line. In this case it is sufficient to check if their projections on <span class="math inline"><em>O</em><em>x</em></span> and <span class="math inline"><em>O</em><em>y</em></span> intersect. In the other case <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> must not lie on the same side of line <span class="math inline">(<em>c</em>, <em>d</em>)</span>, and <span class="math inline"><em>c</em></span> and <span class="math inline"><em>d</em></span> must not lie on the same side of line <span class="math inline">(<em>a</em>, <em>b</em>)</span>. It can be checked with a couple of cross products.</p>
+<h2 id="implementation">Implementation</h2>
+<p>The given algorithm is implemented for integer points. Of course, it can be easily modified to work with doubles.</p>
+<p>```cpp check-segments-inter struct pt { long long x, y; pt() {} pt(long long _x, long long _y) : x(_x), y(_y) {} pt operator-(const pt&amp; p) const { return pt(x - p.x, y - p.y); } long long cross(const pt&amp; p) const { return x * p.y - y * p.x; } long long cross(const pt&amp; a, const pt&amp; b) const { return (a - <em>this).cross(b - </em>this); } };</p>
+<p>int sgn(const long long&amp; x) { return x &gt;= 0 ? x ? 1 : 0 : -1; }</p>
+<p>bool inter1(long long a, long long b, long long c, long long d) { if (a &gt; b) swap(a, b); if (c &gt; d) swap(c, d); return max(a, c) &lt;= min(b, d); }</p>
+<p>bool check_inter(const pt&amp; a, const pt&amp; b, const pt&amp; c, const pt&amp; d) { if (c.cross(a, d) == 0 &amp;&amp; c.cross(b, d) == 0) return inter1(a.x, b.x, c.x, d.x) &amp;&amp; inter1(a.y, b.y, c.y, d.y); return sgn(a.cross(b, c)) != sgn(a.cross(b, d)) &amp;&amp; sgn(c.cross(d, a)) != sgn(c.cross(d, b)); } ```</p>
+</body>
+</html>

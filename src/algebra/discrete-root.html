@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Discrete Root -->
+<h1 id="discrete-root">Discrete Root</h1>
+<p>The problem of finding discrete root is defined as follows. Given a prime <span class="math inline"><em>n</em></span> and two integers <span class="math inline"><em>a</em></span> and <span class="math inline"><em>k</em></span>, find all <span class="math inline"><em>x</em></span> for which:</p>
+<p><span class="math inline">$x^k \equiv a \pmod n$</span></p>
+<h2 id="the-algorithm">The algorithm</h2>
+<p>We will solve this problem by reducing it to the <a href="./algebra/discrete-log.html">discrete logarithm problem</a>.</p>
+<p>Let's apply the concept of a <a href="./algebra/primitive-root.html">primitive root</a> modulo <span class="math inline"><em>n</em></span>. Let <span class="math inline"><em>g</em></span> be a primitive root modulo <span class="math inline"><em>n</em></span>. Note that since <span class="math inline"><em>n</em></span> is prime, it must exist, and it can be found in <span class="math inline"><em>O</em>(<em>A</em><em>n</em><em>s</em> ⋅ log<em>ϕ</em>(<em>n</em>)⋅log<em>n</em>)=<em>O</em>(<em>A</em><em>n</em><em>s</em> ⋅ log<sup>2</sup><em>n</em>)</span> plus time of factoring <span class="math inline"><em>ϕ</em>(<em>n</em>)</span>.</p>
+<p>We can easily discard the case where <span class="math inline"><em>a</em> = 0</span>. In this case, obviously there is only one answer: <span class="math inline"><em>x</em> = 0</span>.</p>
+<p>Since we jnow that <span class="math inline"><em>n</em></span> is a prime, any number between 1 and <span class="math inline"><em>n</em> − 1</span> can be represented as a power of the primitive root, and we can represent the discrete root problem as follows:</p>
+<p><span class="math inline">$(g^y)^k \equiv a \pmod n$</span></p>
+<p>where</p>
+<p><span class="math inline">$x \equiv g^y \pmod n$</span></p>
+<p>This, in turn, can be rewritten as</p>
+<p><span class="math inline">$(g^k)^y \equiv a \pmod n$</span></p>
+<p>Now we have one unknown <span class="math inline"><em>y</em></span>, which is a discrete logarithm problem. The solution can be found using Shanks' baby-step-giant-step algorithm in <span class="math inline">$O(\sqrt {n} \log n)$</span> (or we can verify that there are no solutions).</p>
+<p>Having found one solution <span class="math inline"><em>y</em><sub>0</sub></span>, one of solutions of discrete root problem will be <span class="math inline">$x_0 = g^{y_0} \pmod n$</span>.</p>
+<h2 id="finding-all-solutions-from-one-known-solution">Finding all solutions from one known solution</h2>
+<p>To solve the given problem in full, we need to find all solutions knowing one of them: <span class="math inline">$x_0 = g^{y_0} \pmod n$</span>.</p>
+<p>Let's recall the fact that a primitive root always has order of <span class="math inline"><em>ϕ</em>(<em>n</em>)</span>, i.e. the smallest power of <span class="math inline"><em>g</em></span> which gives 1 is <span class="math inline"><em>ϕ</em>(<em>n</em>)</span>. Therefore, if we add the term <span class="math inline"><em>ϕ</em>(<em>n</em>)</span> to the exponential, we still get the same value:</p>
+<p><span class="math inline">$x^k \equiv g^{ y_0 \cdot k + l \cdot \phi (n)} \equiv a \pmod n \forall l \in Z$</span></p>
+<p>Hence, all the solutions are of the form:</p>
+<p><span class="math inline">$x = g^{y_0 + \frac {l \cdot \phi (n)}{k}} \pmod n \forall l \in Z$</span>.</p>
+<p>where <span class="math inline"><em>l</em></span> is chosen such that the fraction must be an integer. For this to be true, the numerator has to be divisible by the least common multiple of <span class="math inline"><em>ϕ</em>(<em>n</em>)</span> and <span class="math inline"><em>k</em></span>. Remember that least common multiple of two numbers <span class="math inline">$lcm(a, b) = \frac{a \cdot b}{gcd(a, b)}$</span>; we'll get</p>
+<p><span class="math inline">$x = g^{y_0 + i \frac {\phi (n)}{gcd(k, \phi (n))}} \pmod n \forall i \in Z$</span>.</p>
+<p>This is the final formula for all solutions of discrete root problem.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Here is a full implementation, including routines for finding the primitive root, discrete log and finding and printing all solutions.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> gcd (<span class="dt">int</span> a, <span class="dt">int</span> b) {
+    <span class="kw">return</span> a ? gcd (b%a, a) : b;
+}
+ 
+<span class="dt">int</span> powmod (<span class="dt">int</span> a, <span class="dt">int</span> b, <span class="dt">int</span> p) {
+    <span class="dt">int</span> res = <span class="dv">1</span>;
+    <span class="kw">while</span> (b)
+        <span class="kw">if</span> (b &amp; <span class="dv">1</span>)
+            res = <span class="dt">int</span> (res * <span class="dv">1ll</span> * a % p),  --b;
+        <span class="kw">else</span>
+            a = <span class="dt">int</span> (a * <span class="dv">1ll</span> * a % p),  b &gt;&gt;= <span class="dv">1</span>;
+    <span class="kw">return</span> res;
+}
+ 
+<span class="dt">int</span> generator (<span class="dt">int</span> p) {
+    vector&lt;<span class="dt">int</span>&gt; fact;
+    <span class="dt">int</span> phi = p<span class="dv">-1</span>,  n = phi;
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">2</span>; i*i&lt;=n; ++i)
+        <span class="kw">if</span> (n % i == <span class="dv">0</span>) {
+            fact.push_back (i);
+            <span class="kw">while</span> (n % i == <span class="dv">0</span>)
+                n /= i;
+        }
+    <span class="kw">if</span> (n &gt; <span class="dv">1</span>)
+        fact.push_back (n);
+ 
+    <span class="kw">for</span> (<span class="dt">int</span> res=<span class="dv">2</span>; res&lt;=p; ++res) {
+        <span class="dt">bool</span> ok = <span class="kw">true</span>;
+        <span class="kw">for</span> (size_t i=<span class="dv">0</span>; i&lt;fact.size() &amp;&amp; ok; ++i)
+            ok &amp;= powmod (res, phi / fact[i], p) != <span class="dv">1</span>;
+        <span class="kw">if</span> (ok)  <span class="kw">return</span> res;
+    }
+    <span class="kw">return</span> <span class="dv">-1</span>;
+}
+ 
+<span class="dt">int</span> main() {
+ 
+    <span class="dt">int</span> n, k, a;
+    cin &gt;&gt; n &gt;&gt; k &gt;&gt; a;
+    <span class="kw">if</span> (a == <span class="dv">0</span>) {
+        puts (<span class="st">&quot;1</span><span class="ch">\n</span><span class="st">0&quot;</span>);
+        <span class="kw">return</span> <span class="dv">0</span>;
+    }
+ 
+    <span class="dt">int</span> g = generator (n);
+ 
+    <span class="dt">int</span> sq = (<span class="dt">int</span>) sqrt (n + <span class="fl">.0</span>) + <span class="dv">1</span>;
+    vector &lt; pair&lt;<span class="dt">int</span>,<span class="dt">int</span>&gt; &gt; dec (sq);
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">1</span>; i&lt;=sq; ++i)
+        dec[i<span class="dv">-1</span>] = make_pair (powmod (g, <span class="dt">int</span> (i * sq * <span class="dv">1ll</span> * k % (n - <span class="dv">1</span>)), n), i);
+    sort (dec.begin(), dec.end());
+    <span class="dt">int</span> any_ans = <span class="dv">-1</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;sq; ++i) {
+        <span class="dt">int</span> my = <span class="dt">int</span> (powmod (g, <span class="dt">int</span> (i * <span class="dv">1ll</span> * k % (n - <span class="dv">1</span>)), n) * <span class="dv">1ll</span> * a % n);
+        vector &lt; pair&lt;<span class="dt">int</span>,<span class="dt">int</span>&gt; &gt;::iterator it =
+            lower_bound (dec.begin(), dec.end(), make_pair (my, <span class="dv">0</span>));
+        <span class="kw">if</span> (it != dec.end() &amp;&amp; it-&gt;first == my) {
+            any_ans = it-&gt;second * sq - i;
+            <span class="kw">break</span>;
+        }
+    }
+    <span class="kw">if</span> (any_ans == <span class="dv">-1</span>) {
+        puts (<span class="st">&quot;0&quot;</span>);
+        <span class="kw">return</span> <span class="dv">0</span>;
+    }
+ 
+    <span class="dt">int</span> delta = (n<span class="dv">-1</span>) / gcd (k, n<span class="dv">-1</span>);
+    vector&lt;<span class="dt">int</span>&gt; ans;
+    <span class="kw">for</span> (<span class="dt">int</span> cur=any_ans%delta; cur&lt;n<span class="dv">-1</span>; cur+=delta)
+        ans.push_back (powmod (g, cur, n));
+    sort (ans.begin(), ans.end());
+    printf (<span class="st">&quot;</span><span class="ch">%d\n</span><span class="st">&quot;</span>, ans.size());
+    <span class="kw">for</span> (size_t i=<span class="dv">0</span>; i&lt;ans.size(); ++i)
+        printf (<span class="st">&quot;</span><span class="ch">%d</span><span class="st"> &quot;</span>, ans[i]);
+ 
+}</code></pre></div>
+</body>
+</html>

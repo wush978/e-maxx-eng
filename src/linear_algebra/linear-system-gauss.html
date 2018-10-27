@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Gauss method for solving system of linear equations -->
+<h1 id="gauss-method-for-solving-system-of-linear-equations">Gauss method for solving system of linear equations</h1>
+<p>Given a system of <span class="math inline"><em>n</em></span> linear algebraic equations (SLAE) with <span class="math inline"><em>m</em></span> unknowns. You are asked to solve the system: to determine if it has no solution, exactly one solution or infinite number of solutions. And in case it has at least one solution, find any of them.</p>
+<p>Formally, the problem is formulated as follows: solve the system:</p>
+<p><br /><span class="math display"><em>a</em><sub>11</sub><em>x</em><sub>1</sub> + <em>a</em><sub>12</sub><em>x</em><sub>2</sub> + … + <em>a</em><sub>1<em>m</em></sub><em>x</em><sub><em>m</em></sub> = <em>b</em><sub>1</sub></span><br /> <br /><span class="math display"><em>a</em><sub>21</sub><em>x</em><sub>1</sub> + <em>a</em><sub>22</sub><em>x</em><sub>2</sub> + … + <em>a</em><sub>2<em>m</em></sub><em>x</em><sub><em>m</em></sub> = <em>b</em><sub>2</sub></span><br /> <br /><span class="math display">…</span><br /> <br /><span class="math display"><em>a</em><sub><em>n</em>1</sub><em>x</em><sub>1</sub> + <em>a</em><sub><em>n</em>2</sub><em>x</em><sub>2</sub> + … + <em>a</em><sub><em>n</em><em>m</em></sub><em>x</em><sub><em>m</em></sub> = <em>b</em><sub><em>n</em></sub></span><br /></p>
+<p>where the coefficients <span class="math inline"><em>a</em><sub><em>i</em><em>j</em></sub></span> (for <span class="math inline"><em>i</em></span> from 1 to <span class="math inline"><em>n</em></span>, <span class="math inline"><em>j</em></span> from 1 to <span class="math inline"><em>m</em></span>) and <span class="math inline"><em>b</em><sub><em>i</em></sub></span> (<span class="math inline"><em>i</em></span> from 1 to <span class="math inline"><em>n</em></span> are known and variables <span class="math inline"><em>x</em><sub><em>i</em></sub></span> (<span class="math inline"><em>i</em></span> from 1 to <span class="math inline"><em>m</em></span>) are unknowns.</p>
+<p>This problem also has a simple matrix representation: <br /><span class="math display"><em>A</em><em>x</em> = <em>b</em></span><br />, where <span class="math inline"><em>A</em></span> is a matrix of size <span class="math inline"><em>n</em> × <em>m</em></span> of coefficients <span class="math inline"><em>a</em><sub><em>i</em><em>j</em></sub></span> and <span class="math inline"><em>b</em></span> is the column vector of size <span class="math inline"><em>m</em></span>.</p>
+<p>It is worth noting that the method presented in this article can also be used to solve the equation modulo any number p, i.e.:</p>
+<p><br /><span class="math display">$$a_{11} x_1 + a_{12} x_2 + \dots + a_{1m} x_m \equiv b_1 \pmod p$$</span><br /> <br /><span class="math display">$$a_{21} x_1 + a_{22} x_2 + \dots + a_{2m} x_m \equiv b_2 \pmod p$$</span><br /> <br /><span class="math display">…</span><br /> <br /><span class="math display">$$a_{n1} x_1 + a_{n2} x_2 + \dots + a_{nm} x_m \equiv b_n \pmod p$$</span><br /></p>
+<h2 id="gauss">Gauss</h2>
+<p>Strictly speaking, the method described below should be called &quot;Gauss-Jordan&quot;, or Gauss-Jordan elimination, because it is a variation of the Gauss method, described by Jordan in 1887.</p>
+<h2 id="overview">Overview</h2>
+<p>The algorithm is a <code>sequential elimination</code> of the variables in each equation, until each equation will have only one remaining variable. If <span class="math inline"><em>n</em> = <em>m</em></span>, you can think of it as transforming the matrix <span class="math inline"><em>A</em></span> to identity matrix, and solve the equation in this obvious case, where solution is unique and is equal to coefficient <span class="math inline"><em>b</em><sub><em>i</em></sub></span>.</p>
+<p>Gaussian elimination is based on two simple transformation: * It is possible to exchange two equations * Any equation can be replaced by a linear combination of the that row (with non-zero coefficient), and some other rows (with arbitrary coefficients).</p>
+<p>In the first step, Gauss-Jordan algorithm divides the first row by <span class="math inline"><em>a</em><sub>11</sub></span>. Then, the algorithm adds the first row to the remaining rows such that the coefficients in the first column becomes all zeros. To achieve this, on the i-th row, we must add the first row multiplied by <span class="math inline">−<em>a</em><sub><em>i</em>1</sub></span>. Note that, this operation must also be performed on vector <span class="math inline"><em>b</em></span>. In a sense, it behaves as if vector <span class="math inline"><em>b</em></span> was the <span class="math inline"><em>m</em> + 1</span>-th column of matrix <span class="math inline"><em>A</em></span>.</p>
+<p>As a result, after the first step, the first column of matrix <span class="math inline"><em>A</em></span> will consists of <span class="math inline">1</span> on the first row, and <span class="math inline">0</span> in other rows.</p>
+<p>Similarly, we perform the second step of the algorithm, where we consider the second column of second row. First, the row is divided by <span class="math inline"><em>a</em><sub>22</sub></span>, then it is subtracted from other rows so that all the second column becomes <span class="math inline">0</span> (except for the second row).</p>
+<p>We continue this process for all columns of matrix <span class="math inline"><em>A</em></span>. If <span class="math inline"><em>n</em> = <em>m</em></span>, then <span class="math inline"><em>A</em></span> will become identity matrix.</p>
+<h2 id="search-for-the-pivoting-element">Search for the pivoting element</h2>
+<p>The described scheme left out many details. At the <span class="math inline"><em>i</em></span>th step, if <span class="math inline"><em>a</em><sub><em>i</em><em>i</em></sub></span> is zero, we cannot apply directly the described method. Instead, we must first <code>select a pivoting row</code>: find one row of the matrix where the <span class="math inline"><em>i</em></span>th column is non-zero, and then swap the two rows.</p>
+<p>Note that, here we swap rows but not columns. This is because if you swap columns, then when you find a solution, you must remember to swap back to correct places. Thus, swapping rows is much easier to do.</p>
+<p>In many implementations, when <span class="math inline"><em>a</em><sub><em>i</em><em>i</em></sub> ≠ 0</span>, you can see people still swap the <span class="math inline"><em>i</em></span>th row with some pivoting row, using some heuristics such as choosing the pivoting row with maximum absolute value of <span class="math inline"><em>a</em><sub><em>j</em><em>i</em></sub></span>. This heuristic is used to reduce the value range of the matrix in later step. Without this heuristic, even for matrices of size about <span class="math inline">20</span>, the error will be too big and can cause overflow for floating points data types of C++.</p>
+<h2 id="degenerate-cases">Degenerate cases</h2>
+<p>In the case where <span class="math inline"><em>m</em> = <em>n</em></span> and the system is degenerate (i.e. it has non-zero determinant, and has unique solution), the algorithm described above will transform <span class="math inline"><em>A</em></span> into identity matrix.</p>
+<p>Now we consider the <code>general case</code>, where <span class="math inline"><em>n</em></span> and <span class="math inline"><em>m</em></span> are not necessarily equal, and the system can be non-degenerate. In these cases, the pivoting element in <span class="math inline"><em>i</em></span>th step may not be found. This means that on the <span class="math inline"><em>i</em></span>th column, starting from the current line, all contains zeros. In this case, either there is no possible value of variable <span class="math inline"><em>x</em><sub><em>i</em></sub></span> (meaning the SLAE has no solution), or <span class="math inline"><em>x</em><sub><em>i</em></sub></span> is an independent variable and can take arbitrary value. When implementing Gauss-Jordan, you should continue the work for subsequent variables and just skip the <span class="math inline"><em>i</em></span>th column (this is equivalent to removing the <span class="math inline"><em>i</em></span>th column of the matrix).</p>
+<p>So, some of the variables in the process can be found to be independent. When the number of variables, <span class="math inline"><em>m</em></span> is greater than the number of equations, <span class="math inline"><em>n</em></span>, then at least <span class="math inline"><em>m</em> − <em>n</em></span> independent variables will be found.</p>
+<p>In general, if you find at least on independent variable, it can take any arbitrary value, while the other (dependent) variables are expressed through it. This means that when we work in the field of real numbers, the system potentially has infinitely many solutions. But you should remember that when there are independent variables, SLAE can have no solution at all. This happens when the remaining untreated equations has at least one non-zero constant term. You can check this by assigning zeros to all independent variables, calculate other variables, and then plug in to the original SLAE to check if they satisfies.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Following is an implementation of Gauss-Jordan. Choosing the pivot row is done with heuristic: choosing maximum value in the current column.</p>
+<p>The input to the function <code>gauss</code> is the system matrix <span class="math inline"><em>a</em></span>. The last column of this matrix is vector <span class="math inline"><em>b</em></span>.</p>
+<p>The function returns the number of solutions of the system <span class="math inline">(0, 1, or ∞)</span>. If at least one solution exists, then it is returned in the vector <span class="math inline"><em>a</em><em>n</em><em>s</em></span>.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> gauss (vector &lt; vector&lt;<span class="dt">double</span>&gt; &gt; a, vector&lt;<span class="dt">double</span>&gt; &amp; ans) {
+    <span class="dt">int</span> n = (<span class="dt">int</span>) a.size();
+    <span class="dt">int</span> m = (<span class="dt">int</span>) a[<span class="dv">0</span>].size() - <span class="dv">1</span>;
+
+    vector&lt;<span class="dt">int</span>&gt; where (m, <span class="dv">-1</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> col=<span class="dv">0</span>, row=<span class="dv">0</span>; col&lt;m &amp;&amp; row&lt;n; ++col) {
+        <span class="dt">int</span> sel = row;
+        <span class="kw">for</span> (<span class="dt">int</span> i=row; i&lt;n; ++i)
+            <span class="kw">if</span> (abs (a[i][col]) &gt; abs (a[sel][col]))
+                sel = i;
+        <span class="kw">if</span> (abs (a[sel][col]) &lt; EPS)
+            <span class="kw">continue</span>;
+        <span class="kw">for</span> (<span class="dt">int</span> i=col; i&lt;=m; ++i)
+            swap (a[sel][i], a[row][i]);
+        where[col] = row;
+
+        <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;n; ++i)
+            <span class="kw">if</span> (i != row) {
+                <span class="dt">double</span> c = a[i][col] / a[row][col];
+                <span class="kw">for</span> (<span class="dt">int</span> j=col; j&lt;=m; ++j)
+                    a[i][j] -= a[row][j] * c;
+            }
+        ++row;
+    }
+
+    ans.assign (m, <span class="dv">0</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;m; ++i)
+        <span class="kw">if</span> (where[i] != <span class="dv">-1</span>)
+            ans[i] = a[where[i]][m] / a[where[i]][i];
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;n; ++i) {
+        <span class="dt">double</span> sum = <span class="dv">0</span>;
+        <span class="kw">for</span> (<span class="dt">int</span> j=<span class="dv">0</span>; j&lt;m; ++j)
+            sum += ans[j] * a[i][j];
+        <span class="kw">if</span> (abs (sum - a[i][m]) &gt; EPS)
+            <span class="kw">return</span> <span class="dv">0</span>;
+    }
+
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;m; ++i)
+        <span class="kw">if</span> (where[i] == <span class="dv">-1</span>)
+            <span class="kw">return</span> INF;
+    <span class="kw">return</span> <span class="dv">1</span>;
+}</code></pre></div>
+<p>Implementation notes:</p>
+<ul>
+<li>The function uses two pointers - the current column <span class="math inline"><em>c</em><em>o</em><em>l</em></span> and the current row <span class="math inline"><em>r</em><em>o</em><em>w</em></span>.</li>
+<li>For each variable <span class="math inline"><em>x</em><sub><em>i</em></sub></span>, the value <span class="math inline"><em>w</em><em>h</em><em>e</em><em>r</em><em>e</em>(<em>i</em>)</span> is the line where this column is not zero. This vector is needed because some variables can be independent.</li>
+<li>In this implementation, the current <span class="math inline"><em>i</em></span>th line is not divided by <span class="math inline"><em>a</em><sub><em>i</em><em>i</em></sub></span> as described above, so in the end the matrix is not identity matrix (though apparently dividing the <span class="math inline"><em>i</em></span>th line can help reducing errors).</li>
+<li>After finding a solution, it is inserted back into the matrix - to check whether the system has at least one solution or not. If the test solution is successful, then the function returns 1 or <span class="math inline">inf</span>, depending on whether there is at least one independent variable.</li>
+</ul>
+<h2 id="complexity">Complexity</h2>
+<p>Now we should estimate the complexity of this algorithm. The algorithm consists of <span class="math inline"><em>m</em></span> phases, in each phase:</p>
+<ul>
+<li>Search and reshuffle the pivoting row. This takes <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>)</span> when using heuristic mentioned above.</li>
+<li>If there reference element in the current column is found - then we must add this equation to all other equations, which takes time <span class="math inline"><em>O</em>(<em>n</em><em>m</em>)</span>.</li>
+</ul>
+<p>So, the final complexity of the algorithm is <span class="math inline"><em>O</em>(min(<em>n</em>, <em>m</em>).<em>n</em><em>m</em>)</span>. In case <span class="math inline"><em>n</em> = <em>m</em></span>, the complexity is simply <span class="math inline"><em>O</em>(<em>n</em><sup>3</sup>)</span>.</p>
+<p>Note that when the SLAE is not on real numbers, but is in the modulo two, then the system can be solved much faster, which is described below.</p>
+<h2 id="acceleration-of-the-algorithm">Acceleration of the algorithm</h2>
+<p>The previous implementation can be speed up by two times, by dividing the algorithm into two phases: forward and reverse:</p>
+<ul>
+<li>Forward phase: Similar to the previous implementation, but the current row is only added to the rows after it. As a result, we obtain a triangular matrix instead of diagonal.</li>
+<li>Reverse phase: When the matrix is triangular, we first calculate the value of the last variable. Then plug this value to find the value of next variable. Then plug these two values to find the next variables...</li>
+</ul>
+<p>Reverse phase only takes <span class="math inline"><em>O</em>(<em>n</em><em>m</em>)</span>, which is much faster than forward phase. In forward phase, we reduce the number of operations by half, thus reducing the running time of the implementation.</p>
+<h2 id="solving-slae">Solving SLAE</h2>
+<p>For solving SLAE in some module, we can still use the described algorithm. However, in case the module is equal to two, we can perform Gauss-Jordan elimination much more effectively using bitwise operations and C++ bitset data types:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> gauss (vector &lt; bitset&lt;N&gt; &gt; a, <span class="dt">int</span> n, <span class="dt">int</span> m, bitset&lt;N&gt; &amp; ans) {
+    vector&lt;<span class="dt">int</span>&gt; where (m, <span class="dv">-1</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> col=<span class="dv">0</span>, row=<span class="dv">0</span>; col&lt;m &amp;&amp; row&lt;n; ++col) {
+        <span class="kw">for</span> (<span class="dt">int</span> i=row; i&lt;n; ++i)
+            <span class="kw">if</span> (a[i][col]) {
+                swap (a[i], a[row]);
+                <span class="kw">break</span>;
+            }
+        <span class="kw">if</span> (! a[row][col])
+            <span class="kw">continue</span>;
+        where[col] = row;
+
+        <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;n; ++i)
+            <span class="kw">if</span> (i != row &amp;&amp; a[i][col])
+                a[i] ^= a[row];
+        ++row;
+    }
+        <span class="co">// The rest of implementation is the same as above</span>
+}</code></pre></div>
+<p>Since we use bit compress, the implementation is not only shorter, but also 32 times faster.</p>
+<h2 id="a-little-note-about-different-heuristics-of-choosing-pivoting-row">A little note about different heuristics of choosing pivoting row</h2>
+<p>There is no general rule for what heuristics to use.</p>
+<p>The heuristics used in previous implementation works quite well in practice. It also turns out to give almost the same answers as &quot;full pivoting&quot; - where the pivoting row is search amongst all elements of the whose submatrix (from the current row and current column).</p>
+<p>Though, you should note that both heuristics is dependent on how much the original equations was scaled. For example, if one of the equation was multiplied by <span class="math inline">10<sup>6</sup></span>, then this equation is almost certain to be chosen as pivot in first step. This seems rather strange, so it seems logical to change to a more complicated heuristics, called <code>implicit pivoting</code>.</p>
+<p>Implicit pivoting compares elements as if both lines were normalized, so that the maximum element would be unity. To implement this technique, one need to maintain maximum in each row (or maintain each line so that maximum is unity, but this can lead to increase in the accumulated error).</p>
+<h2 id="improve-the-solution">Improve the solution</h2>
+<p>Despite various heuristics, Gauss-Jordan algorithm can still lead to large errors in special matrices even of size <span class="math inline">50 − 100</span>.</p>
+<p>Therefore, the resulting Gauss-Jordan solution must sometimes be improved by applying a simple numerical method - for example, the method of simple iteration.</p>
+<p>Thus, the solution turns into two-step: First, Gauss-Jordan algorithm is applied, and then a numerical method taking initial solution as solution in the first step.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/XMAX/">Spoj - Xor Maximization</a></li>
+<li><a href="https://www.codechef.com/SEP12/problems/KNGHTMOV">Codechef - Knight Moving</a></li>
+<li><a href="http://lightoj.com/volume_showproblem.php?problem=1279">Lightoj - Graph Coloring</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=4775">UVA 12910 - Snakes and Ladders</a></li>
+</ul>
+</body>
+</html>

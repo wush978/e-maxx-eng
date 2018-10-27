@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Modular Inverse -->
+<h1 id="modular-multiplicative-inverse">Modular Multiplicative Inverse</h1>
+<h2 id="definition">Definition</h2>
+<p>A <a href="http://en.wikipedia.org/wiki/Modular_multiplicative_inverse">modular multiplicative inverse</a> of an integer <span class="math inline"><em>a</em></span> is an integer <span class="math inline"><em>x</em></span> such that <span class="math inline"><em>a</em> ⋅ <em>x</em></span> is congruent to <span class="math inline">1</span> modular some modulus <span class="math inline"><em>m</em></span>. To write it in a formal way: we want to find an integer <span class="math inline"><em>x</em></span> so that <br /><span class="math display"><em>a</em> ⋅ <em>x</em> ≡ 1mod<em>m</em>.</span><br /> We will also denote <span class="math inline"><em>x</em></span> simply with <span class="math inline"><em>a</em><sup>−1</sup></span>.</p>
+<p>We should note that the modular inverse does not always exist. For example, let <span class="math inline"><em>m</em> = 4</span>, <span class="math inline"><em>a</em> = 2</span>. By checking all possible values modulo <span class="math inline"><em>m</em></span> is should become clear that we cannot find <span class="math inline"><em>a</em><sup>−1</sup></span> satisfying the above equation. It can be proven that the modular inverse exists if and only if <span class="math inline"><em>a</em></span> and <span class="math inline"><em>m</em></span> are relatively prime (i.e. <span class="math inline">gcd(<em>a</em>, <em>m</em>)=1</span>).</p>
+<p>In this article, we present two methods for finding the modular inverse in case it exists, and one method for finding the modular inverse for all numbers in linear time.</p>
+<h2 id="finding-the-modular-inverse-using-extended-euclidean-algorithm">Finding the Modular Inverse using Extended Euclidean algorithm</h2>
+<p>Consider the following equation (with unknown <span class="math inline"><em>x</em></span> and <span class="math inline"><em>y</em></span>):</p>
+<p><br /><span class="math display"><em>a</em> ⋅ <em>x</em> + <em>m</em> ⋅ <em>y</em> = 1</span><br /></p>
+<p>This is a <a href="./algebra/linear-diophantine-equation.html">Linear Diophantine equation in two variables</a>. As shown in the linked article, when <span class="math inline">gcd(<em>a</em>, <em>m</em>)=1</span>, the equation has a solution which can be found using the <a href="http://en.wikipedia.org/wiki/Extended_Euclidean_algorithm">extended Euclidean algorithm</a>. Note that <span class="math inline">gcd(<em>a</em>, <em>m</em>)=1</span> is also the condition for the modular inverse to exist.</p>
+<p>Now, if we take modulo <span class="math inline"><em>m</em></span> of both sides, we can get rid of <span class="math inline"><em>m</em> ⋅ <em>y</em></span>, and the equation becomes:</p>
+<p><br /><span class="math display"><em>a</em> ⋅ <em>x</em> ≡ 1mod<em>m</em></span><br /></p>
+<p>Thus, the modular inverse of <span class="math inline"><em>a</em></span> is <span class="math inline"><em>x</em></span>.</p>
+<p>The implementation is as follows:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> x, y;
+<span class="dt">int</span> g = extended_euclidean(a, m, x, y);
+<span class="kw">if</span> (g != <span class="dv">1</span>) {
+    cout &lt;&lt; <span class="st">&quot;No solution!&quot;</span>;
+}
+<span class="kw">else</span> {
+    x = (x % m + m) % m;
+    cout &lt;&lt; x &lt;&lt; endl;
+}</code></pre></div>
+<p>Notice that we way we modify <code>x</code>. The resulting <code>x</code> from the extended Euclidean algorithm may be negative, so <code>x % m</code> might also be negative, and we first have to add <code>m</code> to make it positive.</p>
+<h2 id="finding-the-modular-inverse-using-binary-exponentiation">Finding the Modular Inverse using Binary Exponentiation</h2>
+<p>Another method for finding modular inverse is to use Euler's theorem, which states that the following congruence is true if <span class="math inline"><em>a</em></span> and <span class="math inline"><em>m</em></span> are relatively prime:</p>
+<p><br /><span class="math display"><em>a</em><sup><em>ϕ</em>(<em>m</em>)</sup> ≡ 1mod<em>m</em></span><br /></p>
+<p><span class="math inline"><em>ϕ</em></span> is <a href="./algebra/phi-function.html">Euler's Totient function</a>. Again, note that <span class="math inline"><em>a</em></span> and <span class="math inline"><em>m</em></span> being relative prime was also the condition for the modular inverse to exist.</p>
+<p>If <span class="math inline"><em>m</em></span> is a prime number, this simplifies to <a href="http://en.wikipedia.org/wiki/Fermat&#39;s_little_theorem">Fermat's little theorem</a>:</p>
+<p><br /><span class="math display"><em>a</em><sup><em>m</em> − 1</sup> ≡ 1mod<em>m</em></span><br /></p>
+<p>Multiply both sides of the above equations by <span class="math inline"><em>a</em><sup>−1</sup></span>, and we get:</p>
+<ul>
+<li>For an arbitrary (but coprime) modulus <span class="math inline"><em>m</em></span>: <span class="math inline"><em>a</em><sup><em>ϕ</em>(<em>m</em>)−1</sup> ≡ <em>a</em><sup>−1</sup>mod<em>m</em></span></li>
+<li>For a prime modulus <span class="math inline"><em>m</em></span>: <span class="math inline"><em>a</em><sup><em>m</em> − 2</sup> ≡ <em>a</em><sup>−1</sup>mod<em>m</em></span></li>
+</ul>
+<p>From these results, we can easily find the modular inverse using the <a href="./algebra/binary-exp.html">binary exponentiation algorithm</a>, which works in <span class="math inline"><em>O</em>(log<em>m</em>)</span> time.</p>
+<p>Even though this method is easier to understand than the method described in previous paragraph, in the case when <span class="math inline"><em>m</em></span> is not a prime number, we need to calculate Euler phi function, which involves factorization of <span class="math inline"><em>m</em></span>, which might be very hard. If the prime factorization of <span class="math inline"><em>m</em></span> is known, then the complexity of this method is <span class="math inline"><em>O</em>(log<em>m</em>)</span>.</p>
+<h2 id="mod-inv-all-num">Finding the modular inverse for every number modulo <span class="math inline"><em>m</em></span></h2>
+<p>The problem is the following: we want to compute the modular inverse for every number in the range <span class="math inline">[1, <em>m</em> − 1]</span>.</p>
+<p>Applying the algorithms described in the previous sections, we can obtain a solution with complexity <span class="math inline"><em>O</em>(<em>m</em>log<em>m</em>)</span>.</p>
+<p>Here we present a better algorithm with complexity <span class="math inline"><em>O</em>(<em>m</em>)</span>. However for this specific algorithm we require that the modulus <span class="math inline"><em>m</em></span> is prime.</p>
+<p>We denote by <span class="math inline">inv[<em>i</em>]</span> the modular inverse of <span class="math inline"><em>i</em></span>. Then for <span class="math inline"><em>i</em> &gt; 1</span> the following equation is valid:</p>
+<p><br /><span class="math display">$$\text{inv}[i] = - \left\lfloor \frac{m}{i} \right\rfloor \cdot \text{inv}[m \bmod i] \bmod m$$</span><br /></p>
+<p>Thus the implementation is very simple:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">inv[<span class="dv">1</span>] = <span class="dv">1</span>;
+<span class="kw">for</span>(<span class="dt">int</span> i = <span class="dv">2</span>; i &lt; m; ++i)
+    inv[i] = (m - (m/i) * inv[m%i] % m) % m;</code></pre></div>
+<h3 id="proof">Proof</h3>
+<p>We have: <br /><span class="math display">$$m \bmod i = m -  \left\lfloor \frac{m}{i} \right\rfloor \cdot i$$</span><br /> Taking both sides modulo <span class="math inline"><em>m</em></span> yields: <br /><span class="math display">$$m \bmod i \equiv - \left\lfloor \frac{m}{i} \right\rfloor \cdot i \mod m$$</span><br /> Multiply both sides by <span class="math inline">$i^{-1} \cdot (m \bmod i)^{-1}$</span> yields <br /><span class="math display">$$(m \bmod i) \cdot i^{-1} \cdot (m \bmod i)^{-1} \equiv -\left\lfloor \frac{m}{i} \right\rfloor \cdot i \cdot i^{-1} \cdot (m \bmod i)^{-1} \mod m,$$</span><br /> which simplifies to: <br /><span class="math display">$$i^{-1} \equiv -\left\lfloor \frac{m}{i} \right\rfloor \cdot (m \bmod i)^{-1} \mod m,$$</span><br /></p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3055">UVa 11904 - One Unit Machine</a></li>
+<li><a href="https://www.hackerrank.com/contests/world-codesprint-5/challenges/longest-increasing-subsequence-arrays">Hackerrank - Longest Increasing Subsequence Arrays</a></li>
+<li><a href="http://codeforces.com/problemset/problem/300/C">Codeforces 300C - Beautiful Numbers</a></li>
+<li><a href="http://codeforces.com/problemset/problem/622/F">Codeforces 622F - The Sum of the k-th Powers</a></li>
+<li><a href="http://codeforces.com/problemset/problem/717/A">Codeforces 717A - Festival Organization</a></li>
+<li><a href="http://codeforces.com/problemset/problem/896/D">Codeforces 896D - Nephren Runs a Cinema</a></li>
+</ul>
+</body>
+</html>

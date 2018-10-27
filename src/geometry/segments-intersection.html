@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Finding Intersection of Two Segments-->
+<h1 id="finding-intersection-of-two-segments">Finding Intersection of Two Segments</h1>
+<p>You are given two segments AB and CD, described as pairs of their endpoints. Each segment can be a single point if its endpoints are the same. You have to find the intersection of these segments, which can be empty (if the segments don't intersect), a single point or a segment (if the given segments overlap).</p>
+<h2 id="solution">Solution</h2>
+<p>We can find the intersection point of segments in the same way as <a href="geometry/lines-intersection.html">the intersection of lines</a>: reconstruct line equations from the segments' endpoints and check whether they are parallel.</p>
+<p>If the lines are not parallel, we need to find their point of intersection and check whether it belongs to both segments (to do this it's sufficient to verify that the intersection point belongs to each segment projected on X and Y axes). In this case the answer will be either &quot;no intersection&quot; or the single point of lines' intersection.</p>
+<p>The case of parallel lines is slightly more complicated (the case of one or more segments being a single point also belongs here). In this case we need to check that both segments belong to the same line. If they don't, the answer is &quot;no intersection&quot;. If they do, the answer is the intersection of the segments belonging to the same line, which is obtained by ordering the endpoints of both segments in the increasing order of certain coordinate and taking the rightmost of left endpoints and the leftmost of right endpoints.</p>
+<p>If both segments are single points, these points have to be identical, and it makes sense to perform this check separately.</p>
+<p>In the beginning of the algorithm let's add a bounding box check - it is necessary for the case when the segments belong to the same line, and (being a lightweight check) it allows the algorithm to work faster on average on random tests.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Here is the implementation, including all helper functions for lines and segments processing.</p>
+<p>The main function <code>intersect</code> returns true if the segments have a non-empty intersection, and stores endpoints of the intersection segment in arguments <code>left</code> and <code>right</code>. If the answer is a single point, the values written to <code>left</code> and <code>right</code> will be the same.</p>
+<p>```cpp segment_intersection const double EPS = 1E-9;</p>
+<p>struct pt { double x, y;</p>
+<pre><code>bool operator&lt;(const pt&amp; p) const
+{
+    return x &lt; p.x - EPS || (abs(x - p.x) &lt; EPS &amp;&amp; y &lt; p.y - EPS);
+}</code></pre>
+<p>};</p>
+<p>struct line { double a, b, c;</p>
+<pre><code>line() {}
+line(pt p, pt q)
+{
+    a = p.y - q.y;
+    b = q.x - p.x;
+    c = -a * p.x - b * p.y;
+    norm();
+}
+
+void norm()
+{
+    double z = sqrt(a * a + b * b);
+    if (abs(z) &gt; EPS)
+        a /= z, b /= z, c /= z;
+}
+
+double dist(pt p) const { return a * p.x + b * p.y + c; }</code></pre>
+<p>};</p>
+<p>double det(double a, double b, double c, double d) { return a * d - b * c; }</p>
+<p>inline bool betw(double l, double r, double x) { return min(l, r) &lt;= x + EPS &amp;&amp; x &lt;= max(l, r) + EPS; }</p>
+<p>inline bool intersect_1d(double a, double b, double c, double d) { if (a &gt; b) swap(a, b); if (c &gt; d) swap(c, d); return max(a, c) &lt;= min(b, d) + EPS; }</p>
+<p>bool intersect(pt a, pt b, pt c, pt d, pt&amp; left, pt&amp; right) { if (!intersect_1d(a.x, b.x, c.x, d.x) || !intersect_1d(a.y, b.y, c.y, d.y)) return false; line m(a, b); line n(c, d); double zn = det(m.a, m.b, n.a, n.b); if (abs(zn) &lt; EPS) { if (abs(m.dist(c)) &gt; EPS || abs(n.dist(a)) &gt; EPS) return false; if (b &lt; a) swap(a, b); if (d &lt; c) swap(c, d); left = max(a, c); right = min(b, d); return true; } else { left.x = right.x = -det(m.c, m.b, n.c, n.b) / zn; left.y = right.y = -det(m.a, m.c, n.a, n.c) / zn; return betw(a.x, b.x, left.x) &amp;&amp; betw(a.y, b.y, left.y) &amp;&amp; betw(c.x, d.x, left.x) &amp;&amp; betw(c.y, d.y, left.y); } } ```</p>
+</body>
+</html>

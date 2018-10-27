@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Rabin-Karp Algorithm-->
+<h1 id="rabin-karp-algorithm-for-string-matching">Rabin-Karp Algorithm for string matching</h1>
+<p>This algorithm is based on the concept of hashing, so if you are not familiar with string hashing, refer to the <a href="./string/string-hashing.html">string hashing</a> article.</p>
+<p>This algorithm was authored by Rabin and Karp in 1987.</p>
+<p>Problem: Given two strings - a pattern <span class="math inline"><em>s</em></span> and a text <span class="math inline"><em>t</em></span>, determine if the pattern appears in the text and if it does, enumerate all its occurrences in <span class="math inline"><em>O</em>(|<em>s</em>|+|<em>t</em>|)</span> time.</p>
+<p>Algorithm: Calculate the hash for the pattern <span class="math inline"><em>s</em></span>. Calculate hash values for all the prefixes of the text <span class="math inline"><em>t</em></span>. Now, we can compare a substring of length <span class="math inline">|<em>s</em>|</span> with <span class="math inline"><em>s</em></span> in constant time using the calculated hashes. So, compare each substring of length <span class="math inline">|<em>s</em>|</span> with the pattern. This will take a total of <span class="math inline"><em>O</em>(|<em>t</em>|)</span> time. Hence the final complexity of the algorithm is <span class="math inline"><em>O</em>(|<em>t</em>|+|<em>s</em>|)</span>: <span class="math inline"><em>O</em>(|<em>s</em>|)</span> is required for calculating the hash of the pattern and <span class="math inline"><em>O</em>(|<em>t</em>|)</span> for comparing each substring of length <span class="math inline">|<em>s</em>|</span> with the pattern.</p>
+<h2 id="implementation">Implementation</h2>
+<p>```cpp rabin_karp vector<int> rabin_karp(string const&amp; s, string const&amp; t) { const int p = 31; const int m = 1e9 + 9; int S = s.size(), T = t.size();</p>
+<pre><code>vector&lt;long long&gt; p_pow(max(S, T)); 
+p_pow[0] = 1; 
+for (int i = 1; i &lt; (int)p_pow.size(); i++) 
+    p_pow[i] = (p_pow[i-1] * p) % m;
+
+vector&lt;long long&gt; h(T + 1, 0); 
+for (int i = 0; i &lt; T; i++)
+    h[i+1] = (h[i] + (t[i] - &#39;a&#39; + 1) * p_pow[i]) % m; 
+long long h_s = 0; 
+for (int i = 0; i &lt; S; i++) 
+    h_s = (h_s + (s[i] - &#39;a&#39; + 1) * p_pow[i]) % m; 
+
+vector&lt;int&gt; occurences;
+for (int i = 0; i + S - 1 &lt; T; i++) { 
+    long long cur_h = (h[i+S] + m - h[i]) % m; 
+    if (cur_h == h_s * p_pow[i] % m)
+        occurences.push_back(i);
+}
+return occurences;</code></pre>
+<p>} ```</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/NAJPF/">SPOJ - Pattern Find</a></li>
+<li><a href="http://codeforces.com/problemset/problem/271/D">Codeforces - Good Substrings</a></li>
+</ul>
+</body>
+</html>

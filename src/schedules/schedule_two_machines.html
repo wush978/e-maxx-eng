@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Scheduling jobs on two machines -->
+<h1 id="scheduling-jobs-on-two-machines">Scheduling jobs on two machines</h1>
+<p>This task is about finding an optimal schedule for <span class="math inline"><em>n</em></span> jobs on two machines. Every item must first be processed on the first machine, and afterwards on the second one. The <span class="math inline"><em>i</em></span>-th job takes <span class="math inline"><em>a</em><sub><em>i</em></sub></span> time on the first machine, and <span class="math inline"><em>b</em><sub><em>i</em></sub></span> time on the second machine. Each machine can only process one job at a time.</p>
+<p>We want to find the optimal order of the jobs, so that the final processing time is the minimum possible.</p>
+<p>This solution that is discussed here is called Johnson's rule (named after S. M. Johnson).</p>
+<p>It is worth noting, that the task becomes NP-complete, if we have more than two machines.</p>
+<h2 id="construction-of-the-algorithm">Construction of the algorithm</h2>
+<p>Note first, that we can assume that the order of jobs for the first and the second machine have to coincide. In fact, since the jobs for the second machine become available after processing them at the first, and if there are several jobs available for the second machine, than the processing time will be equal to the sum of their <span class="math inline"><em>b</em><sub><em>i</em></sub></span>, regardless of their order. Therefore it is only advantageous to send the jobs to the second machine in the same order as we sent them to the first machine.</p>
+<p>Consider the order of the jobs, which coincides with their input order <span class="math inline">1, 2, …, <em>n</em></span>.</p>
+<p>We denote by <span class="math inline"><em>x</em><sub><em>i</em></sub></span> the <strong>idle time</strong> of the second machine immediately before processing <span class="math inline"><em>i</em></span>. Our goal is to <strong>minimize the total idle time</strong>: <br /><span class="math display"><em>F</em>(<em>x</em>)=∑<em>x</em><sub><em>i</em></sub>  → min</span><br /></p>
+<p>For the first job we have <span class="math inline"><em>x</em><sub>1</sub> = <em>a</em><sub>1</sub></span>. For the second job, since it gets sent to the machine at the time <span class="math inline"><em>a</em><sub>1</sub> + <em>a</em><sub>2</sub></span>, and the second machine gets free at <span class="math inline"><em>x</em><sub>1</sub> + <em>b</em><sub>1</sub></span>, we have <span class="math inline"><em>x</em><sub>2</sub> = max((<em>a</em><sub>1</sub>+<em>a</em><sub>2</sub>)−(<em>x</em><sub>1</sub>+<em>b</em><sub>1</sub>),0)</span>. In general we get the equation: <br /><span class="math display">$$x_k = \max\left(\sum_{i=1}^k a_i - \sum_{i=1}^{k-1} b_i - \sum_{i=1}^{k-1} x_i, 0 \right)$$</span><br /></p>
+<p>We can now calculate the <strong>total idle time</strong> <span class="math inline"><em>F</em>(<em>x</em>)</span>. It is claimed that that is has the form <br /><span class="math display"><em>F</em>(<em>x</em>)=max<sub><em>k</em> = 1…<em>n</em></sub><em>K</em><sub><em>i</em></sub>,</span><br /> where <br /><span class="math display">$$K_i = \sum_{i=1}^k a_i - \sum_{i=1}^{k-1} b_i.$$</span><br /> This can be easily verified using induction.</p>
+<p>We now use the <strong>permutation method</strong>: we will exchange two neighboring jobs <span class="math inline"><em>j</em></span> and <span class="math inline"><em>j</em> + 1</span> and see how this will change the total idle time.</p>
+<p>By the form of the expression of <span class="math inline"><em>K</em><sub><em>i</em></sub></span>, it is clear that only <span class="math inline"><em>K</em><sub><em>j</em></sub></span> and <span class="math inline"><em>K</em><sub><em>j</em> + 1</sub></span> change, we denote their new values with <span class="math inline"><em>K</em><sub><em>j</em></sub>′</span> and <span class="math inline"><em>K</em><sub><em>j</em> + 1</sub>′</span>.</p>
+<p>If this change from of the jobs <span class="math inline"><em>j</em></span> and <span class="math inline"><em>j</em> + 1</span> increased the total idle time, it has to be the case that: <br /><span class="math display">max(<em>K</em><sub><em>j</em></sub>, <em>K</em><sub><em>j</em> + 1</sub>)≤max(<em>K</em><sub><em>j</em></sub>′,<em>K</em><sub><em>j</em> + 1</sub>′)</span><br /> (Switching two jobs might also have no impact at all. The above condition is only a sufficient one, but not a necessary one.)</p>
+<p>After removing <span class="math inline">$\sum_{i=1}^{j+1} a_i - \sum_{i=1}^{j-1} b_i$</span> from both sides of the inequality, we get: <br /><span class="math display">max(−<em>a</em><sub><em>j</em> + 1</sub>, −<em>b</em><sub><em>j</em></sub>)≤max(−<em>b</em><sub><em>j</em> + 1</sub>, −<em>a</em><sub><em>j</em></sub>)</span><br /> And after getting rid of the negative signs: <br /><span class="math display">min(<em>a</em><sub><em>j</em></sub>, <em>b</em><sub><em>j</em> + 1</sub>)≤min(<em>b</em><sub><em>j</em></sub>, <em>a</em><sub><em>j</em> + 1</sub>)</span><br /></p>
+<p>Thus we obtained a <strong>comparator</strong>: by sorting the jobs on it, we obtain an optimal order of the jobs, in which no two jobs can be switched with an improvement of the final time.</p>
+<p>However you can further <strong>simplify</strong> the sorting, if you look at the comparator from a different angle. The comparator can be interpreted in the following way: If we have the four times <span class="math inline">(<em>a</em><sub><em>j</em></sub>, <em>a</em><sub><em>j</em> + 1</sub>, <em>b</em><sub><em>j</em></sub>, <em>b</em><sub><em>j</em> + 1</sub>)</span>, and the minimum of them is a time corresponding to the first machine, then the corresponding job should be done first. If the minimum time is a time from the second machine, then it should go later. Thus we can sort the jobs by <span class="math inline">min(<em>a</em><sub><em>i</em></sub>, <em>b</em><sub><em>i</em></sub>)</span>, and if the processing time of the current job on the first machine is less then the processing time on the second machine, then this job must be done before all the remaining jobs, and otherwise after all remaining tasks.</p>
+<p>One way or another, it turns out that by Johnson's rule we can solve the problem by sorting the jobs, and thus receive a time complexity of <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Here we implement the second variation of the described algorithm.</p>
+<p>```cpp johnsons_rule struct Job { int a, b, idx;</p>
+<pre><code>bool operator&lt;(Job o) const {
+    return min(a, b) &lt; min(o.a, o.b);
+}</code></pre>
+<p>};</p>
+<p>vector<Job> johnsons_rule(vector<Job> jobs) { sort(jobs.begin(), jobs.end()); vector<Job> a, b; for (Job j : jobs) { if (j.a &lt; j.b) a.push_back(j); else b.push_back(j); } a.insert(a.end(), b.rbegin(), b.rend()); return a; }</p>
+<p>pair<int, int> finish_times(vector<Job> const&amp; jobs) { int t1 = 0, t2 = 0; for (Job j : jobs) { t1 += j.a; t2 = max(t2, t1) + j.b; } return make_pair(t1, t2); } ```</p>
+<p>All the information about each job is store in struct. The first function sorts all jobs and computes the optimal schedule. The second function computes the finish times of both machines given a schedule.</p>
+</body>
+</html>

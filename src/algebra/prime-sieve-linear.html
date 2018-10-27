@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Sieve of Eratosthenes With Linear Time Complexity -->
+<h1 id="sieve-of-eratosthenes-having-linear-time-complexity">Sieve of Eratosthenes Having Linear Time Complexity</h1>
+<p>Given a number <span class="math inline"><em>n</em></span>, find all prime numbers in a segment <span class="math inline">[2; <em>n</em>]</span>.</p>
+<p>The standard way of solving a task is to use <a href="./algebra/sieve-of-eratosthenes.html">the sieve of Eratosthenes</a>. This algorithm is very simple, but it has runtime <span class="math inline"><em>O</em>(<em>n</em>loglog<em>n</em>)</span>.</p>
+<p>Although there are a lot of known algorithms with sublinear runtime (i.e. <span class="math inline"><em>o</em>(<em>n</em>)</span>), the algorithm described below is interesting by its simplicity: it isn't any more complex than the classic sieve of Eratosthenes.</p>
+<p>Besides, the algorithm given here calculates <strong>factorizations of all numbers</strong> in the segment <span class="math inline">[2; <em>n</em>]</span> as a side effect, and that can be helpful in many practical applications.</p>
+<p>The weakness of the given algorithm is in using more memory than the classic sieve of Eratosthenes': it requires an array of <span class="math inline"><em>n</em></span> numbers, while for the classic sieve of Eratosthenes it is enough to have <span class="math inline"><em>n</em></span> bits of memory (which is 32 times less).</p>
+<p>Thus, it makes sense to use the described algorithm only until for numbers of order <span class="math inline">10<sup>7</sup></span> and not greater.</p>
+<p>The algorithm's authorship appears to belong to Gries &amp; Misra (Gries, Misra, 1978: see references in the end of the article). And, strictly speaking, this algorithm shouldn't be called &quot;sieve of Eratosthenes&quot; since it's too different from the classic one.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>Our goal is to calculate <strong>minimum prime factor</strong> <span class="math inline"><em>l</em><em>p</em>[<em>i</em>]</span> for every number <span class="math inline"><em>i</em></span> in the segment <span class="math inline">[2; <em>n</em>]</span>.</p>
+<p>Besides, we need to store the list of all the found prime numbers - let's call it <span class="math inline"><em>p</em><em>r</em>[]</span>.</p>
+<p>We'll initialize the values <span class="math inline"><em>l</em><em>p</em>[<em>i</em>]</span> with zeros, which means that we assume all numbers are prime. During the algorithm execution this array will be filled gradually.</p>
+<p>Now we'll go through the numbers from 2 to <span class="math inline"><em>n</em></span>. We have two cases for the current number <span class="math inline"><em>i</em></span>:</p>
+<ul>
+<li><p><span class="math inline"><em>l</em><em>p</em>[<em>i</em>]=0</span> - that means that <span class="math inline"><em>i</em></span> is prime, i.e. we haven't found any smaller factors for it.<br />
+Hence, we assign <span class="math inline"><em>l</em><em>p</em>[<em>i</em>]=<em>i</em></span> and add <span class="math inline"><em>i</em></span> to the end of the list <span class="math inline"><em>p</em><em>r</em>[]</span>.</p></li>
+<li><p><span class="math inline"><em>l</em><em>p</em>[<em>i</em>]≠0</span> - that means that <span class="math inline"><em>i</em></span> is composite, and its minimum prime factor is <span class="math inline"><em>l</em><em>p</em>[<em>i</em>]</span>.</p></li>
+</ul>
+<p>In both cases we update values of <span class="math inline"><em>l</em><em>p</em>[]</span> for the numbers that are divisible by <span class="math inline"><em>i</em></span>. However, our goal is to learn to do so as to set a value <span class="math inline"><em>l</em><em>p</em>[]</span> at most once for every number. We can do it as follows:</p>
+<p>Let's consider numbers <span class="math inline"><em>x</em><sub><em>j</em></sub> = <em>i</em> ⋅ <em>p</em><sub><em>j</em></sub></span>, where <span class="math inline"><em>p</em><sub><em>j</em></sub></span> are all prime numbers less than or equal to <span class="math inline"><em>l</em><em>p</em>[<em>i</em>]</span> (this is why we need to store the list of all prime numbers).</p>
+<p>We'll set a new value <span class="math inline"><em>l</em><em>p</em>[<em>x</em><sub><em>j</em></sub>]=<em>p</em><sub><em>j</em></sub></span> for all numbers of this form.</p>
+<p>The proof of correctness of this algorithm and its runtime can be found after the implementation.</p>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">int</span> N = <span class="dv">10000000</span>;
+<span class="dt">int</span> lp[N<span class="dv">+1</span>];
+vector&lt;<span class="dt">int</span>&gt; pr;
+ 
+<span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">2</span>; i&lt;=N; ++i) {
+    <span class="kw">if</span> (lp[i] == <span class="dv">0</span>) {
+        lp[i] = i;
+        pr.push_back (i);
+    }
+    <span class="kw">for</span> (<span class="dt">int</span> j=<span class="dv">0</span>; j&lt;(<span class="dt">int</span>)pr.size() &amp;&amp; pr[j]&lt;=lp[i] &amp;&amp; i*pr[j]&lt;=N; ++j)
+        lp[i * pr[j]] = pr[j];
+}</code></pre></div>
+<p>We can speed it up a bit by replacing vector <span class="math inline"><em>p</em><em>r</em></span> with a simple array and a counter, and by getting rid of the second multiplication in the nested <code>for</code> loop (for that we just need to remember the product in a variable).</p>
+<h2 id="correctness-proof">Correctness Proof</h2>
+<p>We need to prove that the algorithm sets all values <span class="math inline"><em>l</em><em>p</em>[]</span> correctly, and that every value will be set exactly once. Hence, the algorithm will have linear runtime, since all the remaining actions of the algorithm, obviously, work for <span class="math inline"><em>O</em>(<em>n</em>)</span>.</p>
+<p>Notice that every number <span class="math inline"><em>i</em></span> has exactly one representation in form:</p>
+<p><span class="math inline"><em>i</em> = <em>l</em><em>p</em>[<em>i</em>]⋅<em>x</em></span> ,</p>
+<p>where <span class="math inline"><em>l</em><em>p</em>[<em>i</em>]</span> is the minimal prime factor of <span class="math inline"><em>i</em></span>, and the number <span class="math inline"><em>x</em></span> doesn't have any prime factors less than <span class="math inline"><em>l</em><em>p</em>[<em>i</em>]</span>, i.e.</p>
+<p><span class="math inline"><em>l</em><em>p</em>[<em>i</em>]≤<em>l</em><em>p</em>[<em>x</em>]</span>.</p>
+<p>Now, let's compare this with the actions of our algorithm: in fact, for every <span class="math inline"><em>x</em></span> it goes through all prime numbers it could be multiplied by, i.e. all prime numbers up to <span class="math inline"><em>l</em><em>p</em>[<em>x</em>]</span> inclusive, in order to get the numbers in the form given above.</p>
+<p>Hence, the algorithm will go through every composite number exactly once, setting the correct values <span class="math inline"><em>l</em><em>p</em>[]</span> there. Q.E.D.</p>
+<h2 id="runtime-and-memory">Runtime and Memory</h2>
+<p>Although the running time of <span class="math inline"><em>O</em>(<em>n</em>)</span> is better than <span class="math inline"><em>O</em>(<em>n</em>loglog<em>n</em>)</span> of the classic sieve of Eratosthenes, the difference between them is not so big. In practice that means just double difference in speed, and the optimized versions of the sieve run as fast as the algorithm given here.</p>
+<p>Considering the memory requirements of this algorithm - an array <span class="math inline"><em>l</em><em>p</em>[]</span> of length <span class="math inline"><em>n</em></span>, and an array of <span class="math inline"><em>p</em><em>r</em>[]</span> of length <span class="math inline">$\frac n {\ln n}$</span>, this algorithm seems to worse that the classic sieve in every way.</p>
+<p>However, its redeeming quality is that this algorithm calculates an array <span class="math inline"><em>l</em><em>p</em>[]</span>, which allows us to find factorization of any number in the segment <span class="math inline">[2; <em>n</em>]</span> in the time of the size order of this factorization. Moreover, using just one extra array will allow us to avoid divisions when looking for factorization.</p>
+<p>Knowing the factorizations of all numbers is very useful for some tasks, and this algorithm is one of the few which allow to find them in linear time.</p>
+<h2 id="references">References</h2>
+<ul>
+<li>David Gries, Jayadev Misra. <strong>A Linear Sieve Algorithm for Finding Prime Numbers</strong> [1978]</li>
+</ul>
+</body>
+</html>

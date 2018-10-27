@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title D´Esopo-Pape -->
+<h1 id="desopo-pape-algorithm">D´Esopo-Pape algorithm</h1>
+<p>Given a graph with <span class="math inline"><em>n</em></span> vertices and <span class="math inline"><em>m</em></span> edges with weights <span class="math inline"><em>w</em><sub><em>i</em></sub></span> and a starting vertex <span class="math inline"><em>v</em><sub>0</sub></span>. The task is to find the shortest path from the vertex <span class="math inline"><em>v</em><sub>0</sub></span> to every other vertex.</p>
+<p>The algorithm from D´Esopo-Pape will work faster than <a href="./graph/dijkstra.html">Dijkstra's algorithm</a> and the <a href="./graph/bellman_ford.html">Bellman-Ford algorithm</a> in most cases, and will also work for negative edges. However not for negative cycles.</p>
+<h2 id="description">Description</h2>
+<p>Let the array <span class="math inline"><em>d</em></span> contain the shortest path lengths, i.e. <span class="math inline"><em>d</em><sub><em>i</em></sub></span> is the current length of the shortest path from the vertex <span class="math inline"><em>v</em><sub>0</sub></span> to the vertex <span class="math inline"><em>i</em></span>. Initially this array is filled with infinity for every vertex, except <span class="math inline"><em>d</em><sub><em>v</em><sub>0</sub></sub> = 0</span>. After the algorithm finishes, this array will contain the shortest distances.</p>
+<p>Let the array <span class="math inline"><em>p</em></span> contain the current ancestors, i.e. <span class="math inline"><em>p</em><sub><em>i</em></sub></span> is the direct anchestor of the vertex <span class="math inline"><em>i</em></span> on the current shortest path from <span class="math inline"><em>v</em><sub>0</sub></span> to <span class="math inline"><em>i</em></span>. Just like the array <span class="math inline"><em>d</em></span>, the array <span class="math inline"><em>p</em></span> changes gradually during the algorithm and at the end takes its final values.</p>
+<p>Now to the algorithm. At each step three sets of vertices are maintained:</p>
+<ul>
+<li><span class="math inline"><em>M</em><sub>0</sub></span> - vertices, for which the distance has already been calculated (although it might not be the final distance)</li>
+<li><span class="math inline"><em>M</em><sub>1</sub></span> - vertices, for which the distance currently is calculated</li>
+<li><span class="math inline"><em>M</em><sub>2</sub></span> - vertices, for which the distance has not yet been calculated</li>
+</ul>
+<p>The vertices in the set <span class="math inline"><em>M</em><sub>1</sub></span> are stored in a bidirectional queue (deque).</p>
+<p>At each step of the algorithm we take a vertex from the set <span class="math inline"><em>M</em><sub>1</sub></span> (from the front of the queue). Let <span class="math inline"><em>u</em></span> be the selected vertex. We put this vertex <span class="math inline"><em>u</em></span> into the set <span class="math inline"><em>M</em><sub>0</sub></span>. Then we iterate over all edges coming out of this vertex. Let <span class="math inline"><em>v</em></span> be the second end of the current edge, and <span class="math inline"><em>w</em></span> its weight.</p>
+<ul>
+<li>If <span class="math inline"><em>v</em></span> belongs to <span class="math inline"><em>M</em><sub>2</sub></span>, then <span class="math inline"><em>v</em></span> is inserted into the set <span class="math inline"><em>M</em><sub>1</sub></span> by inserting it at the back of the queue. <span class="math inline"><em>d</em><sub><em>v</em></sub></span> is set to <span class="math inline"><em>d</em><sub><em>u</em></sub> + <em>w</em></span>.</li>
+<li>If <span class="math inline"><em>v</em></span> belongs to <span class="math inline"><em>M</em><sub>1</sub></span>, then we try to improve the value of <span class="math inline"><em>d</em><sub><em>v</em></sub></span>: <span class="math inline"><em>d</em><sub><em>v</em></sub> = min(<em>d</em><sub><em>v</em></sub>, <em>d</em><sub><em>u</em></sub> + <em>w</em>)</span>. Since <span class="math inline"><em>v</em></span> is already in <span class="math inline"><em>M</em><sub>1</sub></span>, we don't need to insert it into <span class="math inline"><em>M</em><sub>1</sub></span> and the queue.</li>
+<li>If <span class="math inline"><em>v</em></span> belongs to <span class="math inline"><em>M</em><sub>1</sub></span>, and if <span class="math inline"><em>d</em><sub><em>v</em></sub></span> can be improved <span class="math inline"><em>d</em><sub><em>v</em></sub> &gt; <em>d</em><sub><em>u</em></sub> + <em>w</em></span>, then we improve <span class="math inline"><em>d</em><sub><em>v</em></sub></span> and insert the vertex <span class="math inline"><em>v</em></span> back to the set <span class="math inline"><em>M</em><sub>1</sub></span>, placing it at the beginning of the queue.</li>
+</ul>
+<p>And of course, with each update in the array <span class="math inline"><em>d</em></span> we also have to update the corresponding element in the array <span class="math inline"><em>p</em></span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>We will use an array <span class="math inline"><em>m</em></span> to store in which set each vertex is currently.</p>
+<p>```cpp desopo_pape struct Edge { int to, w; };</p>
+<p>int n; vector<vector<Edge>&gt; adj;</p>
+<p>const int INF = 1e9;</p>
+<p>void shortest_paths(int v0, vector<int>&amp; d, vector<int>&amp; p) { d.assign(n, INF); d[v0] = 0; vector<int> m(n, 2); deque<int> q; q.push_back(v0); p.assign(n, -1);</p>
+<pre><code>while (!q.empty()) {
+    int u = q.front();
+    q.pop_front();
+    m[u] = 0;
+    for (Edge e : adj[u]) {
+        if (d[e.to] &gt; d[u] + e.w) {
+            d[e.to] = d[u] + e.w;
+            p[e.to] = u;
+            if (m[e.to] == 2) {
+                m[e.to] = 1;
+                q.push_back(e.to);
+            } else if (m[e.to] == 0) {
+                m[e.to] = 1;
+                q.push_front(e.to);
+            }
+        }
+    }
+}</code></pre>
+<p>} ```</p>
+<h2 id="complexity">Complexity</h2>
+<p>The algorithm performs usually quite fast. In most cases even faster than Dijkstra's algorithm. However there exist cases for which the algorithm takes exponential time.</p>
+</body>
+</html>

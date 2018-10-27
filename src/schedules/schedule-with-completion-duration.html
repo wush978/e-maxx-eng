@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Optimal schedule of jobs given their deadlines and durations -->
+<h1 id="optimal-schedule-of-jobs-given-their-deadlines-and-durations">Optimal schedule of jobs given their deadlines and durations</h1>
+<p>Suppose, we have a set of jobs, and we are aware of every job’s deadline and its duration. The execution of a job cannot be interrupted prior to its ending. It is required to create such a schedule to accomplish the biggest number of jobs.</p>
+<h2 id="solving">Solving</h2>
+<p>The algorithm of the solving is <strong>greedy</strong>. Let’s sort all the jobs by their deadlines and look at them in descending order. Also, let’s create a queue <span class="math inline"><em>q</em></span>, in which we’ll gradually put the jobs and extract one with the least run-time (for instance, we can use set or priority_queue). Initially, <span class="math inline"><em>q</em></span> is empty.</p>
+<p>Suppose, we’re looking at the <span class="math inline"><em>i</em></span>-th job. First of all, let’s put it into <span class="math inline"><em>q</em></span>. Let’s consider the period of time between the deadline of <span class="math inline"><em>i</em></span>-th job and the deadline of <span class="math inline"><em>i</em> − 1</span>-th job. That is the segment of some length <span class="math inline"><em>T</em></span>. We will extract jobs from <span class="math inline"><em>q</em></span> (in their left duration ascending order) and execute them until the whole segment <span class="math inline"><em>T</em></span> is filled. Important: if at any moment of time the extracted job can only be partly executed until segment <span class="math inline"><em>T</em></span> is filled, then we execute this job partly just as far as possible, i.e., during the <span class="math inline"><em>T</em></span>-time, and we put the remaining part of a job back into <span class="math inline"><em>q</em></span>.</p>
+<p>On the algorithm’s completion we’ll choose the optimal solution (or, at least, one of several solutions). The running time of algorithm is <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>The following function takes a vector of jobs (consisting of a deadline, a duration, and the job's index) and computes a vector containing all indices of the used jobs in the optimal schedule. Notice that you still need to sort these jobs by their deadline, if you want to write down the plan explicitly.</p>
+<p>```cpp schedule_deadline_duration struct Job { int deadline, duration, idx;</p>
+<pre><code>bool operator&lt;(Job o) const {
+    return deadline &lt; o.deadline;
+}</code></pre>
+<p>};</p>
+<p>vector<int> compute_schedule(vector<Job> jobs) { sort(jobs.begin(), jobs.end());</p>
+<pre><code>set&lt;pair&lt;int,int&gt;&gt; s;
+vector&lt;int&gt; schedule;
+for (int i = jobs.size()-1; i &gt;= 0; i--) {
+    int t = jobs[i].deadline - (i ? jobs[i-1].deadline : 0);
+    s.insert(make_pair(jobs[i].duration, jobs[i].idx));
+    while (t &amp;&amp; !s.empty()) {
+        auto it = s.begin();
+        if (it-&gt;first &lt;= t) {
+            t -= it-&gt;first;
+            schedule.push_back(it-&gt;second);
+        } else {
+            s.insert(make_pair(it-&gt;first - t, it-&gt;second));
+            t = 0;
+        }
+        s.erase(it);
+    }
+}
+return schedule;</code></pre>
+<p>} ```</p>
+</body>
+</html>

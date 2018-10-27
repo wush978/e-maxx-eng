@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Minimum stack / Minimum queue -->
+<h1 id="minimum-stack-minimum-queue">Minimum stack / Minimum queue</h1>
+<p>In this article we will consider three problems: first we will modify a stack in a way that allows up to find the smallest element of the stack in <span class="math inline"><em>O</em>(1)</span>, then we will do the same thing with a queue, and finally we will use these data structures to find the minimum in all subarrays of a fixed length in an array in <span class="math inline"><em>O</em>(<em>n</em>)</span></p>
+<h2 id="stack-modification">Stack modification</h2>
+<p>We want to modify the stack data structure in such a way, that it possible to find the smallest element in the stack in <span class="math inline"><em>O</em>(1)</span> time, while maintaining the same asymptotic behavior for adding and removing elements from the stack. Quick reminder, on a stack we only add and remove elements on one end.</p>
+<p>To do this, we will no only store the elements in the stack, but we will store them in pairs: the element itself and the minimum in the stack starting from this element and below.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">stack&lt;pair&lt;<span class="dt">int</span>, <span class="dt">int</span>&gt;&gt; st;</code></pre></div>
+<p>It is clear that finding the minimum in the whole stack consists only of looking at the value <code>stack.top().second</code>.</p>
+<p>It is also obvious that adding or removing a new element to the stack can be done in constant time.</p>
+<p>Implementation:</p>
+<ul>
+<li><p>Adding an element:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> new_min = st.empty() ? new_elem : min(new_elem, st.top().second);
+st.push({new_elem, new_min});</code></pre></div></li>
+<li><p>Removing an element:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> removed_element = st.top().first;
+st.pop();</code></pre></div></li>
+<li><p>Finding the minimum:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> minimum = st.top().second;</code></pre></div></li>
+</ul>
+<h2 id="queue-modification-method-1">Queue modification (method 1)</h2>
+<p>Now we want to achieve the same operations with a queue, i.e. we want to add elements at the end and remove them from the front.</p>
+<p>Here we consider a simple method for modifying a queue. It has a big disadvantage though, because the modified queue will actually not store all elements.</p>
+<p>The key idea is to only store the items in the queue that are needed to determine the minimum. Namely we will keep the queue in nondecreasing order (i.e. the smallest value will be stored in the head), and of course not in any arbitrary way, the actual minimum has to be always contained in the queue. This way the smallest element will always be in the head of the queue. Before adding a new element to the queue, it is enough to make a &quot;cut&quot;: we will remove all trailing elements of the queue that are larger than the new element, and afterwards add the new element to the queue. This way we don't break the order of the queue, and we will also not loose the current element if it is at any subsequent step the minimum. All the elements that we removed can never be a minimum itself, so this operation is allowed. When we want to extract an element from the head, it actually might not be there (because we removed it previously while adding a smaller element). Therefore when deleting an element from a queue we need to know the value of the element. If the head of the queue has the same value, we can safely remove it, otherwise we do nothing.</p>
+<p>Consider the implementations of the above operations:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">deque&lt;<span class="dt">int</span>&gt; q;</code></pre></div>
+<ul>
+<li><p>Finding the minimum:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> minimum = q.front();</code></pre></div></li>
+<li><p>Adding an element:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">while</span> (!q.empty() &amp;&amp; q.back() &gt; new_element)
+q.pop_back();
+q.push_back(new_element);</code></pre></div></li>
+<li><p>Removing an element:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">if</span> (!q.empty() &amp;&amp; q.front() == remove_element)
+q.pop_front();</code></pre></div></li>
+</ul>
+<p>It is clear that on average all these operation only take <span class="math inline"><em>O</em>(1)</span> time (because every element can only be pushed and popped once).</p>
+<h2 id="queue-modification-method-2">Queue modification (method 2)</h2>
+<p>This is a modification of method 1. We want to be able to remove elements without knowing which element we have to remove. We can accomplish that by storing the index for each element in the queue. And we also remember how many elements we already have added and removed.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">deque&lt;pair&lt;<span class="dt">int</span>, <span class="dt">int</span>&gt;&gt; q;
+<span class="dt">int</span> cnt_added = <span class="dv">0</span>;
+<span class="dt">int</span> cnt_removed = <span class="dv">0</span>;</code></pre></div>
+<ul>
+<li><p>Finding the minimum:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> minimum = q.front().first;</code></pre></div></li>
+<li><p>Adding an element:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">while</span> (!q.empty() &amp;&amp; q.back().first &gt; new_element)
+q.pop_back();
+q.push_back({new_element, cnt_added});
+cnt_added++;</code></pre></div></li>
+<li><p>Removing an element:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">if</span> (!q.empty() &amp;&amp; q.front().second == cnt_removed) 
+q.pop_front();
+cnt_removed++;</code></pre></div></li>
+</ul>
+<h2 id="queue-modification-method-3">Queue modification (method 3)</h2>
+<p>Here we consider another way of modifying a queue to find the minimum in <span class="math inline"><em>O</em>(1)</span>. This way is somewhat more complicated to implement, but this time we actually store all elements. And we also can remove an element from the front without knowing its value.</p>
+<p>The idea is to reduce the problem to the problem of stacks, which was already solved by us. So we only need to learn how to simulate a queue using two stacks.</p>
+<p>We make two stacks, <code>s1</code> and <code>s2</code>. Of course these stack will be of the modified form, so that we can find the minimum in <span class="math inline"><em>O</em>(1)</span>. We will add new elements to the stack <code>s1</code>, and remove elements from the stack <code>s2</code>. If at any time the stack <code>s2</code> is empty, we move all elements from <code>s1</code> to <code>s2</code> (which essentially reverses the order of those elements). Finally finding the minimum in a queue involves just finding the minimum of both stacks.</p>
+<p>Thus we perform all operations in <span class="math inline"><em>O</em>(1)</span> on average (each element will be once added to stack <code>s1</code>, once transferred to <code>s2</code>, and once popped from <code>s2</code>)</p>
+<p>Implementation:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">stack&lt;pair&lt;<span class="dt">int</span>, <span class="dt">int</span>&gt;&gt; s1, s2;</code></pre></div>
+<ul>
+<li><p>Finding the minimum:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">if</span> (s1.empty() || s2.empty()) 
+minimum = s1.empty() ? s2.top().second : s1.top().second;
+<span class="kw">else</span>
+minimum = min(s1.top().second, s2.top().second());</code></pre></div></li>
+<li><p>Add element:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> minimum = s1.empty() ? new_element : min(new_element, s1.top().second);
+s1.push({new_element, minimum});</code></pre></div></li>
+<li><p>Removing an element:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">if</span> (s2.empty()) {
+<span class="kw">while</span> (!s1.empty()) {
+    <span class="dt">int</span> element = s1.top.first();
+    s1.pop();
+    <span class="dt">int</span> minimum = s2.empty() ? element : min(element, s2.top().second);
+    s2.push({element, minimum});
+}
+}
+<span class="dt">int</span> remove_element = s2.top().first;
+s2.pop();</code></pre></div></li>
+</ul>
+<h2 id="finding-the-minimum-for-all-subarrays-of-fixed-length">Finding the minimum for all subarrays of fixed length</h2>
+<p>Suppose we are given an array <span class="math inline"><em>A</em></span> of length <span class="math inline"><em>N</em></span> and a given <span class="math inline"><em>M</em> ≤ <em>N</em></span>. We have to find the minimum of each subarray of length <span class="math inline"><em>M</em></span> in this array, i.e. we have to find: <br /><span class="math display">min<sub>0 ≤ <em>i</em> ≤ <em>M</em> − 1</sub><em>A</em>[<em>i</em>],min<sub>1 ≤ <em>i</em> ≤ <em>M</em></sub><em>A</em>[<em>i</em>],min<sub>2 ≤ <em>i</em> ≤ <em>M</em> + 1</sub><em>A</em>[<em>i</em>], … , min<sub><em>N</em> − <em>M</em> ≤ <em>i</em> ≤ <em>N</em> − 1</sub><em>A</em>[<em>i</em>]</span><br /></p>
+<p>We have to solve this problem in linear time, i.e. <span class="math inline"><em>O</em>(<em>n</em>)</span>.</p>
+<p>We can use any of the three modified queues to solve the problem. The solutions should be clear: we add the first <span class="math inline"><em>M</em></span> element of the array, find and output its minimum, then add the next element to the queue and remove the first element of the array, find and output its minimum, etc. Since all operations with the queue are performed in constant time on average, the complexity of the whole algorithm will be <span class="math inline"><em>O</em>(<em>n</em>)</span>.</p>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Search the subsegment with the maximum/minimum sum -->
+<h1 id="search-the-subsegment-with-the-maximumminimum-sum">Search the subsegment with the maximum/minimum sum</h1>
+<p>Here we consider the problem of finding a subsegment of an array with maximum sum, as well as some of its variations (including the algorithm for solving this problem in the online mode).</p>
+<h2 id="problem-statement">Problem statement</h2>
+<p>Given an array of numbers <span class="math inline"><em>a</em>[1…<em>n</em>]</span>. It is required to find such the subsegment <span class="math inline"><em>a</em>[<em>l</em>…<em>r</em>]</span> with the maximal sum:</p>
+<p><br /><span class="math display">$$ \max_{ 1 \le l \le r \le n } \sum_{i=l}^{r} a[i].$$</span><br /></p>
+<p>For example, if all integers in array <span class="math inline"><em>a</em>[]</span> would be a non-negative, then the answer would be to take the whole array. However the solution is nontrivial when the array can contain both positive and negative numbers.</p>
+<p>It is clear that the problem of finding the <strong>minimum</strong> subsegment is essentially the same, you just need to change the signs of all numbers.</p>
+<h2 id="algorithm-1">Algorithm 1</h2>
+<p>Here we consider an almost obvious algorithm. (Next, we'll look at another algorithm, which is a little harder to come up with, but its implementation is even shorter.)</p>
+<h3 id="algorithm-description">Algorithm description</h3>
+<p>The algorithm is very simple.</p>
+<p>We introduce for convenience the <strong>notation</strong>: <span class="math inline">$s[i] = \sum_{j=1}^{i} a[j]$</span>. That is, the array <span class="math inline"><em>s</em>[<em>i</em>]</span> is an array of partial sums of array <span class="math inline"><em>a</em>[]</span>. Also put <span class="math inline"><em>s</em>[0]=0</span>.</p>
+<p>Let us now iterate over the index <span class="math inline"><em>r</em> = 1…<em>n</em></span>, and learn how to quickly find the optimal <span class="math inline"><em>l</em></span> for each current value <span class="math inline"><em>r</em></span>, at which the maximum sum is reached on the subsegment <span class="math inline">[<em>l</em>; <em>r</em>]</span>.</p>
+<p>Formally, this means that for the current <span class="math inline"><em>r</em></span> we need to find such <span class="math inline"><em>l</em></span> (not exceeding <span class="math inline"><em>r</em></span>), so that the value of <span class="math inline"><em>s</em>[<em>r</em>]−<em>s</em>[<em>l</em> − 1]</span> is maximal. After a trivial transformation, we get that we need to find in the array <span class="math inline"><em>s</em>[]</span> a minimum on the segment <span class="math inline">[0; <em>r</em> − 1]</span>.</p>
+<p>From here, we immediately obtain a solution: we simply store where the current minimum is in the array <span class="math inline"><em>s</em>[]</span>. Using this minimum, we find the current optimal index <span class="math inline"><em>l</em></span> in <span class="math inline"><em>O</em>(1)</span>, and when moving from the current index <span class="math inline"><em>r</em></span> to the next one, we simply update this minimum.</p>
+<p>Obviously, this algorithm works in <span class="math inline"><em>O</em>(<em>n</em>)</span> and is asymptotically optimal.</p>
+<h3 id="implementation">Implementation</h3>
+<p>To implement it, we don't even need to explicitly store an array of partial sums <span class="math inline"><em>s</em>[]</span> — we will only need the current element from it.</p>
+<p>The implementation is given in 0-indexed arrays, not in 1-numbering as described above.</p>
+<p>We first give a solution that finds a simple numerical answer without finding the indices of the desired segment:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> ans = a[<span class="dv">0</span>], sum = <span class="dv">0</span>, min_sum = <span class="dv">0</span>;
+
+<span class="kw">for</span> (<span class="dt">int</span> r = <span class="dv">0</span>; r &lt; n; ++r) {
+    sum += a[r];
+    ans = max(ans, sum - min_sum);
+    min_sum = min(min_sum, sum);
+}</code></pre></div>
+<p>Now we give a full version of the solution, which additionally also finds the boundaries of the desired segment:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> ans = a[<span class="dv">0</span>], ans_l = <span class="dv">0</span>, ans_r = <span class="dv">0</span>;
+<span class="dt">int</span> sum = <span class="dv">0</span>, min_sum = <span class="dv">0</span>, min_pos = <span class="dv">-1</span>;
+
+<span class="kw">for</span> (<span class="dt">int</span> r = <span class="dv">0</span>; r &lt; n; ++r) {
+    sum += a[r];
+    <span class="dt">int</span> cur = sum - min_sum;
+    <span class="kw">if</span> (cur &gt; ans) {
+        ans = cur;
+        ans_l = min_pos + <span class="dv">1</span>;
+        ans_r = r;
+    }
+    <span class="kw">if</span> (sum &lt; min_sum) {
+        min_sum = sum;
+        min_pos = r;
+    }
+}</code></pre></div>
+<h2 id="algorithm-2">Algorithm 2</h2>
+<p>Here we consider a different algorithm. It is a little more difficult to understand, but it is more elegant than the above, and its implementation is a little bit shorter. This algorithm was proposed by Jay Kadane in 1984.</p>
+<h3 id="algorithm-description-1">Algorithm description</h3>
+<p>The algorithm itself is as follows. Let's go through the array and accumulate the current partial sum in some variable <span class="math inline"><em>s</em></span>. If at some point <span class="math inline"><em>s</em></span> is negative, we just assign <span class="math inline"><em>s</em> = 0</span>. It is argued that the maximum all the values, that the variable <span class="math inline"><em>s</em></span> is assigned to during the algorithm, will be the answer to the problem.</p>
+<p><strong>Proof:</strong></p>
+<p>In fact, consider the first moment in time when the sum of <span class="math inline"><em>s</em></span> became negative. This means that starting with a zero partial sum, we eventually came to a negative partial sum — so this whole prefix of the array, as well as any suffix has a negative sum. Therefore, from all this prefix of the array in the future there cannot benefit: it can only give a negative impact to the answer.</p>
+<p>However, this is not enough to prove the algorithm. In the algorithm, we are actually limited in finding the answer only to such segments that begin immediately after the places when <span class="math inline"><em>s</em> &lt; 0</span> happened.</p>
+<p>But, in fact, consider an arbitrary segment <span class="math inline">[<em>l</em>; <em>r</em>]</span>, and <span class="math inline"><em>l</em></span> is not in such a &quot;critical&quot; position (i.e. <span class="math inline"><em>l</em> &gt; <em>p</em> + 1</span>, where <span class="math inline"><em>p</em></span> is the last such position, in which <span class="math inline"><em>s</em> &lt; 0</span>). Since the last critical position is strictly earlier than in <span class="math inline"><em>l</em> − 1</span>, it turns out that the sum of <span class="math inline"><em>a</em>[<em>p</em> + 1…<em>l</em> − 1]</span> is non-negative. This means that by moving <span class="math inline"><em>l</em></span> to position <span class="math inline"><em>p</em> + 1</span>, we will increase the answer or, in extreme cases, we will not change it.</p>
+<p>One way or another, it turns out that really when searching for an answer, you can limit yourself to only segments that begin immediately after the positions in which <span class="math inline"><em>s</em> &lt; 0</span> appeared. This proves that the algorithm is correct.</p>
+<h3 id="implementation-1">Implementation</h3>
+<p>As in algorithm 1, we first gave a simplified implementation that looks for only a numerical answer without finding the boundaries of the desired segment:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> ans = a[<span class="dv">0</span>], sum = <span class="dv">0</span>;
+
+<span class="kw">for</span> (<span class="dt">int</span> r = <span class="dv">0</span>; r &lt; n; ++r) {
+    sum += a[r];
+    ans = max(ans, sum);
+    sum = max(sum, <span class="dv">0</span>);
+}</code></pre></div>
+<p>A complete solution, maintaining the indexes of the boundaries of the corresponding segment:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> ans = a[<span class="dv">0</span>], ans_l = <span class="dv">0</span>, ans_r = <span class="dv">0</span>;
+<span class="dt">int</span> sum = <span class="dv">0</span>, minus_pos = <span class="dv">-1</span>;
+
+<span class="kw">for</span> (<span class="dt">int</span> r = <span class="dv">0</span>; r &lt; n; ++r) {
+    sum += a[r];
+    <span class="kw">if</span> (sum &gt; ans) {
+        ans = sum;
+        ans_l = minus_pos + <span class="dv">1</span>;
+        ans_r = r;
+    }
+    <span class="kw">if</span> (sum &lt; <span class="dv">0</span>) {
+        sum = <span class="dv">0</span>;
+        minus_pos = r;
+    }
+}</code></pre></div>
+<h2 id="related-tasks">Related tasks</h2>
+<h3 id="finding-the-maximum-minimum-subsegment-with-constraints">Finding the maximum / minimum subsegment with constraints</h3>
+<p>If the problem condition imposes additional restrictions on the required segment <span class="math inline">[<em>l</em>; <em>r</em>]</span> (for example, that the length <span class="math inline"><em>r</em> − <em>l</em> + 1</span> of the segment must be within the specified limits), then the described algorithm is likely to be easily generalized to these cases — anyway, the problem will still be to find the minimum in the array <span class="math inline"><em>s</em>[]</span> with the specified additional restrictions.</p>
+<h3 id="two-dimensional-case-of-the-problem-search-for-maximum-minimum-submatrix">Two-dimensional case of the problem: search for maximum / minimum submatrix</h3>
+<p>The problem described in this article is naturally generalized to large dimensions. For example, in a two-dimensional case, it turns into a search for such a submatrix <span class="math inline">[<em>l</em><sub>1</sub>…<em>r</em><sub>1</sub>; <em>l</em><sub>2</sub>…<em>r</em><sub>2</sub>]</span> of a given matrix, which has the maximum sum of numbers in it.</p>
+<p>Using the solution for the one-dimensional case, it is easy to obtain a solution in <span class="math inline"><em>O</em>(<em>n</em><sup>3</sup>)</span> for the two-dimensions case: we iterate over all possible values of <span class="math inline"><em>l</em><sub>1</sub></span> and <span class="math inline"><em>r</em><sub>1</sub></span>, and calculate the sums from <span class="math inline"><em>l</em><sub>1</sub></span> to <span class="math inline"><em>r</em><sub>1</sub></span> in each row of the matrix. Now we have the one-dimensional problem of finding the indices <span class="math inline"><em>l</em><sub>2</sub></span> and <span class="math inline"><em>r</em><sub>2</sub></span> in this array, which can already be solved in linear time.</p>
+<p><strong>Faster</strong> algorithms for solving this problem are known, but they are not much faster than <span class="math inline"><em>O</em>(<em>n</em><sup>3</sup>)</span>, and are very complex (so complex that many of them are inferior to the trivial algorithm for all reasonable constraints by the hidden constant). Currently, the best known algorithm works in <span class="math inline">$O\left(n^3 \frac{ \log^3 \log n }{ \log^2 n} \right)$</span> time (T. Chan 2007 &quot;More algorithms for all-pairs shortest paths in weighted graphs&quot;)</p>
+<p>This algorithm by Chan, as well as many other results in this area, actually describe <strong>fast matrix multiplication</strong> (where matrix multiplication means modified multiplication: minimum is used instead of addition, and addition is used instead of multiplication). The problem of finding the submatrix with the largest sum can be reduced to the problem of finding the shortest paths between all pairs of vertices, and this problem, in turn, can be reduced to such a multiplication of matrices.</p>
+<h3 id="search-for-a-subsegment-with-a-maximum-minimum-average-amount">Search for a subsegment with a maximum / minimum average amount</h3>
+<p>This problem lies in finding such a segment <span class="math inline"><em>a</em>[<em>l</em>; <em>r</em>]</span>, such that the average value is maximal:</p>
+<p><br /><span class="math display">$$ \max_{l \le r} \frac{ 1 }{ r-l+1 } \sum_{i=l}^{r} a[i].$$</span><br /></p>
+<p>Of course, if no other conditions are imposed on the required segment <span class="math inline">[<em>l</em>; <em>r</em>]</span>, then the solution will always be a segment of length <span class="math inline">1</span> at the maximum element of the array. he problem only makes sense, if there are additional restrictions (for example, the length of the desired segment is bounded below).</p>
+<p>In this case, we apply the <strong>standard technique</strong> when working with the problems of the average value: we will select the desired maximum average value by <strong>binary search</strong>.</p>
+<p>To do this, we need to learn how to solve this subproblem: given the number <span class="math inline"><em>x</em></span>, and we need to check whether there is a subarray of array <span class="math inline"><em>a</em>[]</span> (of course, satisfying all additional constraints of the problem), where the average value is greater than <span class="math inline"><em>x</em></span>.</p>
+<p>To solve this subproblem, subtract <span class="math inline"><em>x</em></span> from each element of array <span class="math inline"><em>a</em>[]</span>. Then our subproblem actually turns into this one: whether or not there are positive sum subsegments in this array. And we already know how to solve this problem.</p>
+<p>Thus, we obtained the solution for the asymptotic <span class="math inline"><em>O</em>(<em>T</em>(<em>n</em>)log<em>W</em>)</span>, where <span class="math inline"><em>W</em></span> is the required accuracy, <span class="math inline"><em>T</em>(<em>n</em>)</span> is the time of solving the subtask for an array of length <span class="math inline"><em>n</em></span> (which may vary depending on the specific additional restrictions imposed).</p>
+<h3 id="solving-the-online-problem">Solving the online problem</h3>
+<p>The condition of the problem is as follows: given an array of <span class="math inline"><em>n</em></span> numbers, and a number <span class="math inline"><em>L</em></span>. There are queries of the form <span class="math inline">(<em>l</em>, <em>r</em>)</span>, and in response to each query, it is required to find a subsegment of the segment <span class="math inline">[<em>l</em>; <em>r</em>]</span> of length not less than <span class="math inline"><em>L</em></span> with the maximum possible arithmetic mean.</p>
+<p>The algorithm for solving this problem is quite complex. KADR (Yaroslav Tverdokhleb) described his algorithm on the <a href="http://e-maxx.ru/forum/viewtopic.php?id=410">Russian forum</a>.</p>
+</body>
+</html>

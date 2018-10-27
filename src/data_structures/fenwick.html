@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Fenwick Tree -->
+<h1 id="fenwick-tree">Fenwick Tree</h1>
+<p>Let, <span class="math inline"><em>f</em></span> be some <em>reversible</em> function and <span class="math inline"><em>A</em></span> be an array of integers of length <span class="math inline"><em>N</em></span>.</p>
+<p>Fenwick tree is a data structure which:</p>
+<ul>
+<li>calculates the value of function <span class="math inline"><em>f</em></span> in the given range <span class="math inline">[<em>l</em>; <em>r</em>]</span> (i.e. <span class="math inline"><em>f</em>(<em>A</em><sub><em>l</em></sub>, <em>A</em><sub><em>l</em> + 1</sub>, …, <em>A</em><sub><em>r</em></sub>)</span>) in <span class="math inline"><em>O</em>(<em>l</em><em>g</em> <em>n</em>)</span> time;</li>
+<li>updates the value of an element of <span class="math inline"><em>A</em></span> in <span class="math inline"><em>O</em>(<em>l</em><em>g</em> <em>n</em>)</span> time;</li>
+<li>requires <span class="math inline"><em>O</em>(<em>N</em>)</span> memory, or in other words, exactly the same memory required for <span class="math inline"><em>A</em></span>;</li>
+<li>is easy to use and code, especially, in the case of multidimensional arrays.</li>
+</ul>
+<p>Fenwick tree is also called Binary Indexed Tree.</p>
+<p>The most common application of Fenwick tree is <em>calculating the sum of a range</em> (i.e. <span class="math inline"><em>f</em>(<em>A</em><sub>1</sub>, <em>A</em><sub>2</sub>, …, <em>A</em><sub><em>k</em></sub>)=<em>A</em><sub>1</sub> + <em>A</em><sub>2</sub> + … + <em>A</em><sub><em>k</em></sub></span>).</p>
+<p>Fenwick tree was first described in a paper titled &quot;A new data structure for cumulative frequency tables&quot; (Peter M. Fenwick, 1994).</p>
+<h3 id="description">Description</h3>
+<p>For the sake of simplicity, we will assume that function <span class="math inline"><em>f</em></span> is just a <em>sum function</em>.</p>
+<p>Given an array of integers <span class="math inline"><em>A</em>[0…<em>N</em> − 1]</span>. Fenwick tree is an array <span class="math inline"><em>T</em>[0…<em>N</em> − 1]</span>, where each of its elements is equal to the sum of elements of <span class="math inline"><em>A</em></span> in some range <span class="math inline">[<em>g</em>(<em>i</em>);<em>i</em>]</span>:</p>
+<p><br /><span class="math display">$$T_i = \sum_{j = g(i)}^{i}{A_j}$$</span><br /></p>
+<p>where <span class="math inline"><em>g</em></span> is some function that satisfies <span class="math inline">(<em>g</em>(<em>i</em>)≤<em>i</em>)</span> and we will define it a bit later.</p>
+<p><strong>Note:</strong> Fenwick tree presented here <strong>does support</strong> 0-based indexing (in case you were told that it does not support it).</p>
+<p>Now we can write pseudo-code for the two operations mentioned above — get the sum of elements of <span class="math inline"><em>A</em></span> in range <span class="math inline">[0; <em>r</em>]</span> and update some element <span class="math inline"><em>A</em><sub><em>i</em></sub></span>:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> <span class="bu">sum</span>(<span class="bu">int</span> r):
+    res <span class="op">=</span> <span class="dv">0</span>
+    <span class="cf">while</span> (r <span class="op">&gt;=</span> <span class="dv">0</span>):
+        res <span class="op">+=</span> t[r]
+        r <span class="op">=</span> g(r) <span class="op">-</span> <span class="dv">1</span>
+    <span class="cf">return</span> res
+
+<span class="kw">def</span> inc(<span class="bu">int</span> i, <span class="bu">int</span> delta):
+    <span class="cf">for</span> <span class="bu">all</span> j, where g(j) <span class="op">&lt;=</span> i <span class="op">&lt;=</span> j
+        t[j] <span class="op">+=</span> delta</code></pre></div>
+<p>The function <code>sum</code> works as follows:</p>
+<ol style="list-style-type: decimal">
+<li>first, it adds the sum of the range <span class="math inline">[<em>g</em>(<em>r</em>);<em>r</em>]</span> (i.e. <span class="math inline"><em>T</em>[<em>r</em>]</span>) to the <code>result</code></li>
+<li>then, it &quot;jumps&quot; to the range <span class="math inline">[<em>g</em>(<em>g</em>(<em>r</em>)−1);<em>g</em>(<em>r</em>)−1]</span>, and adds this range's sum to the <code>result</code></li>
+<li>and so on, until it &quot;jumps&quot; from <span class="math inline">[0; <em>g</em>(<em>g</em>(…<em>g</em>(<em>r</em>)−1…−1)−1)]</span> to <span class="math inline">[<em>g</em>(−1); − 1]</span>; that is where the <code>sum</code> function stops jumping.</li>
+</ol>
+<p>The function <code>inc</code> works with the same analogy, but &quot;jumps&quot; in the direction of increasing indices:</p>
+<ol style="list-style-type: decimal">
+<li>sums of the ranges <span class="math inline">[<em>g</em>(<em>j</em>);<em>j</em>]</span> that satisfy the condition <span class="math inline"><em>g</em>(<em>j</em>)≤<em>i</em> ≤ <em>j</em></span> are increased by <code>delta</code> , that is <code>t[j] += delta</code> .</li>
+</ol>
+<p>It is obvious that complexity of both <code>sum</code> and <code>inc</code> do depend on the function <span class="math inline"><em>g</em></span>. We will define the function <span class="math inline"><em>g</em></span> in such a way that both of the operations have a logarithmic complexity <span class="math inline"><em>O</em>(<em>l</em><em>g</em><em>N</em>)</span>.</p>
+<p><strong>Definition of <span class="math inline"><em>g</em>(<em>i</em>)</span>.</strong> Let us consider the least significant digit of <span class="math inline"><em>i</em></span> in binary. If this digit is <span class="math inline">0</span>, then let <span class="math inline"><em>g</em>(<em>i</em>)=<em>i</em></span>. Otherwise, the binary representation of <span class="math inline"><em>i</em></span> will end with at least one <span class="math inline">1</span> bit. We will flip all these tailing <span class="math inline">1</span>'s (so they become <span class="math inline">0</span>'s) and define the result as a value of <span class="math inline"><em>g</em>(<em>i</em>)</span>.</p>
+<p>There exists a trivial solution for the non-trivial operation described above:</p>
+<pre><code>g(i) = i &amp; (i+1)</code></pre>
+<p>where <code>&amp;</code> is a logical AND operator. It is not hard to convince yourself that this solution does the same thing as the operation described above.</p>
+<p>Now, we need to find a way to find all <span class="math inline"><em>j</em></span>'s, such that <em>g(j) &lt;= i &lt;= j</em>.</p>
+<p>It is easy to see that we can find all such <span class="math inline"><em>j</em></span>'s by starting with <span class="math inline"><em>i</em></span> and flipping the least significant zero bit. For example, for <span class="math inline"><em>i</em> = 10</span> we have:</p>
+<pre><code>j = 10, binary 0001010
+j = 11, binary 0001011
+j = 15, binary 0001111
+j = 31, binary 0011111
+j = 63, binary 0111111
+...</code></pre>
+<p>Unsurprisingly, there also exists a simple way to do the above operation:</p>
+<pre><code>h(j) = j | (j+1)</code></pre>
+<p>where <code>|</code> is a logical OR operator.</p>
+<h3 id="implementation-finding-sum-in-one-dimensional-array">Implementation: finding sum in one-dimensional array</h3>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">struct</span> FenwickTree {
+    vector&lt;<span class="dt">int</span>&gt; bit;  <span class="co">// binary indexed tree</span>
+    <span class="dt">int</span> n;
+
+    <span class="dt">void</span> init(<span class="dt">int</span> n) {
+        <span class="kw">this</span>-&gt;n = n;
+        bit.assign(n, <span class="dv">0</span>);
+    }
+    <span class="dt">int</span> sum(<span class="dt">int</span> r) {
+        <span class="dt">int</span> ret = <span class="dv">0</span>;
+        <span class="kw">for</span> (; r &gt;= <span class="dv">0</span>; r = (r &amp; (r + <span class="dv">1</span>)) - <span class="dv">1</span>)
+            ret += bit[r];
+        <span class="kw">return</span> ret;
+    }
+    <span class="dt">void</span> add(<span class="dt">int</span> idx, <span class="dt">int</span> delta) {
+        <span class="kw">for</span> (; idx &lt; n; idx = idx | (idx + <span class="dv">1</span>))
+            bit[idx] += delta;
+    }
+    <span class="dt">int</span> sum(<span class="dt">int</span> l, <span class="dt">int</span> r) {
+        <span class="kw">return</span> sum(r) - sum(l - <span class="dv">1</span>);
+    }
+    <span class="dt">void</span> init(vector&lt;<span class="dt">int</span>&gt; a) {
+        init(a.size());
+        <span class="kw">for</span> (size_t i = <span class="dv">0</span>; i &lt; a.size(); i++)
+            add(i, a[i]);
+    }
+};</code></pre></div>
+<h3 id="implementation-finding-minimum-of-0-r-in-one-dimensional-array">Implementation: finding minimum of <span class="math inline">[0; <em>r</em>]</span> in one-dimensional array</h3>
+<p>It is obvious that there is no way of finding minimum of range <span class="math inline">[<em>l</em>; <em>r</em>]</span> using Fenwick tree, as Fenwick tree can only answer queries of type [0; r]. Additionally, each time a value is <code>update</code>'d, new value should be smaller than the current value (because, the <span class="math inline"><em>m</em><em>i</em><em>n</em></span> function is not reversible). These, of course, are significant limitations.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">struct</span> FenwickTreeMin {
+    vector&lt;<span class="dt">int</span>&gt; bit;
+    <span class="dt">int</span> n;
+    <span class="dt">const</span> <span class="dt">int</span> INF = (<span class="dt">int</span>)<span class="fl">1e9</span>;
+    <span class="dt">void</span> init(<span class="dt">int</span> n) {
+        <span class="kw">this</span>-&gt;n = n;
+        bit.assign(n, INF);
+    }
+    <span class="dt">int</span> getmin(<span class="dt">int</span> r) {
+        <span class="dt">int</span> ret = INF;
+        <span class="kw">for</span> (; r &gt;= <span class="dv">0</span>; r = (r &amp; (r + <span class="dv">1</span>)) - <span class="dv">1</span>)
+            ret = min(ret, bit[r]);
+        <span class="kw">return</span> ret;
+    }
+    <span class="dt">void</span> update(<span class="dt">int</span> idx, <span class="dt">int</span> val) {
+        <span class="kw">for</span> (; idx &lt; n; idx = idx | (idx + <span class="dv">1</span>))
+            bit[idx] = min(bit[idx], val);
+    }
+    <span class="dt">void</span> init(vector&lt;<span class="dt">int</span>&gt; a) {
+        init(a.size());
+        <span class="kw">for</span> (size_t i = <span class="dv">0</span>; i &lt; a.size(); i++)
+            update(i, a[i]);
+    }
+};</code></pre></div>
+<h3 id="implementation-finding-sum-in-two-dimensional-array">Implementation: finding sum in two-dimensional array</h3>
+<p>As claimed before, it is easy to implement Fenwick Tree for multidimensional array.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">struct</span> FenwickTree2D {
+    vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; bit;
+    <span class="dt">int</span> n, m;
+    <span class="co">// init(...) { ... }</span>
+    <span class="dt">int</span> sum(<span class="dt">int</span> x, <span class="dt">int</span> y) {
+        <span class="dt">int</span> ret = <span class="dv">0</span>;
+        <span class="kw">for</span> (<span class="dt">int</span> i = x; i &gt;= <span class="dv">0</span>; i = (i &amp; (i + <span class="dv">1</span>)) - <span class="dv">1</span>)
+            <span class="kw">for</span> (<span class="dt">int</span> j = y; j &gt;= <span class="dv">0</span>; j = (j &amp; (j + <span class="dv">1</span>)) - <span class="dv">1</span>)
+                ret += bit[i][j];
+        <span class="kw">return</span> ret;
+    }
+    <span class="dt">void</span> add(<span class="dt">int</span> x, <span class="dt">int</span> y, <span class="dt">int</span> delta) {
+        <span class="kw">for</span> (<span class="dt">int</span> i = x; i &lt; n; i = i | (i + <span class="dv">1</span>))
+            <span class="kw">for</span> (<span class="dt">int</span> j = y; j &lt; m; j = j | (j + <span class="dv">1</span>))
+                bit[i][j] += delta;
+    }
+};</code></pre></div>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=3238">UVA 12086 - Potentiometers</a></li>
+<li><a href="http://www.lightoj.com/volume_showproblem.php?problem=1112">LOJ 1112 - Curious Robin Hood</a></li>
+<li><a href="http://www.lightoj.com/volume_showproblem.php?problem=1266" title="2D Fenwick Tree">LOJ 1266 - Points in Rectangle</a></li>
+<li><a href="http://www.codechef.com/problems/SPREAD">Codechef - SPREAD</a></li>
+<li><a href="http://www.spoj.com/problems/CTRICK/">SPOJ - CTRICK</a></li>
+<li><a href="http://www.spoj.com/problems/MATSUM/">SPOJ - MATSUM</a></li>
+<li><a href="http://www.spoj.com/problems/DQUERY/">SPOJ - DQUERY</a></li>
+<li><a href="http://www.spoj.com/problems/NKTEAM/">SPOJ - NKTEAM</a></li>
+<li><a href="http://www.spoj.com/problems/YODANESS/">SPOJ - YODANESS</a></li>
+<li><a href="https://community.topcoder.com/stat?c=problem_statement&amp;pm=6551&amp;rd=9990">SRM 310 - FloatingMedian</a></li>
+<li><a href="http://www.spoj.com/problems/ADABEHIVE/">SPOJ - Ada and Behives</a></li>
+<li><a href="https://www.hackerearth.com/practice/data-structures/advanced-data-structures/fenwick-binary-indexed-trees/practice-problems/algorithm/counting-in-byteland/">Hackerearth - Counting in Byteland</a></li>
+<li><a href="https://devskill.com/CodingProblems/ViewProblem/300">DevSkills - Shan and String</a></li>
+<li><a href="http://codeforces.com/contest/669/problem/E">Codeforces - Little Artem and Time Machine</a></li>
+<li><a href="http://codeforces.com/contest/777/problem/E">Codeforces - Hanoi Factory</a></li>
+<li><a href="http://www.spoj.com/problems/TULIPNUM/">SPOJ - Tulip and Numbers</a></li>
+<li><a href="http://www.spoj.com/problems/SUMSUM/">SPOJ - SUMSUM</a></li>
+<li><a href="http://www.spoj.com/problems/SGIFT/">SPOJ - Sabir and Gifts</a></li>
+<li><a href="http://www.spoj.com/problems/TPGA/">SPOJ - The Permutation Game Again</a></li>
+<li><a href="http://www.spoj.com/problems/ZIGZAG2/">SPOJ - Zig when you Zag</a></li>
+<li><a href="http://www.spoj.com/problems/CRAYON/">SPOJ - Cryon</a></li>
+<li><a href="http://www.spoj.com/problems/DCEPC705/">SPOJ - Weird Points</a></li>
+<li><a href="http://www.spoj.com/problems/DCEPC206/">SPOJ - Its a Murder</a></li>
+<li><a href="http://www.spoj.com/problems/KOPC12G/">SPOJ - Bored of Suffixes and Prefixes</a></li>
+<li><a href="http://www.spoj.com/problems/TRIPINV/">SPOJ - Mega Inversions</a></li>
+<li><a href="http://codeforces.com/contest/597/problem/C">Codeforces - Subsequences</a></li>
+<li><a href="http://codeforces.com/contest/12/problem/D">Codeforces - Ball</a></li>
+<li><a href="http://codeforces.com/gym/101047/problem/J">GYM - The Kamphaeng Phet's Chedis</a></li>
+<li><a href="http://codeforces.com/contest/707/problem/E">Codeforces - Garlands</a></li>
+<li><a href="http://codeforces.com/contest/749/problem/E">Codeforces - Inversions after Shuffle</a></li>
+<li><a href="http://codeforces.com/problemset/gymProblem/101055/D">GYM - Cairo Market</a></li>
+<li><a href="http://codeforces.com/contest/849/problem/E">Codeforces - Goodbye Souvenir</a></li>
+<li><a href="http://www.spoj.com/problems/ADACABAA/">SPOJ - Ada and Species</a></li>
+</ul>
+<h3 id="other-sources">Other sources</h3>
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Fenwick_tree">Fenwick tree on Wikipedia</a></li>
+<li><a href="https://www.topcoder.com/community/data-science/data-science-tutorials/binary-indexed-trees/">Binary indexed trees tutorial on TopCoder</a></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Linear Diophantine Equation-->
+<h1 id="linear-diophantine-equation">Linear Diophantine Equation</h1>
+<p>A Linear Diophantine Equation (in two variables) is an equation of the general form:</p>
+<p><br /><span class="math display"><em>a</em><em>x</em> + <em>b</em><em>y</em> = <em>c</em></span><br /></p>
+<p>where <span class="math inline"><em>a</em></span>, <span class="math inline"><em>b</em></span>, <span class="math inline"><em>c</em></span> are given integers, and <span class="math inline"><em>x</em></span>, <span class="math inline"><em>y</em></span> are unknown integers.</p>
+<p>In this article, we consider several classical problems on these equations:</p>
+<ul>
+<li>finding one solution</li>
+<li>finding all solutions</li>
+<li>finding the number of solutions and the solutions themselves in a given interval</li>
+<li>finding a solution with minimum value of <span class="math inline"><em>x</em> + <em>y</em></span></li>
+</ul>
+<h2 id="the-degenerate-case">The degenerate case</h2>
+<p>A degenerate case that need to be taken care of is when <span class="math inline"><em>a</em> = <em>b</em> = 0</span>. It is easy to see that we either have no solutions or infinitely many solutions, depending on whether <span class="math inline"><em>c</em> = 0</span> or not. In the rest of this article, we will ignore this case.</p>
+<h2 id="finding-a-solution">Finding a solution</h2>
+<p>To find one solution of the Diophantine equation with 2 unknowns, you can use the extended Euclidean algorithm. First, assume that <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> are non-negative. When we apply extended Euclidean algorithm for <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>, we can find their greatest common divisor <span class="math inline"><em>g</em></span> and 2 numbers <span class="math inline"><em>x</em><sub><em>g</em></sub></span> and <span class="math inline"><em>y</em><sub><em>g</em></sub></span> such that:</p>
+<p><br /><span class="math display"><em>a</em><em>x</em><sub><em>g</em></sub> + <em>b</em><em>y</em><sub><em>g</em></sub> = <em>g</em></span><br /></p>
+<p>If <span class="math inline"><em>c</em></span> is divisible by <span class="math inline"><em>g</em> = gcd(<em>a</em>, <em>b</em>)</span>, then the given Diophantine equation has a solution, otherwise it does not have any solution. The proof is straight-forward: a linear combination of two numbers is divisible by their common divisor.</p>
+<p>Now supposed that <span class="math inline"><em>c</em></span> is divisible by <span class="math inline"><em>g</em></span>, then we have:</p>
+<p><br /><span class="math display">$$a \cdot x_g \cdot \frac{c}{g} + b \cdot y_g \cdot \frac{c}{g} = c$$</span><br /></p>
+<p>Therefore one of the solutions of the Diophantine equation is:</p>
+<p><br /><span class="math display">$$x_0 = x_g \cdot \frac{c}{g},$$</span><br /> <br /><span class="math display">$$y_0 = y_g \cdot \frac{c}{g}.$$</span><br /></p>
+<p>The above idea still works when <span class="math inline"><em>a</em></span> or <span class="math inline"><em>b</em></span> or both of them are negative. We only need to change the sign of <span class="math inline"><em>x</em><sub>0</sub></span> and <span class="math inline"><em>y</em><sub>0</sub></span> when necessary.</p>
+<p>Finally, we can implement this idea as follows (note that this code does not consider the case <span class="math inline"><em>a</em> = <em>b</em> = 0</span>):</p>
+<p>```cpp linear_diophantine_any int gcd(int a, int b, int &amp;x, int &amp;y) { if (a == 0) { x = 0; y = 1; return b; } int x1, y1; int d = gcd(b%a, a, x1, y1); x = y1 - (b / a) * x1; y = x1; return d; }</p>
+<p>bool find_any_solution(int a, int b, int c, int &amp;x0, int &amp;y0, int &amp;g) { g = gcd(abs(a), abs(b), x0, y0); if (c % g) { return false; }</p>
+<pre><code>x0 *= c / g;
+y0 *= c / g;
+if (a &lt; 0) x0 = -x0;
+if (b &lt; 0) y0 = -y0;
+return true;</code></pre>
+<p>} ```</p>
+<h2 id="getting-all-solutions">Getting all solutions</h2>
+<p>From one solution <span class="math inline">(<em>x</em><sub>0</sub>, <em>y</em><sub>0</sub>)</span>, we can obtain all the solutions of the given equation.</p>
+<p>Let <span class="math inline"><em>g</em> = <em>g</em><em>c</em><em>d</em>(<em>a</em>, <em>b</em>)</span> and let <span class="math inline"><em>x</em><sub>0</sub>, <em>y</em><sub>0</sub></span> be integers which satisfy the following:</p>
+<p><br /><span class="math display"><em>a</em> ⋅ <em>x</em><sub>0</sub> + <em>b</em> ⋅ <em>y</em><sub>0</sub> = <em>c</em></span><br /></p>
+<p>Now, we should see that adding <span class="math inline"><em>b</em>/<em>g</em></span> to <span class="math inline"><em>x</em><sub>0</sub></span>, and, at the same time subtracting <span class="math inline"><em>a</em>/<em>g</em></span> from <span class="math inline"><em>y</em><sub>0</sub></span> will not break the equality:</p>
+<p><br /><span class="math display">$$a \cdot \left(x_0 + \frac{b}{g}\right) + b \cdot \left(y_0 - \frac{a}{g}\right) = a \cdot x_0 + b \cdot y_0 + a \cdot \frac{b}{g} - b \cdot \frac{a}{g} = c$$</span><br /></p>
+<p>Obviously, this process can be repeated again, so all the numbers of the form:</p>
+<p><br /><span class="math display">$$x = x_0 + k \cdot \frac{b}{g}$$</span><br /> <br /><span class="math display">$$y = y_0 - k \cdot \frac{a}{g}$$</span><br /></p>
+<p>are solutions of the given Diophantine equation.</p>
+<p>Moreover, this is the set of all possible solutions of the given Diophantine equation.</p>
+<h2 id="finding-the-number-of-solutions-and-the-solutions-in-a-given-interval">Finding the number of solutions and the solutions in a given interval</h2>
+<p>From previous section, it should be clear that if we don't impose any restrictions on the solutions, there would be infinite number of them. So in this section, we add some restrictions on the interval of <span class="math inline"><em>x</em></span> and <span class="math inline"><em>y</em></span>, and we will try to count and enumerate all the solutions.</p>
+<p>Let there be two intervals: <span class="math inline">[<em>m</em><em>i</em><em>n</em><sub><em>x</em></sub>; <em>m</em><em>a</em><em>x</em><sub><em>x</em></sub>]</span> and <span class="math inline">[<em>m</em><em>i</em><em>n</em><sub><em>y</em></sub>; <em>m</em><em>a</em><em>x</em><sub><em>y</em></sub>]</span> and let's say we only want to find the solutions in these two intervals.</p>
+<p>Note that if <span class="math inline"><em>a</em></span> or <span class="math inline"><em>b</em></span> is <span class="math inline">0</span>, then the problem only has one solution. We don't consider this case here.</p>
+<p>First, we can find a solution which have minimum value of <span class="math inline"><em>x</em></span>, such that <span class="math inline"><em>x</em> ≥ <em>m</em><em>i</em><em>n</em><sub><em>x</em></sub></span>. To do this, we first find any solution of the Diophantine equation. Then, we shift this solution to get <span class="math inline"><em>x</em> ≥ <em>m</em><em>i</em><em>n</em><sub><em>x</em></sub></span> (using what we know about the set of all solutions in previous section). This can be done in <span class="math inline"><em>O</em>(1)</span>. Denote this minimum value of <span class="math inline"><em>x</em></span> by <span class="math inline"><em>l</em><em>x</em><sub>1</sub></span>.</p>
+<p>Similarly, we can find the maximum value of <span class="math inline"><em>x</em></span> which satisfy <span class="math inline"><em>x</em> ≤ <em>m</em><em>a</em><em>x</em><sub><em>x</em></sub></span>. Denote this maximum value of <span class="math inline"><em>x</em></span> by <span class="math inline"><em>r</em><em>x</em><sub>1</sub></span>.</p>
+<p>Similarly, we can find the minimum value of <span class="math inline"><em>y</em></span> <span class="math inline">(<em>y</em> ≥ <em>m</em><em>i</em><em>n</em><sub><em>y</em></sub>)</span> and maximum values of <span class="math inline"><em>y</em></span> <span class="math inline">(<em>y</em> ≤ <em>m</em><em>a</em><em>x</em><sub><em>y</em></sub>)</span>. Denote the corresponding values of <span class="math inline"><em>x</em></span> by <span class="math inline"><em>l</em><em>x</em><sub>2</sub></span> and <span class="math inline"><em>r</em><em>x</em><sub>2</sub></span>.</p>
+<p>The final solution is all solutions with x in intersection of <span class="math inline">[<em>l</em><em>x</em><sub>1</sub>, <em>r</em><em>x</em><sub>1</sub>]</span> and <span class="math inline">[<em>l</em><em>x</em><sub>2</sub>, <em>r</em><em>x</em><sub>2</sub>]</span>. Let denote this intersection by <span class="math inline">[<em>l</em><em>x</em>, <em>r</em><em>x</em>]</span>.</p>
+<p>Following is the code implementing this idea:</p>
+<p>```cpp linear_diophantine_all void shift_solution (int &amp; x, int &amp; y, int a, int b, int cnt) { x += cnt * b; y -= cnt * a; }</p>
+<p>int find_all_solutions (int a, int b, int c, int minx, int maxx, int miny, int maxy) { int x, y, g; if (! find_any_solution (a, b, c, x, y, g)) return 0; a /= g; b /= g;</p>
+<pre><code>int sign_a = a&gt;0 ? +1 : -1;
+int sign_b = b&gt;0 ? +1 : -1;
+
+shift_solution (x, y, a, b, (minx - x) / b);
+if (x &lt; minx)
+    shift_solution (x, y, a, b, sign_b);
+if (x &gt; maxx)
+    return 0;
+int lx1 = x;
+
+shift_solution (x, y, a, b, (maxx - x) / b);
+if (x &gt; maxx)
+    shift_solution (x, y, a, b, -sign_b);
+int rx1 = x;
+
+shift_solution (x, y, a, b, - (miny - y) / a);
+if (y &lt; miny)
+    shift_solution (x, y, a, b, -sign_a);
+if (y &gt; maxy)
+    return 0;
+int lx2 = x;
+
+shift_solution (x, y, a, b, - (maxy - y) / a);
+if (y &gt; maxy)
+    shift_solution (x, y, a, b, sign_a);
+int rx2 = x;
+
+if (lx2 &gt; rx2)
+    swap (lx2, rx2);
+int lx = max (lx1, lx2);
+int rx = min (rx1, rx2);
+
+if (lx &gt; rx) return 0;
+return (rx - lx) / abs(b) + 1;</code></pre>
+<p>} ```</p>
+<p>When we have <span class="math inline"><em>l</em><em>x</em></span> and <span class="math inline"><em>r</em><em>x</em></span>, it is simple to enumerate through all the solutions. Just need to iterate through <span class="math inline"><em>x</em> = <em>l</em><em>x</em> + <em>k</em> ⋅ <em>b</em></span> and find the corresponding <span class="math inline"><em>y</em></span> using the equation <span class="math inline"><em>a</em><em>x</em> + <em>b</em><em>y</em> = <em>c</em></span>.</p>
+<h2 id="find-the-solution-with-minimum-value-of-x-y">Find the solution with minimum value of <span class="math inline"><em>x</em> + <em>y</em></span></h2>
+<p>Here, <span class="math inline"><em>x</em></span> and <span class="math inline"><em>y</em></span> also need to be given some restriction, otherwise, the answer may become negative infinity.</p>
+<p>The idea is similar to previous section: We find any solution of the Diophantine equation, and then shift the solution to satisfy some conditions.</p>
+<p>Finally, use the knowledge of the set of all solutions to find the minimum:</p>
+<p><br /><span class="math display">$$x' = x + k \cdot \frac{b}{g},$$</span><br /> <br /><span class="math display">$$y' = y - k \cdot \frac{a}{g}.$$</span><br /></p>
+<p>Note that <span class="math inline"><em>x</em> + <em>y</em></span> change as follows:</p>
+<p><br /><span class="math display">$$x' + y' = x + y + k \cdot \left(\frac{b}{g} - \frac{a}{g}\right) = x + y + k \cdot \frac{b-a}{g}$$</span><br /></p>
+<p>If <span class="math inline"><em>a</em> &lt; <em>b</em></span>, we need to select smallest possible value of <span class="math inline"><em>k</em></span>. If <span class="math inline"><em>a</em> &gt; <em>b</em></span>, we need to select the largest possible value of <span class="math inline"><em>k</em></span>. If <span class="math inline"><em>a</em> = <em>b</em></span>, all solution will have the same sum <span class="math inline"><em>x</em> + <em>y</em></span>.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/CEQU/">Spoj - Crucial Equation</a></li>
+<li><a href="http://acm.sgu.ru/problem.php?contest=0&amp;problem=106">SGU 106</a></li>
+<li><a href="http://codeforces.com/contest/633/problem/A">Codeforces - Ebony and Ivory</a></li>
+<li><a href="https://www.codechef.com/problems/COPR16G">Codechef - Get AC in one go</a></li>
+<li><a href="http://www.lightoj.com/volume_showproblem.php?problem=1306">LightOj - Solutions to an equation</a></li>
+</ul>
+</body>
+</html>

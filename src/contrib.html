@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title For Contributors-->
+<h1 id="how-to-contribute">How to Contribute</h1>
+<h2 id="general-information">General information</h2>
+<p>We collaborate via means of github.</p>
+<p>Generated pages are compiled and published at <a href="https://cp-algorithms.com" class="uri">https://cp-algorithms.com</a>.</p>
+<p>And sources (to which you may want to contribute) are <a href="http://github.com/e-maxx-eng/e-maxx-eng/tree/master/src">here</a>.</p>
+<p>In order to make contribution consider the following steps:</p>
+<ol style="list-style-type: decimal">
+<li>Fork <a href="https://github.com/e-maxx-eng/e-maxx-eng">source repository</a>.</li>
+<li>Add or modify files in <code>src</code> subfolder in Markdown format (you can do this in web-interface of github now).</li>
+<li>Make sure you added <code>&lt;!--?title ... --&gt;</code> to your page and the corresponding link to main (index) page.</li>
+<li>Use <a href="./test.php">Test-Your-Page form</a> to check if you are satisfied with the result.</li>
+<li>Use <code>pull-request</code> feature to send the request for your changes to be merged.</li>
+<li>It may take few hours or few days before someone who have admin rights will merge your request. Contact any of admins personally to speed up this process!</li>
+<li>After merging it will take about 5 minutes before updated html page will appear at the site.</li>
+</ol>
+<p><strong>You may start with this <a href="./demo-article.html">demo-article</a> or even use <a href="https://raw.githubusercontent.com/e-maxx-eng/e-maxx-eng/master/src/contrib.md">its source</a> as a template for your new article.</strong></p>
+<p>Please kindly refer to manuals on using <code>git</code> and <code>github</code> anywhere over internet. You may also watch this demo video:</p>
+<div style="text-align:center">
+<iframe width="420" height="315" src="https://www.youtube.com/embed/TrBBw4J9X30" frameborder="0" allowfullscreen>
+</iframe>
+</div>
+<h2 id="your-authorship-is-preserved">Your Authorship is Preserved</h2>
+<p>Some contributors add explicit links to their profiles at the bottom of the translated articles. However it is discouraged and simply not very convenient if the article was edited by several people. Every page has <code>Page Authors</code> link in its top - this link leads to the github commit history, so it is always easy to determine or prove the authorship (even of any single line). Just make sure that your GitHub profile (which is mentioned in history) provides enough information about you.</p>
+<h2 id="source-format">Source format</h2>
+<p>We use <a href="https://daringfireball.net/projects/markdown">Markdown</a> for source texts and convert them automatically to HTML. Some <a href="https://michelf.ca/projects/php-markdown/extra/">extra</a> features also could be used.</p>
+<p>Formulas could be added thanks to <code>MathJax</code> library. Simply use <code>TeX</code> expressions inside single or double dollar marks <code>$</code>, for example:</p>
+<p>here is an inline equation: <span class="math inline"><em>P</em> ≠ <em>N</em><em>P</em></span></p>
+<p>And here is the formula in the separate block:</p>
+<p><br /><span class="math display"><em>E</em> = <em>m</em><em>c</em><sup>2</sup></span><br /></p>
+<h2 id="some-conventions">Some conventions</h2>
+<ul>
+<li>We have agreed as of issue <a href="https://github.com/e-maxx-eng/e-maxx-eng/issues/83">#83</a> to express binomial coefficients with <code>\binom{n}{k}</code> instead of <code>C_n^k</code>. The first one renders as <span class="math inline">$\binom{n}{k}$</span> and is a more universal convention. The second would render as <span class="math inline"><em>C</em><sub><em>n</em></sub><sup><em>k</em></sup></span>.</li>
+</ul>
+<h2 id="adding-images">Adding images</h2>
+<p>Small images could be pushed along with texts to the <a href="https://github.com/e-maxx-eng/e-maxx-eng/tree/master/img">/img</a> subfolder. Let them be in <code>PNG</code> format and less than <code>200kb</code>. Then you can refer to them inside the article with the tag:</p>
+<pre><code>![some image description](&amp;imgroot&amp;/my-image.png)</code></pre>
+<p>Here <code>my-image.png</code> should be your file name, while <code>&amp;imgroot&amp;</code> is some magic which will expand to proper url prefix when shown at the site (so you need not know the precise prefix of github raw data).</p>
+<p>Larger images should be posted to some image-hosting, like <a href="http://postimage.org">PostImage</a> or <a href="http://imgur.com/">ImgUr</a> - they will then give you the url to insert into the page.</p>
+<h2 id="modifying-css-and-js-files">Modifying CSS and JS files</h2>
+<p>This is not something you usually need to do, when just writing content. It is rather for exceptional cases there arose necessity to improve general page style or behavior. These files are (due to certain technical reasons) in the other branch of the same github repository: https://github.com/e-maxx-eng/e-maxx-eng/tree/gh-pages - please, be careful here, as usually changes will affect the whole site. Also make sure site's cache and your browser cache is expired after changes done, otherwise testing could be bewildering.</p>
+<h2 id="creating-anchors-and-link-to-them">Creating anchors and link to them</h2>
+<p>It is possible to generate HTLM anchors for sections of an article. E.g. the following generates a header and a named anchor.</p>
+<pre><code>## Implementation ## {#implementation}</code></pre>
+<p>And then link to it from the same or a different article:</p>
+<pre><code>For more detail read the [Implementation](#implementation).
+More infos in [Impl. of Segmenttree](./data_structures/segment_tree.html#implementation).</code></pre>
+<h2 id="page-template">Page Template</h2>
+<p>Template for the pages (the one which creates small violet header and footer, determines the layout of the text, includes css and js files) is now also stored in this repo, in <a href="https://github.com/e-maxx-eng/e-maxx-eng/tree/master/src/_templates">src/_templates</a> folder. So in case you find some bugs in it, or with the passing of time some new features may be needed in it - create PR to improve it. Note that for testing purposes the alternative template could be created and used for specific page with the inclusion of special comment as shown below:</p>
+<p><code>&lt;!--?template myfunnytemplate--&gt;</code></p>
+<p>The templates are cached for about 3600 seconds, rather than 300 seconds for ordinary pages, so be patient :)</p>
+<h2 id="tests">Tests</h2>
+<p>If your article involves code snippets, then it would be great you also contribute tests for them. This way we can make sure that the snippets actually work, and don't contain any bugs.</p>
+<p>Creating tests works like this: You have to name each snippet that you want to test in the markdown article:</p>
+<pre><code>```cpp snippet-name
+// some code
+```</code></pre>
+<p>In the directory <code>test</code> you find a script <code>extract_snippets.py</code> that you can run. This script extracts from every article all named snippets, and puts them in C++ header files: <code>snippet-name.h</code> In the folder you can create a cpp file, that includes these snippets headers, and tests their behaviour. If the snippets don't work, the test program should return 1 instead of 0.</p>
+<p>You can run all tests with the script <code>test.sh</code>. Also, every pull-request will automatically tested via <a href="https://travis-ci.org/e-maxx-eng/e-maxx-eng/">Travis CI</a>, and the result of the tests will be shown.</p>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Breadth First Search -->
+<h1 id="breadth-first-search">Breadth-first search</h1>
+<p>Breadth first search is one of the basic and essential searching algorithms on graphs.</p>
+<p>As a result of how the algorithm works, the path found by breadth first search to any node is the shortest path to that node, i.e the path that contains the smallest number of edges in unweighted graphs.</p>
+<p>The algorithm works in <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>)</span> time, where <span class="math inline"><em>n</em></span> is number of vertices and <span class="math inline"><em>m</em></span> is the number of edges.</p>
+<h2 id="description-of-the-algorithm">Description of the algorithm</h2>
+<p>The algorithm takes as input an unweighted graph and the id of the source vertex <span class="math inline"><em>s</em></span>. The input graph can be directed or undirected, it does not matter to the algorithm.</p>
+<p>The algorithm can be understood as a fire spreading on the graph: at the zeroth step only the source <span class="math inline"><em>s</em></span> is on fire. At each step, the fire burning at each vertex spreads to all of its neighbors. In one iteration of the algorithm, the &quot;ring of fire&quot; is expanded in width by one unit (hence the name of the algorithm).</p>
+<p>More precisely, the algorithm can be stated as follows: Create a queue <span class="math inline"><em>q</em></span> which will contain the vertices to be processed and a Boolean array <span class="math inline"><em>u</em><em>s</em><em>e</em><em>d</em>[]</span> which indicates for each vertex, if it has been lit (or visited) or not.</p>
+<p>Initially, push the source <span class="math inline"><em>s</em></span> to the queue and set <span class="math inline"><em>u</em><em>s</em><em>e</em><em>d</em>[<em>s</em>]=<em>t</em><em>r</em><em>u</em><em>e</em></span>, and for all other vertices <span class="math inline"><em>v</em></span> set <span class="math inline"><em>u</em><em>s</em><em>e</em><em>d</em>[<em>v</em>]=<em>f</em><em>a</em><em>l</em><em>s</em><em>e</em></span>. Then, loop until the queue is empty and in each iteration, pop a vertex from the front of the queue. Iterate through all the edges going out of this vertex and if some of these edges go to vertices that are not already lit, set them on fire and place them in the queue.</p>
+<p>As a result, when the queue is empty, the &quot;ring of fire&quot; contains all vertices reachable from the source <span class="math inline"><em>s</em></span>, with each vertex reached in the shortest possible way. You can also calculate the lengths of the shortest paths (which just requires maintaining an array of path lengths <span class="math inline"><em>d</em>[]</span>) as well as save information to restore all of these shortest paths (for this, it is necessary to maintain an array of &quot;parents&quot; <span class="math inline"><em>p</em>[]</span>, which stores for each vertex the vertex from which we reached it).</p>
+<h2 id="implementation">Implementation</h2>
+<p>We write code for the described algorithm in C++.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; adj;  <span class="co">// adjacency list representation</span>
+<span class="dt">int</span> n; <span class="co">// number of nodes</span>
+<span class="dt">int</span> s; <span class="co">// source vertex</span>
+
+queue&lt;<span class="dt">int</span>&gt; q;
+vector&lt;<span class="dt">bool</span>&gt; used(n);
+vector&lt;<span class="dt">int</span>&gt; d(n), p(n);
+
+q.push(s);
+used[s] = <span class="kw">true</span>;
+p[s] = <span class="dv">-1</span>;
+<span class="kw">while</span> (!q.empty()) {
+    <span class="dt">int</span> v = q.front();
+    q.pop();
+    <span class="kw">for</span> (<span class="dt">int</span> u : adj[v]) {
+        <span class="kw">if</span> (!used[u]) {
+            used[u] = <span class="kw">true</span>;
+            q.push(u);
+            d[u] = d[v] + <span class="dv">1</span>;
+            p[u] = v;
+        }
+    }
+}</code></pre></div>
+<p>If we have to restore and display the shortest path from the source to some vertex <span class="math inline"><em>u</em></span>, it can be done in the following manner:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">if</span> (!used[u]) {
+    cout &lt;&lt; <span class="st">&quot;No path!&quot;</span>;
+} <span class="kw">else</span> {
+    vector&lt;<span class="dt">int</span>&gt; path;
+    <span class="kw">for</span> (<span class="dt">int</span> v = u; v != <span class="dv">-1</span>; v = p[v])
+        path.push_back(v);
+    reverse(path.begin(), path.end());
+    cout &lt;&lt; <span class="st">&quot;Path: &quot;</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> v : path)
+        cout &lt;&lt; v &lt;&lt; <span class="st">&quot; &quot;</span>;
+}</code></pre></div>
+<h2 id="applications-of-bfs">Applications of BFS</h2>
+<ul>
+<li><p>Find the shortest path from a source to other vertices in an unweighted graph.</p></li>
+<li><p>Find all connected components in an undirected graph in <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>)</span> time: To do this, we just run BFS starting from each vertex, except for vertices which have already been visited from previous runs. Thus, we perform normal BFS from each of the vertices, but do not reset the array <span class="math inline"><em>u</em><em>s</em><em>e</em><em>d</em>[]</span> each and every time we get a new connected component, and the total running time will still be <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>)</span> (performing multiple BFS on the graph without zeroing the array <span class="math inline"><em>u</em><em>s</em><em>e</em><em>d</em>[]</span> is called a series of breadth first searches).</p></li>
+<li><p>Finding a solution to a problem or a game with the least number of moves, if each state of the game can be represented by a vertex of the graph, and the transitions from one state to the other are the edges of the graph.</p></li>
+<li><p>Finding the shortest path in a graph with weights 0 or 1: This requires just a little modification to normal breadth-first search: if the current edge of zero weight, and distance to the vertex is shorter than the current found distance, then add this vertex not to the back, but to the front of the queue.</p></li>
+<li><p>Finding the shortest cycle in a directed unweighted graph: start a breadth-first search from each vertex; as soon as we try to go from the current vertex to an already visited vertex, then it means that we have found the shortest cycle containing the source vertex, and should stop the BFS; from all such cycles (one from each BFS) choose the shortest.</p></li>
+<li><p>Find all the edges that lie on any shortest path between a given pair of vertices <span class="math inline">(<em>a</em>, <em>b</em>)</span>. To do this, run two breadth first searches: one from <span class="math inline"><em>a</em></span> and one from <span class="math inline"><em>b</em></span>. Let <span class="math inline"><em>d</em><sub><em>a</em></sub>[]</span> be the array containing shortest distances obtained from the first BFS (from <span class="math inline"><em>a</em></span>) and <span class="math inline"><em>d</em><sub><em>b</em></sub>[]</span> be the array containing shortest distances obtained from the second BFS from <span class="math inline"><em>b</em></span>. Now for every edge <span class="math inline">(<em>u</em>, <em>v</em>)</span> it is easy to check whether that edge lies on any shortest path between <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>: the criterion is the condition <span class="math inline"><em>d</em><sub><em>a</em></sub>[<em>u</em>]+1 + <em>d</em><sub><em>b</em></sub>[<em>v</em>]=<em>d</em><sub><em>a</em></sub>[<em>b</em>]</span>.</p></li>
+<li><p>Find all the vertices on any shortest path between a given pair of vertices <span class="math inline">(<em>a</em>, <em>b</em>)</span>. To accomplish that, run two breadth first searches: one from <span class="math inline"><em>a</em></span> and one from <span class="math inline"><em>b</em></span>. Let <span class="math inline"><em>d</em><sub><em>a</em></sub>[]</span> be the array containing shortest distances obtained from the first BFS (from <span class="math inline"><em>a</em></span>) and <span class="math inline"><em>d</em><sub><em>b</em></sub>[]</span> be the array containing shortest distances obtained from the second BFS (from <span class="math inline"><em>b</em></span>). Now for each vertex it is easy to check whether it lies on any shortest path between <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>: the criterion is the condition <span class="math inline"><em>d</em><sub><em>a</em></sub>[<em>v</em>]+<em>d</em><sub><em>b</em></sub>[<em>v</em>]=<em>d</em><sub><em>a</em></sub>[<em>b</em>]</span>.</p></li>
+<li><p>Find the shortest path of even length from a source vertex <span class="math inline"><em>s</em></span> to a target vertex <span class="math inline"><em>t</em></span> in an unweighted graph: For this, we must construct an auxiliary graph, whose vertices are the state <span class="math inline">(<em>v</em>, <em>c</em>)</span>, where <span class="math inline"><em>v</em></span> - the current node, <span class="math inline"><em>c</em> = 0</span> or <span class="math inline"><em>c</em> = 1</span> - the current parity. Any edge <span class="math inline">(<em>a</em>, <em>b</em>)</span> of the original graph in this new column will turn into two edges <span class="math inline">((<em>u</em>, 0),(<em>v</em>, 1))</span> and <span class="math inline">((<em>u</em>, 1),(<em>v</em>, 0))</span>. After that we run a BFS to find the shortest path from the starting vertex <span class="math inline">(<em>s</em>, 0)</span> to the end vertex <span class="math inline">(<em>t</em>, 0)</span>.</p></li>
+</ul>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://spoj.com/problems/AKBAR">SPOJ: AKBAR</a></li>
+<li><a href="http://www.spoj.com/problems/NAKANJ/">SPOJ: NAKANJ</a></li>
+<li><a href="http://www.spoj.com/problems/WATER">SPOJ: WATER</a></li>
+<li><a href="http://www.spoj.com/problems/MICEMAZE/">SPOJ: MICE AND MAZE</a></li>
+<li><a href="http://acm.timus.ru/problem.aspx?space=1&amp;num=2034">Timus: Caravans</a></li>
+<li><a href="https://devskill.com/CodingProblems/ViewProblem/60">DevSkills - Holloween Party</a></li>
+<li><a href="https://devskill.com/CodingProblems/ViewProblem/150">DevSkills - Ohani And The Link Cut Tree</a></li>
+<li><a href="http://www.spoj.com/problems/SPIKES/">SPOJ - Spiky Mazes</a></li>
+<li><a href="http://www.spoj.com/problems/ADV04F1/">SPOJ - Four Chips (hard)</a></li>
+<li><a href="http://www.spoj.com/problems/INVESORT/">SPOJ - Inversion Sort</a></li>
+<li><a href="http://codeforces.com/contest/59/problem/E">Codeforces - Shortest Path</a></li>
+<li><a href="http://www.spoj.com/problems/MULTII/">SPOJ - Yet Another Multiple Problem</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2387">UVA 11392 - Binary 3xType Multiple</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1909">UVA 10968 - KuPellaKeS</a></li>
+<li><a href="http://codeforces.com/contest/796/problem/D">Codeforces - Police Stations</a></li>
+<li><a href="http://codeforces.com/contest/821/problem/D">Codeforces - Okabe and City</a></li>
+<li><a href="http://www.spoj.com/problems/DIGOKEYS/">SPOJ - Find the Treasure</a></li>
+<li><a href="http://codeforces.com/contest/653/problem/E">Codeforces - Bear and Forgotten Tree 2</a></li>
+<li><a href="http://codeforces.com/contest/769/problem/C">Codeforces - Cycle in Maze</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2287">UVA - 11312 - Flipping Frustration</a></li>
+<li><a href="http://www.spoj.com/problems/ADACYCLE/">SPOJ - Ada and Cycle</a></li>
+</ul>
+</body>
+</html>

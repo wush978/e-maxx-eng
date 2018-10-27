@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Negative Cycle Search -->
+<h1 id="finding-a-negative-cycle-in-the-graph">Finding a negative cycle in the graph</h1>
+<p>You are given a directed weighted graph <span class="math inline"><em>G</em></span> with <span class="math inline"><em>N</em></span> vertices and <span class="math inline"><em>M</em></span> edges. Find any cycle of negative weight in it, if such a cycle exists.</p>
+<p>In another formulation of the problem you have to find all pairs of vertices which have a path of arbitrarily small weight between them.</p>
+<p>It is convenient to use different algorithms to solve these two variations of the problem, so we'll discuss both of them here.</p>
+<h2 id="using-bellman-ford-algorithm">Using Bellman-Ford algorithm</h2>
+<p>Bellman-Ford algorithm allows you to check whether there exists a cycle of negative weight in the graph, and if it does, find one of these cycles.</p>
+<p>The details of the algorithm are described in the article on the <a href="./graph/bellman_ford.html">Bellman-Ford</a> algorithm. Here we'll describe only its application to this problem.</p>
+<p>Do <span class="math inline"><em>N</em></span> iterations of Bellman-Ford algorithm. If there were no changes on the last iteration, there is no cycle of negative weight in the graph. Otherwise take a vertex the distance to which has changed, and go from it via its ancestors until a cycle is found. This cycle will be the desired cycle of negative weight.</p>
+<h3 id="implementation">Implementation</h3>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">struct</span> Edge {
+    <span class="dt">int</span> a, b, cost;
+};
+
+<span class="dt">int</span> n, m;
+vector&lt;Edge&gt; edges;
+<span class="dt">const</span> <span class="dt">int</span> INF = <span class="dv">1000000000</span>;
+
+<span class="dt">void</span> solve()
+{
+    vector&lt;<span class="dt">int</span>&gt; d(n);
+    vector&lt;<span class="dt">int</span>&gt; p(n, <span class="dv">-1</span>);
+    <span class="dt">int</span> x;
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        x = <span class="dv">-1</span>;
+        <span class="kw">for</span> (Edge e : edges) {
+            <span class="kw">if</span> (d[e.a] + e.cost &lt; d[e.b]) {
+                d[e.b] = d[e.a] + e.cost;
+                p[e.b] = e.a;
+                x = e.b;
+            }
+        }
+    }
+
+    <span class="kw">if</span> (x == <span class="dv">-1</span>) {
+        cout &lt;&lt; <span class="st">&quot;No negative cycle found.&quot;</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i)
+            x = p[x];
+
+        vector&lt;<span class="dt">int</span>&gt; cycle;
+        <span class="kw">for</span> (<span class="dt">int</span> v = x;; v = p[v]) {
+            cycle.push_back(v);
+            <span class="kw">if</span> (v == x &amp;&amp; cycle.size() &gt; <span class="dv">1</span>)
+                <span class="kw">break</span>;
+        }
+        reverse(cycle.begin(), cycle.end());
+
+        cout &lt;&lt; <span class="st">&quot;Negative cycle: &quot;</span>;
+        <span class="kw">for</span> (<span class="dt">int</span> v : cycle)
+            cout &lt;&lt; v &lt;&lt; <span class="st">&#39; &#39;</span>;
+        cout &lt;&lt; endl;
+    }
+}</code></pre></div>
+<h2 id="using-floyd-warshall-algorithm">Using Floyd-Warshall algorithm</h2>
+<p>The Floyd-Warshall algorithm allows to solve the second variation of the problem - finding all pairs of vertices <span class="math inline">(<em>i</em>, <em>j</em>)</span> which don't have a shortest path between them (i.e. a path of arbitrarily small weight exists).</p>
+<p>Again, the details can be found in the <a href="./graph/all-pair-shortest-path-floyd-warshall.html">Floyd-Warshall</a> article, and here we describe only its application.</p>
+<p>Run Floyd-Warshall algorithm on the graph. Initially <span class="math inline"><em>d</em>[<em>v</em>][<em>v</em>]=0</span> for each <span class="math inline"><em>v</em></span>. But after running the algorithm <span class="math inline"><em>d</em>[<em>v</em>][<em>v</em>]</span> will be smaller than <span class="math inline">0</span> if there exists a negative length path from <span class="math inline"><em>v</em></span> to <span class="math inline"><em>v</em></span>. We can use this to also find all pairs of vertices that don't have a shortest path between them. We iterate over all pairs of vertices <span class="math inline">(<em>i</em>, <em>j</em>)</span> and for each pair we check whether they have a shortest path between them. To do this try all possibilities for an intermediate vertex <span class="math inline"><em>t</em></span>. <span class="math inline">(<em>i</em>, <em>j</em>)</span> doesn't have a shortest path, if one of the intermediate vertices <span class="math inline"><em>t</em></span> has <span class="math inline"><em>d</em>[<em>t</em>][<em>t</em>]&lt;0</span> (i.e. <span class="math inline"><em>t</em></span> is part of a cycle of negative weight), <span class="math inline"><em>t</em></span> can be reached from <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> can be reached from <span class="math inline"><em>t</em></span>. Then the path from <span class="math inline"><em>i</em></span> to <span class="math inline"><em>j</em></span> can have arbitrarily small weight. We will denote this with <code>-INF</code>.</p>
+<h3 id="implementation-1">Implementation</h3>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+    <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; n; ++j) {
+        <span class="kw">for</span> (<span class="dt">int</span> t = <span class="dv">0</span>; t &lt; n; ++t) {
+            <span class="kw">if</span> (d[i][t] &lt; INF &amp;&amp; d[t][t] &lt; <span class="dv">0</span> &amp;&amp; d[t][j] &lt; INF)
+                d[i][j] = - INF; 
+        }
+    }
+}</code></pre></div>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=499">UVA: Wormholes</a></li>
+<li><a href="http://www.spoj.com/problems/UCV2013B/">SPOJ: Alice in Amsterdam, I mean Wonderland</a></li>
+<li><a href="http://www.spoj.com/problems/JHNSN/">SPOJ: Johnsons Algorithm</a></li>
+</ul>
+</body>
+</html>

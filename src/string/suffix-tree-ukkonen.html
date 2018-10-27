@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Suffix tree. Ukkonen's algorithm-->
+<h1 id="suffix-tree.-ukkonens-algorithm">Suffix Tree. Ukkonen's Algorithm</h1>
+<p><em>This article is a stub and doesn't contain any descriptions. For a description of the algorithm, refer to other sources, such as <a href="http://web.stanford.edu/~mjkay/gusfield.pdf">Algorithms on Strings, Trees, and Sequences</a> by Dan Gusfield.</em></p>
+<p>This algorithm builds a suffix tree for a given string <span class="math inline"><em>s</em></span> of length <span class="math inline"><em>n</em></span> in <span class="math inline"><em>O</em>(<em>n</em>log(<em>k</em>))</span>) time, where <span class="math inline"><em>k</em></span> is the size of the alphabet (if <span class="math inline"><em>k</em></span> is considered to be a constant, the asymptotic behavior is linear).</p>
+<p>The input to the algorithm are the string <span class="math inline"><em>s</em></span> and its length <span class="math inline"><em>n</em></span>, which are passed as global variables.</p>
+<p>The main function <code>build_tree</code> builds a suffix tree. It is stored as an array of structures <code>node</code>, where <code>node[0]</code> is the root of the tree.</p>
+<p>In order to simplify the code, the edges are stored in the same structures: for each vertex its structure <code>node</code> stores the information about the edge between it and its parent. Overall each <code>node</code> stores the following information:</p>
+<ul>
+<li><code>(l, r)</code> - left and right boundaries of the substring <code>s[l..r-1]</code> which correspond to the edge to this node,</li>
+<li><code>par</code> - the parent node,</li>
+<li><code>link</code> - the suffix link,</li>
+<li><code>next</code> - the list of edges going out from this node.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">string s;
+<span class="dt">int</span> n;
+ 
+<span class="kw">struct</span> node {
+    <span class="dt">int</span> l, r, par, link;
+    map&lt;<span class="dt">char</span>,<span class="dt">int</span>&gt; next;
+ 
+    node (<span class="dt">int</span> l=<span class="dv">0</span>, <span class="dt">int</span> r=<span class="dv">0</span>, <span class="dt">int</span> par=<span class="dv">-1</span>)
+        : l(l), r(r), par(par), link(<span class="dv">-1</span>) {}
+    <span class="dt">int</span> len()  {  <span class="kw">return</span> r - l;  }
+    <span class="dt">int</span> &amp;get (<span class="dt">char</span> c) {
+        <span class="kw">if</span> (!next.count(c))  next[c] = <span class="dv">-1</span>;
+        <span class="kw">return</span> next[c];
+    }
+};
+node t[MAXN];
+<span class="dt">int</span> sz;
+ 
+<span class="kw">struct</span> state {
+    <span class="dt">int</span> v, pos;
+    state (<span class="dt">int</span> v, <span class="dt">int</span> pos) : v(v), pos(pos)  {}
+};
+state ptr (<span class="dv">0</span>, <span class="dv">0</span>);
+ 
+state go (state st, <span class="dt">int</span> l, <span class="dt">int</span> r) {
+    <span class="kw">while</span> (l &lt; r)
+        <span class="kw">if</span> (st.pos == t[st.v].len()) {
+            st = state (t[st.v].get( s[l] ), <span class="dv">0</span>);
+            <span class="kw">if</span> (st.v == <span class="dv">-1</span>)  <span class="kw">return</span> st;
+        }
+        <span class="kw">else</span> {
+            <span class="kw">if</span> (s[ t[st.v].l + st.pos ] != s[l])
+                <span class="kw">return</span> state (<span class="dv">-1</span>, <span class="dv">-1</span>);
+            <span class="kw">if</span> (r-l &lt; t[st.v].len() - st.pos)
+                <span class="kw">return</span> state (st.v, st.pos + r-l);
+            l += t[st.v].len() - st.pos;
+            st.pos = t[st.v].len();
+        }
+    <span class="kw">return</span> st;
+}
+ 
+<span class="dt">int</span> split (state st) {
+    <span class="kw">if</span> (st.pos == t[st.v].len())
+        <span class="kw">return</span> st.v;
+    <span class="kw">if</span> (st.pos == <span class="dv">0</span>)
+        <span class="kw">return</span> t[st.v].par;
+    node v = t[st.v];
+    <span class="dt">int</span> id = sz++;
+    t[id] = node (v.l, v.l+st.pos, v.par);
+    t[v.par].get( s[v.l] ) = id;
+    t[id].get( s[v.l+st.pos] ) = st.v;
+    t[st.v].par = id;
+    t[st.v].l += st.pos;
+    <span class="kw">return</span> id;
+}
+ 
+<span class="dt">int</span> get_link (<span class="dt">int</span> v) {
+    <span class="kw">if</span> (t[v].link != <span class="dv">-1</span>)  <span class="kw">return</span> t[v].link;
+    <span class="kw">if</span> (t[v].par == <span class="dv">-1</span>)  <span class="kw">return</span> <span class="dv">0</span>;
+    <span class="dt">int</span> to = get_link (t[v].par);
+    <span class="kw">return</span> t[v].link = split (go (state(to,t[to].len()), t[v].l + (t[v].par==<span class="dv">0</span>), t[v].r));
+}
+ 
+<span class="dt">void</span> tree_extend (<span class="dt">int</span> pos) {
+    <span class="kw">for</span>(;;) {
+        state nptr = go (ptr, pos, pos<span class="dv">+1</span>);
+        <span class="kw">if</span> (nptr.v != <span class="dv">-1</span>) {
+            ptr = nptr;
+            <span class="kw">return</span>;
+        }
+ 
+        <span class="dt">int</span> mid = split (ptr);
+        <span class="dt">int</span> leaf = sz++;
+        t[leaf] = node (pos, n, mid);
+        t[mid].get( s[pos] ) = leaf;
+ 
+        ptr.v = get_link (mid);
+        ptr.pos = t[ptr.v].len();
+        <span class="kw">if</span> (!mid)  <span class="kw">break</span>;
+    }
+}
+ 
+<span class="dt">void</span> build_tree() {
+    sz = <span class="dv">1</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;n; ++i)
+        tree_extend (i);
+}</code></pre></div>
+<h2 id="compressed-implementation">Compressed Implementation</h2>
+<p>This compressed implementation was proposed by <a href="http://codeforces.com/profile/freopen">freopen</a>.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">int</span> N=<span class="dv">1000000</span>,INF=<span class="dv">1000000000</span>;
+string a;
+<span class="dt">int</span> t[N][<span class="dv">26</span>],l[N],r[N],p[N],s[N],tv,tp,ts,la;
+ 
+<span class="dt">void</span> ukkadd (<span class="dt">int</span> c) {
+    suff:;
+    <span class="kw">if</span> (r[tv]&lt;tp) {
+        <span class="kw">if</span> (t[tv][c]==<span class="dv">-1</span>) { t[tv][c]=ts;  l[ts]=la;
+            p[ts++]=tv;  tv=s[tv];  tp=r[tv]<span class="dv">+1</span>;  <span class="kw">goto</span> suff; }
+        tv=t[tv][c]; tp=l[tv];
+    }
+    <span class="kw">if</span> (tp==<span class="dv">-1</span> || c==a[tp]-<span class="st">&#39;a&#39;</span>) tp++; <span class="kw">else</span> {
+        l[ts<span class="dv">+1</span>]=la;  p[ts<span class="dv">+1</span>]=ts;
+        l[ts]=l[tv];  r[ts]=tp<span class="dv">-1</span>;  p[ts]=p[tv];  t[ts][c]=ts<span class="dv">+1</span>;  t[ts][a[tp]-<span class="st">&#39;a&#39;</span>]=tv;
+        l[tv]=tp;  p[tv]=ts;  t[p[ts]][a[l[ts]]-<span class="st">&#39;a&#39;</span>]=ts;  ts+=<span class="dv">2</span>;
+        tv=s[p[ts<span class="dv">-2</span>]];  tp=l[ts<span class="dv">-2</span>];
+        <span class="kw">while</span> (tp&lt;=r[ts<span class="dv">-2</span>]) {  tv=t[tv][a[tp]-<span class="st">&#39;a&#39;</span>];  tp+=r[tv]-l[tv]<span class="dv">+1</span>;}
+        <span class="kw">if</span> (tp==r[ts<span class="dv">-2</span>]<span class="dv">+1</span>)  s[ts<span class="dv">-2</span>]=tv;  <span class="kw">else</span> s[ts<span class="dv">-2</span>]=ts; 
+        tp=r[tv]-(tp-r[ts<span class="dv">-2</span>])<span class="dv">+2</span>;  <span class="kw">goto</span> suff;
+    }
+}
+ 
+<span class="dt">void</span> build() {
+    ts=<span class="dv">2</span>;
+    tv=<span class="dv">0</span>;
+    tp=<span class="dv">0</span>;
+    fill(r,r+N,(<span class="dt">int</span>)a.size()<span class="dv">-1</span>);
+    s[<span class="dv">0</span>]=<span class="dv">1</span>;
+    l[<span class="dv">0</span>]=<span class="dv">-1</span>;
+    r[<span class="dv">0</span>]=<span class="dv">-1</span>;
+    l[<span class="dv">1</span>]=<span class="dv">-1</span>;
+    r[<span class="dv">1</span>]=<span class="dv">-1</span>;
+    memset (t, <span class="dv">-1</span>, <span class="kw">sizeof</span> t);
+    fill(t[<span class="dv">1</span>],t[<span class="dv">1</span>]<span class="dv">+26</span>,<span class="dv">0</span>);
+    <span class="kw">for</span> (la=<span class="dv">0</span>; la&lt;(<span class="dt">int</span>)a.size(); ++la)
+        ukkadd (a[la]-<span class="st">&#39;a&#39;</span>);
+}</code></pre></div>
+<p>Same code with comments:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">int</span> N=<span class="dv">1000000</span>,    <span class="co">// maximum possible number of nodes in suffix tree</span>
+    INF=<span class="dv">1000000000</span>; <span class="co">// infinity constant</span>
+string a;       <span class="co">// input string for which the suffix tree is being built</span>
+<span class="dt">int</span> t[N][<span class="dv">26</span>],   <span class="co">// array of transitions (state, letter)</span>
+    l[N],   <span class="co">// left...</span>
+    r[N],   <span class="co">// ...and right boundaries of the substring of a which correspond to incoming edge</span>
+    p[N],   <span class="co">// parent of the node</span>
+    s[N],   <span class="co">// suffix link</span>
+    tv,     <span class="co">// the node of the current suffix (if we&#39;re mid-edge, the lower node of the edge)</span>
+    tp,     <span class="co">// position in the string which corresponds to the position on the edge (between l[tv] and r[tv], inclusive)</span>
+    ts,     <span class="co">// the number of nodes</span>
+    la;     <span class="co">// the current character in the string</span>
+ 
+<span class="dt">void</span> ukkadd(<span class="dt">int</span> c) { <span class="co">// add character s to the tree</span>
+    suff:;      <span class="co">// we&#39;ll return here after each transition to the suffix (and will add character again)</span>
+    <span class="kw">if</span> (r[tv]&lt;tp) { <span class="co">// check whether we&#39;re still within the boundaries of the current edge</span>
+        <span class="co">// if we&#39;re not, find the next edge. If it doesn&#39;t exist, create a leaf and add it to the tree</span>
+        <span class="kw">if</span> (t[tv][c]==<span class="dv">-1</span>) {t[tv][c]=ts;l[ts]=la;p[ts++]=tv;tv=s[tv];tp=r[tv]<span class="dv">+1</span>;<span class="kw">goto</span> suff;}
+        tv=t[tv][c];tp=l[tv];
+    } <span class="co">// otherwise just proceed to the next edge</span>
+    <span class="kw">if</span> (tp==<span class="dv">-1</span> || c==a[tp]-<span class="st">&#39;a&#39;</span>)
+        tp++; <span class="co">// if the letter on the edge equal c, go down that edge</span>
+    <span class="kw">else</span> { 
+        <span class="co">// otherwise split the edge in two with middle in node ts</span>
+        l[ts]=l[tv];r[ts]=tp<span class="dv">-1</span>;p[ts]=p[tv];t[ts][a[tp]-<span class="st">&#39;a&#39;</span>]=tv;
+        <span class="co">// add leaf ts+1. It corresponds to transition through c.</span>
+        t[ts][c]=ts<span class="dv">+1</span>;l[ts<span class="dv">+1</span>]=la;p[ts<span class="dv">+1</span>]=ts;
+        <span class="co">// update info for the current node - remember to mark ts as parent of tv</span>
+        l[tv]=tp;p[tv]=ts;t[p[ts]][a[l[ts]]-<span class="st">&#39;a&#39;</span>]=ts;ts+=<span class="dv">2</span>;
+        <span class="co">// prepare for descent</span>
+        <span class="co">// tp will mark where are we in the current suffix</span>
+        tv=s[p[ts<span class="dv">-2</span>]];tp=l[ts<span class="dv">-2</span>];
+        <span class="co">// while the current suffix is not over, descend</span>
+        <span class="kw">while</span> (tp&lt;=r[ts<span class="dv">-2</span>]) {tv=t[tv][a[tp]-<span class="st">&#39;a&#39;</span>];tp+=r[tv]-l[tv]<span class="dv">+1</span>;}
+        <span class="co">// if we&#39;re in a node, add a suffix link to it, otherwise add the link to ts</span>
+        <span class="co">// (we&#39;ll create ts on next iteration).</span>
+        <span class="kw">if</span> (tp==r[ts<span class="dv">-2</span>]<span class="dv">+1</span>) s[ts<span class="dv">-2</span>]=tv; <span class="kw">else</span> s[ts<span class="dv">-2</span>]=ts; 
+        <span class="co">// add tp to the new edge and return to add letter to suffix</span>
+        tp=r[tv]-(tp-r[ts<span class="dv">-2</span>])<span class="dv">+2</span>;<span class="kw">goto</span> suff;
+    }
+}
+ 
+<span class="dt">void</span> build() {
+    ts=<span class="dv">2</span>;
+    tv=<span class="dv">0</span>;
+    tp=<span class="dv">0</span>;
+    fill(r,r+N,(<span class="dt">int</span>)a.size()<span class="dv">-1</span>);
+    <span class="co">// initialize data for the root of the tree</span>
+    s[<span class="dv">0</span>]=<span class="dv">1</span>;
+    l[<span class="dv">0</span>]=<span class="dv">-1</span>;
+    r[<span class="dv">0</span>]=<span class="dv">-1</span>;
+    l[<span class="dv">1</span>]=<span class="dv">-1</span>;
+    r[<span class="dv">1</span>]=<span class="dv">-1</span>;
+    memset (t, <span class="dv">-1</span>, <span class="kw">sizeof</span> t);
+    fill(t[<span class="dv">1</span>],t[<span class="dv">1</span>]<span class="dv">+26</span>,<span class="dv">0</span>);
+    <span class="co">// add the text to the tree, letter by letter</span>
+    <span class="kw">for</span> (la=<span class="dv">0</span>; la&lt;(<span class="dt">int</span>)a.size(); ++la)
+        ukkadd (a[la]-<span class="st">&#39;a&#39;</span>);
+}</code></pre></div>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1620">UVA 10679 - I Love Strings!!!</a></li>
+</ul>
+</body>
+</html>

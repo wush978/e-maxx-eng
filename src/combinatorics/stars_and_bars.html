@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Stars and bars -->
+<h1 id="stars-and-bars">Stars and bars</h1>
+<p>Stars and bars is a mathematical technique for solving certain combinatorial problems. It occurs whenever you want to count the number of ways to group identical objects.</p>
+<h2 id="theorem">Theorem</h2>
+<p>The number of ways to put <span class="math inline"><em>n</em></span> identical objects into <span class="math inline"><em>k</em></span> labeled boxes is <br /><span class="math display">$$\binom{n + k - 1}{n}.$$</span><br /></p>
+<p>The proof involves turning the objects into stars and separating the boxes using bars (therefore the name). E.g. we can represent with <span class="math inline">$\bigstar | \bigstar \bigstar |~| \bigstar \bigstar$</span> the following situation: in the first box is one object, in the second box are two objects, the third one is empty and in the last box are two objects. This is one way of dividing 5 objects into 4 boxes.</p>
+<p>It should be pretty obvious, that every partition can be represented using <span class="math inline"><em>n</em></span> stars and <span class="math inline"><em>k</em> − 1</span> bars and every stars and bars permutation using <span class="math inline"><em>n</em></span> stars and <span class="math inline"><em>k</em> − 1</span> bars represents one partition. Therefore the number of ways to divide <span class="math inline"><em>n</em></span> identical objects into <span class="math inline"><em>k</em></span> labeled boxes is the same number as there are permutations of <span class="math inline"><em>n</em></span> stars and <span class="math inline"><em>k</em> − 1</span> bars. The <a href="./combinatorics/binomial-coefficients.html">Binomial Coefficient</a> gives us the desired formula.</p>
+<h2 id="number-of-non-negative-integer-sums">Number of non-negative integer sums</h2>
+<p>This problem is a direct application of the theorem.</p>
+<p>You want to count the number of solution of the equation <br /><span class="math display"><em>x</em><sub>1</sub> + <em>x</em><sub>2</sub> + … + <em>x</em><sub><em>k</em></sub> = <em>n</em></span><br /> with <span class="math inline"><em>x</em><sub><em>i</em></sub> ≥ 0</span>.</p>
+<p>Again we can represent a solution using stars and bars. E.g. the solution <span class="math inline">1 + 3 + 0 = 4</span> for <span class="math inline"><em>n</em> = 4</span>, <span class="math inline"><em>k</em> = 3</span> can be represented using <span class="math inline">$\bigstar | \bigstar \bigstar \bigstar |$</span>.</p>
+<p>It is easy to see, that this is exactly the stars an bars theorem. Therefore the solution is <span class="math inline">$\binom{n + k - 1}{n}$</span>.</p>
+<h2 id="number-of-lower-bound-integer-sums">Number of lower-bound integer sums</h2>
+<p>This can easily be extended to integer sums with different lower bounds. I.e. we want to count the number of solutions for the equation <br /><span class="math display"><em>x</em><sub>1</sub> + <em>x</em><sub>2</sub> + … + <em>x</em><sub><em>k</em></sub> = <em>n</em></span><br /> with <span class="math inline"><em>x</em><sub><em>i</em></sub> ≥ <em>a</em><sub><em>i</em></sub></span>.</p>
+<p>After substituting <span class="math inline"><em>x</em><sub><em>i</em></sub>′:=<em>x</em><sub><em>i</em></sub> − <em>a</em><sub><em>i</em></sub></span> we receive the modified equation <br /><span class="math display">(<em>x</em><sub>1</sub>′+<em>a</em><sub><em>i</em></sub>)+(<em>x</em><sub>2</sub>′+<em>a</em><sub><em>i</em></sub>)+…+(<em>x</em><sub><em>k</em></sub>′+<em>a</em><sub><em>k</em></sub>)=<em>n</em></span><br /> <br /><span class="math display">⇔  <em>x</em><sub>1</sub>′+<em>x</em><sub>2</sub>′+…+<em>x</em><sub><em>k</em></sub>′=<em>n</em> − <em>a</em><sub>1</sub> − <em>a</em><sub>2</sub> − … − <em>a</em><sub><em>k</em></sub></span><br /> with <span class="math inline"><em>x</em><sub><em>i</em></sub>′≥0</span>. So we have reduced the problem to the simpler case with <span class="math inline"><em>x</em><sub><em>i</em></sub>′≥0</span> and again can apply the stars and bars theorem.</p>
+</body>
+</html>

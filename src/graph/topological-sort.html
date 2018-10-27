@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Topological Sorting -->
+<h1 id="topological-sorting">Topological Sorting</h1>
+<p>You are given a directed graph with <span class="math inline"><em>n</em></span> vertices and <span class="math inline"><em>m</em></span> edges. You have to <strong>number the vertices</strong> so that every edge leads from the vertex with a smaller number assigned to the vertex with a larger one.</p>
+<p>In other words, you want to find a permutation of the vertices (<strong>topological order</strong>) which corresponds to the order defined by all edges of the graph.</p>
+<p>Topological order can be <strong>non-unique</strong> (for example, if the graph is empty; or if there exist three vertices <span class="math inline"><em>a</em></span>, <span class="math inline"><em>b</em></span>, <span class="math inline"><em>c</em></span> for which there exist paths from <span class="math inline"><em>a</em></span> to <span class="math inline"><em>b</em></span> and from <span class="math inline"><em>a</em></span> to <span class="math inline"><em>c</em></span> but not paths from <span class="math inline"><em>b</em></span> to <span class="math inline"><em>c</em></span> or from <span class="math inline"><em>c</em></span> to <span class="math inline"><em>b</em></span>).</p>
+<p>Topological order may <strong>not exist</strong> at all if the graph contains cycles (because there is a contradiction: there is a path from <span class="math inline"><em>a</em></span> to <span class="math inline"><em>b</em></span> and vice versa).</p>
+<p>A common problem in which topological sorting occurs is the following. There are <span class="math inline"><em>n</em></span> variables with unknown values. For some variables we know that one of them is less than the other. You have to check whether these constraints are contradictory, and if not, output the variables in ascending order (if several answers are possible, output any of them). It is easy to notice that this is exactly the problem of finding topological order of a graph with <span class="math inline"><em>n</em></span> vertices.</p>
+<h2 id="the-algorithm">The Algorithm</h2>
+<p>To solve this problem we will use <a href="./graph/depth-first-search.html">depth-first search</a>.</p>
+<p>Let's assume that the graph is acyclic, i.e. there is a solution. What does the depth-first search do? When started from some vertex <span class="math inline"><em>v</em></span>, it tries to run along all edges outgoing from <span class="math inline"><em>v</em></span>. It fails to run along the edges for which the opposite ends have been visited previously, and runs along the rest of the edges and starts from their ends.</p>
+<p>Thus, by the time of the call <span class="math inline"><em>d</em><em>f</em><em>s</em>(<em>v</em>)</span> is ended, all vertices that are reachable from <span class="math inline"><em>v</em></span> either directly (via one edge) or indirectly are already visited by the search. Therefore, if at the time of exit from <span class="math inline"><em>d</em><em>f</em><em>s</em>(<em>v</em>)</span> we add vertex <span class="math inline"><em>v</em></span> to the beginning of a certain list, in the end this list will store a topological ordering of all vertices.</p>
+<p>These explanations can also be presented in terms of time of exit from DFS routine. Exit time for vertex <span class="math inline"><em>v</em></span> is the time at which <span class="math inline"><em>d</em><em>f</em><em>s</em>(<em>v</em>)</span> finished work (the times can be numbered from <span class="math inline">1</span> to <span class="math inline"><em>n</em></span>). It is easy to understand that exit time of any vertex <span class="math inline"><em>v</em></span> is always greater than exit time of any vertex reachable from it (since they were visited either before the call <span class="math inline"><em>d</em><em>f</em><em>s</em>(<em>v</em>)</span> or during it). Thus, the desired topological ordering is sorting vertices in descending order of their exit times.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Here is an implementation which assumes that the graph is acyclic, i.e. the desired topological ordering exists. If necessary, you can easily check that the graph is acyclic, as described in the article on <a href="./graph/depth-first-search.html">depth-first search</a>.</p>
+<p>C++ implementation <span class="toggle-code">Show/Hide</span></p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> n; <span class="co">// number of vertices</span>
+vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; adj; <span class="co">// adjacency list of graph</span>
+vector&lt;<span class="dt">bool</span>&gt; visited;
+vector&lt;<span class="dt">int</span>&gt; ans;
+
+<span class="dt">void</span> dfs(<span class="dt">int</span> v) {
+    visited[v] = <span class="kw">true</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> u : adj[v]) {
+        <span class="kw">if</span> (!visited[u])
+            dfs(u);
+    }
+    ans.push_back(v);
+}
+ 
+<span class="dt">void</span> topological_sort() {
+    visited.assign(n, <span class="kw">false</span>);
+    ans.clear();
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">if</span> (!visited[i])
+            dfs(i);
+    }
+    reverse(ans.begin(), ans.end());
+}</code></pre></div>
+<p>The main function of the solution is <code>topological_sort</code>, which initializes DFS variables, launches DFS and receives the answer in the vector <code>ans</code>.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/TOPOSORT/">SPOJ TOPOSORT &quot;Topological Sorting&quot; [difficulty: easy]</a></li>
+<li><a href="https://z5h64q92x9.net/proxy_u/ru-en.en/uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1246">UVA #10305 &quot;Ordering Tasks&quot; [difficulty: easy]</a></li>
+<li><a href="https://z5h64q92x9.net/proxy_u/ru-en.en/uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=60">UVA #124 &quot;Following Orders&quot; [difficulty: easy]</a></li>
+<li><a href="https://z5h64q92x9.net/proxy_u/ru-en.en/uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=136">UVA #200 &quot;Rare Order&quot; [difficulty: easy]</a></li>
+<li><a href="http://codeforces.com/problemset/problem/510/C">Codeforces 510C &quot;Fox and Names&quot; [difficulty: easy]</a></li>
+</ul>
+</body>
+</html>

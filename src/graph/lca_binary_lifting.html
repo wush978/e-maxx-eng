@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Lowest Common Ancestor - Binary Lifting -->
+<h1 id="lowest-common-ancestor---binary-lifting">Lowest Common Ancestor - Binary Lifting</h1>
+<p>Let <span class="math inline"><em>G</em></span> be a tree. For every query of the form <code>(u, v)</code> we want to find the lowest common ancestor of the nodes <code>u</code> and <code>v</code>, i.e. we want to find a node <code>w</code> that lies on the path from <code>u</code> to the root node, that lies on the path from <code>v</code> to the root node, and if there are multiple nodes we pick the one that is farthest away from the root node. In other words the desired node <code>w</code> is the lowest ancestor of <code>u</code> and <code>v</code>. In particular if <code>u</code> is an ancestor of <code>v</code>, then <code>u</code> is their lowest common ancestor.</p>
+<p>The algorithm described in this article will need <span class="math inline"><em>O</em>(<em>N</em>log<em>N</em>)</span> for preprocessing the tree, and then <span class="math inline"><em>O</em>(log<em>N</em>)</span> for each LCA query.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>For each node we will precompute its ancestor above him, its ancestor two nodes above, its ancestor four above, etc. Let's store them in the array <code>up</code>, i.e. <code>up[i][j]</code> is the <code>2^j</code>-th ancestor above the node <code>i</code> with <code>i=1...N</code>, <code>j=0...ceil(log(N))</code>. These information allow us to jump from any node to any ancestor above it in <span class="math inline"><em>O</em>(log<em>N</em>)</span> time. We can compute this array using a <a href="./graph/depth-first-search.html">DFS</a> traversal of the tree.</p>
+<p>For each node we will also remember the time of the first visit of this node (i.e. the time when the DFS discovers the node), and the time when we left it (i.e. after we visited all children and exit the DFS function). We can use this information to determine in constant time if a node is an ancestor of another node.</p>
+<p>Suppose now we received a query <code>(u, v)</code>. We can immediately check whether one node is the ancestor of the other. In this case this node is already the LCA. If <code>u</code> is not the ancestor of <code>v</code>, and <code>v</code> not the ancestor of <code>u</code>, we climb the ancestors of <code>u</code> until we find the highest (i.e. closest to the root) node, which is not an ancestor of <code>v</code> (i.e. a node <code>x</code>, such that <code>x</code> is not an ancestor of <code>v</code>, but <code>up[x][0]</code> is). We can find this node <code>x</code> in <span class="math inline"><em>O</em>(log<em>N</em>)</span> time using the array <code>up</code>.</p>
+<p>We will describe this process in more detail. Let <code>L = ceil(log(N))</code>. Suppose first that <code>i = L</code>. If <code>up[u][i]</code> is not an ancestor of <code>v</code>, then we can assign <code>u = up[u][i]</code> and decrement <code>i</code>. If <code>up[u][i]</code> is not an ancestor, then we just decrement <code>i</code>. Clearly after doing this for all non-negative <code>i</code> the node <code>u</code> will be the desired node - i.e. <code>u</code> is still not an ancestor of <code>v</code>, but <code>up[u][0]</code> is.</p>
+<p>Now, obviously, the answer to LCA will be <code>up[u][0]</code> - i.e., the smallest node among the ancestors of the node <code>u</code>, which is also an ancestor of <code>v</code>.</p>
+<p>So answering a LCA query will iterate <code>i</code> from <code>ceil(log(N))</code> to <code>0</code> and checks in each iteration if one node is the ancestor of the other. Consequently each query can be answered in <span class="math inline"><em>O</em>(log<em>N</em>)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> n, l;
+vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; adj;
+
+<span class="dt">int</span> timer;
+vector&lt;<span class="dt">int</span>&gt; tin, tout;
+vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; up;
+
+<span class="dt">void</span> dfs(<span class="dt">int</span> v, <span class="dt">int</span> p)
+{
+    tin[v] = ++timer;
+    up[v][<span class="dv">0</span>] = p;
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= l; ++i)
+        up[v][i] = up[up[v][i<span class="dv">-1</span>]][i<span class="dv">-1</span>];
+
+    <span class="kw">for</span> (<span class="dt">int</span> u : adj[v]) {
+        <span class="kw">if</span> (u != p)
+            dfs(u, v);
+    }
+
+    tout[v] = ++timer;
+}
+
+<span class="dt">bool</span> is_ancetor(<span class="dt">int</span> u, <span class="dt">int</span> v)
+{
+    <span class="kw">return</span> tin[u] &lt;= tin[v] &amp;&amp; tout[u] &gt;= tout[v];
+}
+
+<span class="dt">int</span> lca(<span class="dt">int</span> u, <span class="dt">int</span> v)
+{
+    <span class="kw">if</span> (is_ancetor(u, v))
+        <span class="kw">return</span> u;
+    <span class="kw">if</span> (is_ancetor(v, u))
+        <span class="kw">return</span> v;
+    <span class="kw">for</span> (<span class="dt">int</span> i = l; i &gt;= <span class="dv">0</span>; --i) {
+        <span class="kw">if</span> (!is_ancetor(up[u][i], v))
+            u = up[u][i];
+    }
+    <span class="kw">return</span> up[u][<span class="dv">0</span>];
+}
+
+<span class="dt">void</span> preprocess(<span class="dt">int</span> root) {
+    tin.resize(n);
+    tout.resize(n);
+    timer = <span class="dv">0</span>;
+    l = ceil(log2(n));
+    up.assign(n, vector&lt;<span class="dt">int</span>&gt;(l + <span class="dv">1</span>));
+    dfs(root, root);
+}</code></pre></div>
+</body>
+</html>

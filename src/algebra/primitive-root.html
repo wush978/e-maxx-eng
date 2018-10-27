@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Primitive Root -->
+<h1 id="primitive-root">Primitive Root</h1>
+<h2 id="definition">Definition</h2>
+<p>In modular arithmetic, a number <span class="math inline"><em>g</em></span> is called a <code>primitive root modulo n</code> if every number coprime to <span class="math inline"><em>n</em></span> is congruent to a power of <span class="math inline"><em>g</em></span> modulo <span class="math inline"><em>n</em></span>. Mathematically, <span class="math inline"><em>g</em></span> is a <code>primitive root modulo n</code> if and only if for any integer <span class="math inline"><em>a</em></span> such that <span class="math inline"><em>g</em><em>c</em><em>d</em>(<em>a</em>, <em>n</em>)=1</span>, there exists an integer <span class="math inline"><em>k</em></span> such that:</p>
+<p><span class="math inline">$g^k \equiv a \pmod n$</span>.</p>
+<p><span class="math inline"><em>k</em></span> is then called the <code>index</code> or <code>discrete logarithm</code> of <span class="math inline"><em>a</em></span> to the base <span class="math inline"><em>g</em></span> modulo <span class="math inline"><em>n</em></span>. <span class="math inline"><em>g</em></span> is also called the <code>generator</code> of the multiplicative group of integers modulo <span class="math inline"><em>n</em></span>.</p>
+<p>In particular, for the case where <span class="math inline"><em>n</em></span> is a prime, the powers of primitive root runs through all numbers from <span class="math inline">1</span> to <span class="math inline"><em>n</em> − 1</span>.</p>
+<h2 id="existence">Existence</h2>
+<p>Primitive root modulo <span class="math inline"><em>n</em></span> exists if and only if:</p>
+<ul>
+<li><span class="math inline"><em>n</em></span> is 1, 2, 4, or</li>
+<li><span class="math inline"><em>n</em></span> is power of an odd prime number <span class="math inline">(<em>n</em> = <em>p</em><sup><em>k</em></sup>)</span>, or</li>
+<li><span class="math inline"><em>n</em></span> is twice power of an odd prime number <span class="math inline">(<em>n</em> = 2.<em>p</em><sup><em>k</em></sup>)</span>.</li>
+</ul>
+<p>This theorem was proved by Gauss in 1801.</p>
+<h2 id="relation-with-the-euler-function">Relation with the Euler function</h2>
+<p>Let <span class="math inline"><em>g</em></span> be a primitive root modulo <span class="math inline"><em>n</em></span>. Then we can show that the smallest number <span class="math inline"><em>k</em></span> for which <span class="math inline">$g^k \equiv 1 \pmod n$</span> is equal <span class="math inline"><em>ϕ</em>(<em>n</em>)</span>. Moreover, the reverse is also true, and this fact will be used in this article to find a primitive root.</p>
+<p>Furthermore, the number of primitive roots modulo <span class="math inline"><em>n</em></span>, if there are any, is equal to <span class="math inline"><em>ϕ</em>(<em>ϕ</em>(<em>n</em>))</span>.</p>
+<h2 id="algorithm-for-finding-a-primitive-root">Algorithm for finding a primitive root</h2>
+<p>A naive algorithm is to consider all numbers in range <span class="math inline">[1, <em>n</em> − 1]</span>. And then check if each one is a primitive root, by calculating all its power to see if they are all different. This algorithm has complexity <span class="math inline"><em>O</em>(<em>g</em>.<em>n</em>)</span>, which would be too slow. In this section, we propose a faster algorithm using several well-known theorems.</p>
+<p>From previous section, we know that if the smallest number <span class="math inline"><em>k</em></span> for which <span class="math inline">$g^k \equiv 1 \pmod n$</span> is <span class="math inline"><em>ϕ</em>(<em>n</em>)</span>, then <span class="math inline"><em>g</em></span> is a primitive root. Since for any number <span class="math inline"><em>a</em></span> relative prime to <span class="math inline"><em>n</em></span>, we know from Euler's theorem that <span class="math inline">$a ^ { \phi (n) } \equiv 1 \pmod n$</span>, then to check if <span class="math inline"><em>g</em></span> is primitive root, it is enough to check that for all <span class="math inline"><em>d</em></span> less than <span class="math inline"><em>ϕ</em>(<em>n</em>)</span>, <span class="math inline">$g^d \not \equiv 1 \pmod n$</span>. However, this algorithm is still too slow.</p>
+<p>From Lagrange's theorem, we know that the index of any number modulo <span class="math inline"><em>n</em></span> must be a divisor of <span class="math inline"><em>ϕ</em>(<em>n</em>)</span>. Thus, it is sufficient to verify for all proper divisor <span class="math inline"><em>d</em> | <em>ϕ</em>(<em>n</em>)</span> that <span class="math inline">$g^d \not \equiv 1 \pmod n$</span>. This is already a much faster algorithm, but we can still do better.</p>
+<p>Factorize <span class="math inline"><em>ϕ</em>(<em>n</em>)=<em>p</em><sub>1</sub><sup><em>a</em><sub>1</sub></sup>...<em>p</em><sub><em>s</em></sub><sup><em>a</em><sub><em>s</em></sub></sup></span>. We prove that in the previous algorithm, it is sufficient to consider only the values of <span class="math inline"><em>d</em></span> which has the form <span class="math inline">$\frac { \phi (n) } {p_j}$</span>. Indeed, let <span class="math inline"><em>d</em></span> be any proper divisor of <span class="math inline"><em>ϕ</em>(<em>n</em>)</span>. Then, obviously, there exists such <span class="math inline"><em>j</em></span> that <span class="math inline">$d \, | \, \frac { \phi (n) } {p_j}$</span>, i.e. <span class="math inline">$d . k = \frac { \phi (n) } {p_j}$</span>. However, if <span class="math inline">$g^d \equiv 1 \pmod n$</span>, we would get:</p>
+<p><span class="math inline">$g ^ { \frac { \phi (n)} {p_j} } \equiv g ^ {d . k} \equiv (g^d) ^k \equiv 1^k \equiv 1 \pmod n$</span>.</p>
+<p>i.e. among the numbers of the form <span class="math inline">$\frac {\phi (n)} {p_i}$</span>, there would be at least one such that the conditions are not met.</p>
+<p>Now we have a complete algorithm for finding the primitive root:</p>
+<ul>
+<li>First, find <span class="math inline"><em>ϕ</em>(<em>n</em>)</span> and factorize it.</li>
+<li><p>Then iterate through all numbers <span class="math inline"><em>g</em> = 1...<em>n</em></span>, and for each number, to check if it is primitive root, we do the following:</p>
+<ul>
+<li>Calculate all <span class="math inline">$g ^ { \frac {\phi (n)} {p_i}} \pmod n$</span>.</li>
+<li>If all the calculated values are different from <span class="math inline">1</span>, then <span class="math inline"><em>g</em></span> is a primitive root.</li>
+</ul>
+<p>Running time of this algorithm is <span class="math inline"><em>O</em>(<em>A</em><em>n</em><em>s</em>.<em>l</em><em>o</em><em>g</em><em>ϕ</em>(<em>n</em>).log<em>n</em>)</span> (assume that <span class="math inline"><em>ϕ</em>(<em>n</em>)</span> has <span class="math inline">log<em>ϕ</em>(<em>n</em>)</span> divisors).</p></li>
+</ul>
+<p>Shoup (1990, 1992) proved, assuming the <a href="http://en.wikipedia.org/wiki/Generalized_Riemann_hypothesis">generalized Riemann hypothesis</a>, that <span class="math inline"><em>g</em></span> is <span class="math inline"><em>O</em>(<em>l</em><em>o</em><em>g</em><sup>6</sup><em>p</em>)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>The following code assumes that the modulo <code>p</code> is a prime number. To make it works for any value of <code>p</code>, we must add calculation of <span class="math inline"><em>ϕ</em>(<em>p</em>)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> powmod (<span class="dt">int</span> a, <span class="dt">int</span> b, <span class="dt">int</span> p) {
+    <span class="dt">int</span> res = <span class="dv">1</span>;
+    <span class="kw">while</span> (b)
+        <span class="kw">if</span> (b &amp; <span class="dv">1</span>)
+            res = <span class="dt">int</span> (res * <span class="dv">1ll</span> * a % p),  --b;
+        <span class="kw">else</span>
+            a = <span class="dt">int</span> (a * <span class="dv">1ll</span> * a % p),  b &gt;&gt;= <span class="dv">1</span>;
+    <span class="kw">return</span> res;
+}
+ 
+<span class="dt">int</span> generator (<span class="dt">int</span> p) {
+    vector&lt;<span class="dt">int</span>&gt; fact;
+    <span class="dt">int</span> phi = p<span class="dv">-1</span>,  n = phi;
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">2</span>; i*i&lt;=n; ++i)
+        <span class="kw">if</span> (n % i == <span class="dv">0</span>) {
+            fact.push_back (i);
+            <span class="kw">while</span> (n % i == <span class="dv">0</span>)
+                n /= i;
+        }
+    <span class="kw">if</span> (n &gt; <span class="dv">1</span>)
+        fact.push_back (n);
+ 
+    <span class="kw">for</span> (<span class="dt">int</span> res=<span class="dv">2</span>; res&lt;=p; ++res) {
+        <span class="dt">bool</span> ok = <span class="kw">true</span>;
+        <span class="kw">for</span> (size_t i=<span class="dv">0</span>; i&lt;fact.size() &amp;&amp; ok; ++i)
+            ok &amp;= powmod (res, phi / fact[i], p) != <span class="dv">1</span>;
+        <span class="kw">if</span> (ok)  <span class="kw">return</span> res;
+    }
+    <span class="kw">return</span> <span class="dv">-1</span>;
+}</code></pre></div>
+</body>
+</html>

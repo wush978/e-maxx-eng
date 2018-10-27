@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title 2-SAT -->
+<h1 id="sat">2 - SAT</h1>
+<p>SAT (Boolean satisfiability problem) is the problem of assigning Boolean values to variables to satisfy a given Boolean formula. The Boolean formula will usually be given in CNF (conjunctive normal form), which is a conjunction of multiple clauses, where each clause is a disjunction of literals (variables or negation of variables). 2-SAT (2-satisfiability) is a restriction of the SAT problem, in 2-SAT every clause has exactly two literals. Here is an example of such a 2-SAT problem. Find an assignment of <span class="math inline"><em>a</em>, <em>b</em>, <em>c</em></span> such that the following formula is true:</p>
+<p><br /><span class="math display">(<em>a</em> ∨ ¬<em>b</em>)∧(¬<em>a</em> ∨ <em>b</em>)∧(¬<em>a</em> ∨ ¬<em>b</em>)∧(<em>a</em> ∨ ¬<em>c</em>)</span><br /></p>
+<p>SAT is NP-complete, there is no known efficient solution known for it. However 2SAT can be solved efficiently in <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>)</span> where <span class="math inline"><em>n</em></span> is the number of variables and <span class="math inline"><em>m</em></span> is the number of clauses.</p>
+<h2 id="algorithm">Algorithm:</h2>
+<p>First we need to convert the problem to a different form, the so-called implicative normal form. Note that the expression <span class="math inline"><em>a</em> ∨ <em>b</em></span> is equivalent to <span class="math inline">¬<em>a</em> ⇒ <em>b</em> ∧ ¬<em>b</em> ⇒ <em>a</em></span> (if one of the two variables is false, then the other one must be true).</p>
+<p>We now construct a directed graph of these implications: for each variable <span class="math inline"><em>x</em></span> there will be two vertices <span class="math inline"><em>v</em><sub><em>x</em></sub></span> and <span class="math inline"><em>v</em><sub>¬<em>x</em></sub></span>. The edges will correspond to the implications.</p>
+<p>Lets look at the example in 2-CNF form:</p>
+<p><br /><span class="math display">(<em>a</em> ∨ ¬<em>b</em>)∧(¬<em>a</em> ∨ <em>b</em>)∧(¬<em>a</em> ∨ ¬<em>b</em>)∧(<em>a</em> ∨ ¬<em>c</em>)</span><br /></p>
+<p>The oriented graph will contain the following vertices and edges:</p>
+<p><br /><span class="math display">$$\begin{array}{cccc}
+\lnot a \Rightarrow \lnot b &amp; a \Rightarrow b &amp; a \Rightarrow \lnot b &amp; \lnot a \Rightarrow \lnot c\\\\
+b \Rightarrow a &amp; \lnot b \Rightarrow \lnot a &amp; b \Rightarrow \lnot a &amp; c \Rightarrow a\\\\
+\end{array}$$</span><br /></p>
+<p>You can see the implication graph in the following image:</p>
+<center>
+<img src="&amp;imgroot&amp;/2SAT.png" alt="&quot;Implication Graph of 2-SAT example&quot;" />
+</center>
+<p>It is worth paying attention to the property of the implication graph: if there is an edge <span class="math inline"><em>a</em> ⇒ <em>b</em></span>, then there also is an edge <span class="math inline">¬<em>b</em> ⇒ ¬<em>a</em></span>.</p>
+<p>Also note, that if <span class="math inline"><em>x</em></span> is reachable from <span class="math inline">¬<em>x</em></span>, and <span class="math inline">¬<em>x</em></span> is reachable from <span class="math inline"><em>x</em></span>, then the problem has no solution. Whatever value we choose for the variable <span class="math inline"><em>x</em></span>, it will always end in a contradiction - if <span class="math inline"><em>x</em></span> will be assigned <span class="math inline">true</span> then the implication tell us that <span class="math inline">¬<em>x</em></span> should also be <span class="math inline">true</span> and visa versa. It turns out, that this condition is not only necessary, but also sufficient. We will prove this in a few paragraphs below. First recall, if a vertex if reachable from a second one, and the second one is reachable from the first one, then these two vertices are in the same strongly connected component. Therefore we can formulate the criterion for the existence of a solution as follows:</p>
+<p>In order for this 2-SAT problem to have a solution, it is necessary and sufficient that for any variable <span class="math inline"><em>x</em></span> the vertices <span class="math inline"><em>x</em></span> and <span class="math inline">¬<em>x</em></span> are in different strongly connected components of the strong connection of the implication graph.</p>
+<p>This criterion can be verified in <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>)</span> time by finding all strongly connected components.</p>
+<p>The following image shows all strongly connected components for the example. As we can check easily, neither of the four components contain a vertex <span class="math inline"><em>x</em></span> and its negation <span class="math inline">¬<em>x</em></span>, therefore the example has a solution. We will learn in the next paragraphs how to compute a valid assignment, but just for demonstration purposes the solution <span class="math inline"><em>a</em> = false</span>, <span class="math inline"><em>b</em> = false</span>, <span class="math inline"><em>c</em> = false</span> is given.</p>
+<center>
+<img src="&amp;imgroot&amp;/2SAT_SCC.png" alt="&quot;Strongly Connected Components of the 2-SAT example&quot;" />
+</center>
+<p>Now we construct the algorithm for finding the solution of the 2-SAT problem on the assumption that the solution exists.</p>
+<p>Note that, in spite of the fact that the solution exists, it can happen that <span class="math inline">¬<em>x</em></span> is reachable from <span class="math inline"><em>x</em></span> in the implication graph, or that (but not simultaneously) <span class="math inline"><em>x</em></span> is reachable from <span class="math inline">¬<em>x</em></span>. In that case the choice of either <span class="math inline">true</span> or <span class="math inline">false</span> for <span class="math inline"><em>x</em></span> will lead to a contradiction, while the choice of the other one will not. Let's learn how to choose a value, such that we don't generate a contradiction.</p>
+<p>Let us sort the strongly connected components in topological order (i.e. <span class="math inline">comp[<em>v</em>]≤comp[<em>u</em>]</span> if there is a path from <span class="math inline"><em>v</em></span> to <span class="math inline"><em>u</em></span>) and let <span class="math inline">comp[<em>v</em>]</span> denote the index of strongly connected component to which the vertex <span class="math inline"><em>v</em></span> belongs. Then, if <span class="math inline">comp[<em>x</em>]&lt;comp[¬<em>x</em>]</span> we assign <span class="math inline"><em>x</em></span> with <span class="math inline">false</span> and <span class="math inline">true</span> otherwise.</p>
+<p>Let us prove that with this assignment of the variables we do not arrive at a contradiction. Suppose <span class="math inline"><em>x</em></span> is assigned with <span class="math inline">true</span>. The other case can be proven in a similar way.</p>
+<p>First we prove that the vertex <span class="math inline"><em>x</em></span> cannot reach the vertex <span class="math inline">¬<em>x</em></span>. Because we assigned <span class="math inline">true</span> it has to hold that the index of strongly connected component of <span class="math inline"><em>x</em></span> is greater than the index of the component of <span class="math inline">¬<em>x</em></span>. This means that <span class="math inline">¬<em>x</em></span> is located on the left of the component containing <span class="math inline"><em>x</em></span>, and the later vertex cannot reach the first.</p>
+<p>Secondly we prove that there doesn't exist a variable <span class="math inline"><em>y</em></span>, such that the vertices <span class="math inline"><em>y</em></span> and <span class="math inline">¬<em>y</em></span> are both reachable from <span class="math inline"><em>x</em></span> in the implication graph. This would cause a contradiction, because <span class="math inline"><em>x</em> = true</span> implies that <span class="math inline"><em>y</em> = true</span> and <span class="math inline">¬<em>y</em> = true</span>. Let us prove this by contradiction. Suppose that <span class="math inline"><em>y</em></span> and <span class="math inline">¬<em>y</em></span> are both reachable from <span class="math inline"><em>x</em></span>, then by the property of the implication graph <span class="math inline">¬<em>x</em></span> is reachable from both <span class="math inline"><em>y</em></span> and <span class="math inline">¬<em>y</em></span>. By transitivity this results that <span class="math inline">¬<em>x</em></span> is reachable by <span class="math inline"><em>x</em></span>, which contradicts the assumption.</p>
+<p>So we have constructed an algorithm that finds the required values of variables under the assumption that for any variable <span class="math inline"><em>x</em></span> the vertices <span class="math inline"><em>x</em></span> and <span class="math inline">¬<em>x</em></span> are in different strongly connected components. Above showed the correctness of this algorithm. Consequently we simultaneously proved the above criterion for the existence of a solution.</p>
+<h2 id="implementation">Implementation:</h2>
+<p>Now we can implement the entire algorithm. First we construct the graph of implications and find all strongly connected components. This can be accomplished with Kosaraju's algorithm in <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>)</span> time. In the second traversal of the graph Kosaraju's algorithm visits the strongly connected components in topological order, therefore it is easy to compute <span class="math inline">comp[<em>v</em>]</span> for each vertex <span class="math inline"><em>v</em></span>.</p>
+<p>Afterwards we can choose the assignment of <span class="math inline"><em>x</em></span> by comparing <span class="math inline">comp[<em>x</em>]</span> and <span class="math inline">comp[¬<em>x</em>]</span>. If <span class="math inline">comp[<em>x</em>]=comp[¬<em>x</em>]</span> we return <span class="math inline">false</span> to indicate that there doesn't exist a valid assignment that satisfies the 2-SAT problem.</p>
+<p>Below is the implementation of the solution of the 2-SAT problem for the already constructed graph of implication <span class="math inline"><em>g</em></span> and the transpose graph <span class="math inline">$g^{\intercal}$</span> (in which the direction of each edge is reversed). In the graph the vertices with indices <span class="math inline">2<em>k</em></span> and <span class="math inline">2<em>k</em> + 1</span> are the two vertices corresponding to variable <span class="math inline"><em>k</em></span> with <span class="math inline">2<em>k</em> + 1</span> corresponding to the negated variable.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> n;
+vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; g, gt;
+vector&lt;<span class="dt">bool</span>&gt; used;
+vector&lt;<span class="dt">int</span>&gt; order, comp;
+vector&lt;<span class="dt">bool</span>&gt; assignment;
+
+<span class="dt">void</span> dfs1(<span class="dt">int</span> v) {
+    used[v] = <span class="kw">true</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> u : g[v]) {
+        <span class="kw">if</span> (!used[u])
+            dfs1(u);
+    }
+    order.push_back(v);
+}
+
+<span class="dt">void</span> dfs2(<span class="dt">int</span> v, <span class="dt">int</span> cl) {
+    comp[v] = cl;
+    <span class="kw">for</span> (<span class="dt">int</span> u : gt[v]) {
+        <span class="kw">if</span> (comp[u] == <span class="dv">-1</span>)
+            dfs2(u, cl);
+    }
+}
+
+<span class="dt">bool</span> solve_2SAT() {
+    used.assign(n, <span class="kw">false</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">if</span> (!used[i])
+            dfs1(i);
+    }
+
+    comp.assign(n, <span class="dv">-1</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>, j = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="dt">int</span> v = order[n - i - <span class="dv">1</span>];
+        <span class="kw">if</span> (comp[v] == <span class="dv">-1</span>)
+            dfs2(v, j++);
+    }
+
+    assignment.assign(n / <span class="dv">2</span>, <span class="kw">false</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; i += <span class="dv">2</span>) {
+        <span class="kw">if</span> (comp[i] == comp[i + <span class="dv">1</span>])
+            <span class="kw">return</span> <span class="kw">false</span>;
+        assignment[i / <span class="dv">2</span>] = comp[i] &gt; comp[i + <span class="dv">1</span>];
+    }
+    <span class="kw">return</span> <span class="kw">true</span>;
+}</code></pre></div>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3081">UVA: Rectangles</a></li>
+<li><a href="http://codeforces.com/contest/776/problem/D">Codeforces: The Door Problem</a></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Floyd-Warshall algorithm -->
+<h1 id="floyd-warshall-algorithm">Floyd-Warshall Algorithm</h1>
+<p>Given an undirected weighted graph <span class="math inline"><em>G</em></span> with <span class="math inline"><em>n</em></span> vertices. The task is to find the length of the shortest path <span class="math inline"><em>d</em><sub><em>i</em><em>j</em></sub></span> between each each pair of vertices <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>.</p>
+<p>The graph may have negative weight edges, but no negative weight cycles (for then the shortest path is undefined).</p>
+<p>This algorithm can also be used to detect the presence of negative cycles. The graph has a negative cycle if at the end of the algorithm, the distance from a vertex <span class="math inline"><em>v</em></span> to itself is negative.</p>
+<p>This algorithm has been simultaneously published in articles by Robert Floyd and Stephen Warshall in 1962. However, in 1959, Bernard Roy published essentially the same algorithm, but its publication went unnoticed.</p>
+<h2 id="description-of-the-algorithm">Description of the algorithm</h2>
+<p>The key idea of the algorithm is to partition the process of finding the shortest path between any two vertices to several incremental phases.</p>
+<p>Let us number the vertices starting from 1 to <span class="math inline"><em>n</em></span>. The matrix of distances is <span class="math inline"><em>d</em>[][]</span>.</p>
+<p>Before <span class="math inline"><em>k</em></span>-th phase (<span class="math inline"><em>k</em> = 1…<em>n</em></span>), <span class="math inline"><em>d</em>[<em>i</em>][<em>j</em>]</span> for any vertices <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> stores the length of the shortest path between the vertex <span class="math inline"><em>i</em></span> and vertex <span class="math inline"><em>j</em></span>, which contains only the vertices <span class="math inline">$\\{1, 2, ..., k-1\\}$</span> as internal vertices in the path.</p>
+<p>In other words, before <span class="math inline"><em>k</em></span>-th phase the value of <span class="math inline"><em>d</em>[<em>i</em>][<em>j</em>]</span> is equal to the length of the shortest path from vertex <span class="math inline"><em>i</em></span> to the vertex <span class="math inline"><em>j</em></span>, if this path is allowed to enter only the vertex with numbers smaller than <span class="math inline"><em>k</em></span> (the beginning and end of the path are not restricted by this property).</p>
+<p>It is easy to make sure that this property holds for the first phase. For <span class="math inline"><em>k</em> = 0</span>, we can fill matrix with <span class="math inline"><em>d</em>[<em>i</em>][<em>j</em>]=<em>w</em><sub><em>i</em><em>j</em></sub></span> if there exists an edge between <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> with weight <span class="math inline"><em>w</em><sub><em>i</em><em>j</em></sub></span> and <span class="math inline"><em>d</em>[<em>i</em>][<em>j</em>]=∞</span> if there doesn't exist an edge. In practice <span class="math inline">∞</span> will be some high value. As we shall see later, this is a requirement for the algorithm.</p>
+<p>Suppose now that we are in the <span class="math inline"><em>k</em></span>-th phase, and we want to compute the matrix <span class="math inline"><em>d</em>[][]</span> so that it meets the requirements for the <span class="math inline">(<em>k</em> + 1)</span>-th phase. We have to fix the distances for some vertices pairs <span class="math inline">(<em>i</em>, <em>j</em>)</span>. There are two fundamentally different cases:</p>
+<ul>
+<li><p>The shortest way from the vertex <span class="math inline"><em>i</em></span> to the vertex <span class="math inline"><em>j</em></span> with internal vertices from the set <span class="math inline">$\\{1, 2, \dots, k\\}$</span> coincides with the shortest path with internal vertices from the set <span class="math inline">$\\{1, 2, \dots, k-1\\}$</span>.</p>
+<p>In this case, <span class="math inline"><em>d</em>[<em>i</em>][<em>j</em>]</span> will not change during the transition.</p></li>
+<li><p>The shortest path with internal vertices from $\{1, 2, , k\} is shorter.</p>
+<p>This means that the new, shorter path passes through the vertex <span class="math inline"><em>k</em></span>. This means that we can split the shortest path between <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> into two paths: the path between <span class="math inline"><em>i</em></span> and <span class="math inline"><em>k</em></span>, and the path between <span class="math inline"><em>k</em></span> and <span class="math inline"><em>j</em></span>. It is clear that both this paths only use internal vertices of <span class="math inline">$\\{1, 2, \dots, k-1\\}$</span> and are the shortest such paths in that respect. Therefore we already have computed the lengths of those paths before, and we can compute the length of the shortest path between <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> as <span class="math inline"><em>d</em>[<em>i</em>][<em>k</em>]+<em>d</em>[<em>k</em>][<em>j</em>]</span>.</p></li>
+</ul>
+<p>Combining these two cases we find that we can recalculate the length of all pairs <span class="math inline">(<em>i</em>, <em>j</em>)</span> in the <span class="math inline"><em>k</em></span>-th phase in the following way:</p>
+<p><br /><span class="math display"><em>d</em><sub>new</sub>[<em>i</em>][<em>j</em>]=<em>m</em><em>i</em><em>n</em>(<em>d</em>[<em>i</em>][<em>j</em>],<em>d</em>[<em>i</em>][<em>k</em>]+<em>d</em>[<em>k</em>][<em>j</em>])</span><br /></p>
+<p>Thus, all the work that is required in the <span class="math inline"><em>k</em></span>-th phase is to iterate over all pairs of vertices and recalculate the length of the shortest path between them. As a result, after the <span class="math inline"><em>n</em></span>-th phase, the value <span class="math inline"><em>d</em>[<em>i</em>][<em>j</em>]</span> in the distance matrix is the length of the shortest path between <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>, or is <span class="math inline">∞</span> if the path between the vertices <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> does not exist.</p>
+<p>A last remark - we don't need to create a separate distance matrix <span class="math inline"><em>d</em><sub>new</sub>[][]</span> for temporarily storing the shortest paths of the <span class="math inline"><em>k</em></span>-th phase, i.e. all changes can be made directly in the matrix <span class="math inline"><em>d</em>[][]</span> at any phase. In fact at any <span class="math inline"><em>k</em></span>-th phase we are at most improving the distance of any path in the distance matrix, hence we cannot worsen the length of the shortest path for any pair of the vertices that are to be processed in the <span class="math inline">(<em>k</em> + 1)</span>-th phase or later.</p>
+<p>The time complexity of this algorithm is obviously <span class="math inline"><em>O</em>(<em>n</em><sup>3</sup>)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Let <span class="math inline"><em>d</em>[][]</span> is a 2D array of size <span class="math inline"><em>n</em> × <em>n</em></span>, which is filled according to the <span class="math inline">0</span>-th phase as explained earlier. Also we will set <span class="math inline"><em>d</em>[<em>i</em>][<em>i</em>]=0</span> for any <span class="math inline"><em>i</em></span> at the <span class="math inline">0</span>-th phase.</p>
+<p>Then the algorithm is implemented as follows:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span> (<span class="dt">int</span> k = <span class="dv">0</span>; k &lt; n; ++k) {
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; n; ++j) {
+            d[i][j] = min(d[i][j], d[i][k] + d[k][j]); 
+        }
+    }
+}</code></pre></div>
+<p>It is assumed that if there is no edge between any two vertices <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>, then the matrix at <span class="math inline"><em>d</em>[<em>i</em>][<em>j</em>]</span> contains a large number (large enough so that it is greater than the length of any path in this graph). Then this edge will always be unprofitable to take, and the algorithm will work correctly.</p>
+<p>However if there are negative weight edges in the graph, special measures have to be taken. Otherwise the resulting values in matrix may be of the form <span class="math inline">∞ − 1</span>, <span class="math inline">∞ − 2</span>, etc., which, of course, still indicates that between the respective vertices doesn't exist a path. Therefore, if the graph has negative weight edges, it is better to write the Floyd-Warshall algorithm in the following way, so that it does not perform transitions using paths that don't exist.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span> (<span class="dt">int</span> k = <span class="dv">0</span>; k &lt; n; ++k) {
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; n; ++j) {
+            <span class="kw">if</span> (d[i][k] &lt; INF &amp;&amp; d[k][j] &lt; INF)
+                d[i][j] = min(d[i][j], d[i][k] + d[k][j]); 
+        }
+    }
+}</code></pre></div>
+<h2 id="retrieving-the-sequence-of-vertices-in-the-shortest-path">Retrieving the sequence of vertices in the shortest path</h2>
+<p>It is easy to maintain additional information with which it will be possible to retrieve the shortest path between any two given vertices in the form of a sequence of vertices.</p>
+<p>For this, in addition to the distance matrix <span class="math inline"><em>d</em>[][]</span>, a matrix of ancestors <span class="math inline"><em>p</em>[][]</span> must be maintained, which will contain the number of the phase where the shortest distance between two vertices was last modified. It is clear that the number of the phase is nothing more than a vertex in the middle of the desired shortest path. Now we just need to find the shortest path between vertices <span class="math inline"><em>i</em></span> and <span class="math inline"><em>p</em>[<em>i</em>][<em>j</em>]</span>, and between <span class="math inline"><em>p</em>[<em>i</em>][<em>j</em>]</span> and <span class="math inline"><em>j</em></span>. This leads to a simple recursive reconstruction algorithm of the shortest path.</p>
+<h2 id="the-case-of-real-weights">The case of real weights</h2>
+<p>If the weights of the edges are not integer but real, it is necessary to take the errors, which occur when working with float types, into account.</p>
+<p>The Floyd-Warshall algorithm has the unpleasant effect, that the errors accumulate very quickly. In fact if there is an error in the first phase of <span class="math inline"><em>δ</em></span>, this error may propagate to the second iteration as <span class="math inline">2<em>δ</em></span>, to the third iteration as <span class="math inline">4<em>δ</em></span>, and so on.</p>
+<p>To avoid this the algorithm can be modified to take the error (EPS = <span class="math inline"><em>δ</em></span>) into account by using following comparison:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">if</span> (d[i][k] + d[k][j] &lt; d[i][j] - EPS)
+    d[i][j] = d[i][k] + d[k][j]; </code></pre></div>
+<h2 id="the-case-of-negative-cycles">The case of negative cycles</h2>
+<p>Formally the Floyd-Warshall algorithm does not apply to graphs containing negative weight cycle(s). But for all pairs of vertices <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> for which there doesn't exist a path starting at <span class="math inline"><em>i</em></span>, visiting a negative cycle, and end at <span class="math inline"><em>j</em></span>, the algorithm will still work correctly.</p>
+<p>For the pair of vertices for which the answer does not exist (due to the presence of a negative cycle in the path between them), the Floyd algorithm will store any number (perhaps highly negative, but not necessarily) in the distance matrix. However it is possible to improve the Floyd-Warshall algorithm, so that it carefully treats such pairs of vertices, and outputs them, for example as <span class="math inline">−INF</span>.</p>
+<p>This can be done in the following way: let us run the usual Floyd-Warshall algorithm for a given graph. Then a shortest path between vertices <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> does not exist, if and only if, there is a vertex <span class="math inline"><em>t</em></span> that is reachable from <span class="math inline"><em>i</em></span> and also from <span class="math inline"><em>j</em></span>, for which <span class="math inline"><em>d</em>[<em>t</em>][<em>t</em>]&lt;0</span>.</p>
+<p>In addition, when using the Floyd-Warshall algorithm for graphs with negative cycles, we should keep in mind that situations may arise in which distances can get exponentially fast into the negative. Therefore integer overflow must be handled by limiting the minimal distance by some value (e.g. <span class="math inline">−INF</span>).</p>
+<p>To learn more about finding negative cycles in a graph, see the separate article <a href="./graph/finding-negative-cycle-in-graph.html">Finding a negative cycle in the graph</a>.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=762">UVA: Page Hopping</a></li>
+<li><a href="http://www.spoj.com/problems/SOCIALNE/">SPOJ: Possible Friends</a></li>
+<li><a href="http://codeforces.com/problemset/problem/295/B">CODEFORCES: Greg and Graph</a></li>
+<li><a href="http://www.spoj.com/problems/CHICAGO/">SPOJ: CHICAGO - 106 miles to Chicago</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1665">UVA 10724 - Road Construction</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=53">UVA 117 - The Postal Worker Rings Once</a></li>
+<li><a href="http://codeforces.com/problemset/problem/21/D">Codeforces - Traveling Graph</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=3639">UVA - 1198 - The Geodetic Set Problem</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=989">UVA - 10048 - Audiophobia</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=61">UVA - 125 - Numbering Paths</a></li>
+<li><a href="http://lightoj.com/volume_showproblem.php?problem=1221">LOJ - Travel Company</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=364">UVA 423 - MPI Maelstrom</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=4162">UVA 1416 - Warfare And Logistics</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3674">UVA 1233 - USHER</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1734">UVA 10793 - The Orc Attack</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1040">UVA 10099 The Tourist Guide</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=810">UVA 869 - Airline Comparison</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=5134">UVA 13211 - Geonosis</a></li>
+<li><a href="http://www.spoj.com/problems/ROHAAN/">SPOJ - Defend the Rohan</a></li>
+<li><a href="http://codeforces.com/contest/25/problem/C">Codeforces - Roads in Berland</a></li>
+<li><a href="http://codeforces.com/contest/33/problem/B">Codeforces - String Problem</a></li>
+<li><a href="http://codeforces.com/gym/101223">GYM - Manic Moving (C)</a></li>
+<li><a href="http://www.spoj.com/problems/ARBITRAG/">SPOJ - Arbitrage</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3331">UVA - 12179 - Randomly-priced Tickets</a></li>
+<li><a href="http://lightoj.com/volume_showproblem.php?problem=1086">LOJ - 1086 - Jogging Trails</a></li>
+<li><a href="http://www.spoj.com/problems/INGRED/">SPOJ - Ingredients</a></li>
+</ul>
+</body>
+</html>

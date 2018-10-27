@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Assignment problem solution using min-cost-flo< -->
+<h1 id="solving-assignment-problem-using-min-cost-flow">Solving assignment problem using min-cost-flow</h1>
+<p>The <strong>assignment problem</strong> has two equivalent statements:</p>
+<ul>
+<li>Given a square matrix <span class="math inline"><em>A</em>[1..<em>N</em>, 1..<em>N</em>]</span>, you need to select <span class="math inline"><em>N</em></span> elements in it so that exactly one element is selected in each row and column, and the sum of the values of these elements is the smallest.</li>
+<li>There are <span class="math inline"><em>N</em></span> orders and <span class="math inline"><em>N</em></span> machines. The cost of manufacturing on each machine is known for each order. Only one order can be performed on each machine. It is required to assign all orders to the machines so that the total cost is minimized.</li>
+</ul>
+<p>Here we will consider the solution of the problem based on the algorithm for finding the <a href="./graph/min_cost_flow.html">minimum cost flow (min-cost-flow)</a>, solving the assignment problem in <span class="math inline">𝒪(<em>N</em><sup>5</sup>)</span>.</p>
+<h2 id="description">Description</h2>
+<p>Let's build a bipartite network: there is a source <span class="math inline"><em>S</em></span>, a drain <span class="math inline"><em>T</em></span>, in the first part there are <span class="math inline"><em>N</em></span> vertices (corresponding to rows of the matrix, or orders), in the second there are also <span class="math inline"><em>N</em></span> vertices (corresponding to the columns of the matrix, or machines). Between each vertex <span class="math inline"><em>i</em></span> of the first set and each vertex <span class="math inline"><em>j</em></span> of the second set, we draw an edge with bandwidth 1 and cost <span class="math inline"><em>A</em><sub><em>i</em><em>j</em></sub></span>. From the source <span class="math inline"><em>S</em></span> we draw edges to all vertices <span class="math inline"><em>i</em></span> of the first set with bandwidth 1 and cost 0. We draw an edge with bandwidth 1 and cost 0 from each vertex of the second set <span class="math inline"><em>j</em></span> to the drain <span class="math inline"><em>T</em></span>.</p>
+<p>We find in the resulting network the maximum flow of the minimum cost. Obviously, the value of the flow will be <span class="math inline"><em>N</em></span>. Further, for each vertex <span class="math inline"><em>i</em></span> of the first segment there is exactly one vertex <span class="math inline"><em>j</em></span> of the second segment, such that the flow <span class="math inline"><em>F</em><sub><em>i</em><em>j</em></sub></span> = 1. Finally, this is a one-to-one correspondence between the vertices of the first segment and the vertices of the second part, which is the solution to the problem (since the found flow has a minimal cost, then the sum of the costs of the selected edges will be the lowest possible, which is the optimality criterion).</p>
+<p>The complexity of this solution of the assignment problem depends on the algorithm by which the search for the maximum flow of the minimum cost is performed. The complexity will be <span class="math inline">𝒪(<em>N</em><sup>5</sup>)</span> using <a href="./graph/dijkstra.html">Dijkstra</a> or <span class="math inline">𝒪(<em>N</em><sup>6</sup>)</span> using <a href="./graph/bellman_ford.html">Bellman-Ford</a>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>The implementation given here is long, it can probably be significantly reduced. It uses the <a href="./graph/desopo_pape.html">D´Esopo-Pape algorithm</a> for finding shortest paths.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">int</span> INF = <span class="dv">1000</span> * <span class="dv">1000</span> * <span class="dv">1000</span>;
+
+vector&lt;<span class="dt">int</span>&gt; assignment(vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; a) {
+    <span class="dt">int</span> n = a.size();
+    <span class="dt">int</span> m = n * <span class="dv">2</span> + <span class="dv">2</span>;
+    vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; f(m, vector&lt;<span class="dt">int</span>&gt;(m));
+    <span class="dt">int</span> s = m - <span class="dv">2</span>, t = m - <span class="dv">1</span>;
+    <span class="dt">int</span> cost = <span class="dv">0</span>;
+    <span class="kw">while</span> (<span class="kw">true</span>) {
+        vector&lt;<span class="dt">int</span>&gt; dist(m, INF);
+        vector&lt;<span class="dt">int</span>&gt; p(m);
+        vector&lt;<span class="dt">int</span>&gt; type(m, <span class="dv">2</span>);
+        deque&lt;<span class="dt">int</span>&gt; q;
+        dist[s] = <span class="dv">0</span>;
+        p[s] = <span class="dv">-1</span>;
+        type[s] = <span class="dv">1</span>;
+        q.push_back(s);
+        <span class="kw">while</span> (!q.empty()) {
+            <span class="dt">int</span> v = q.front();
+            q.pop_front();
+            type[v] = <span class="dv">0</span>;
+            <span class="kw">if</span> (v == s) {
+                <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+                    <span class="kw">if</span> (f[s][i] == <span class="dv">0</span>) {
+                        dist[i] = <span class="dv">0</span>;
+                        p[i] = s;
+                        type[i] = <span class="dv">1</span>;
+                        q.push_back(i);
+                    }
+                }
+            } <span class="kw">else</span> {
+                <span class="kw">if</span> (v &lt; n) {
+                    <span class="kw">for</span> (<span class="dt">int</span> j = n; j &lt; n + n; ++j) {
+                        <span class="kw">if</span> (f[v][j] &lt; <span class="dv">1</span> &amp;&amp; dist[j] &gt; dist[v] + a[v][j - n]) {
+                            dist[j] = dist[v] + a[v][j - n];
+                            p[j] = v;
+                            <span class="kw">if</span> (type[j] == <span class="dv">0</span>)
+                                q.push_front(j);
+                            <span class="kw">else</span> <span class="kw">if</span> (type[j] == <span class="dv">2</span>)
+                                q.push_back(j);
+                            type[j] = <span class="dv">1</span>;
+                        }
+                    }
+                } <span class="kw">else</span> {
+                    <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; n; ++j) {
+                        <span class="kw">if</span> (f[v][j] &lt; <span class="dv">0</span> &amp;&amp; dist[j] &gt; dist[v] - a[j][v - n]) {
+                            dist[j] = dist[v] - a[j][v - n];
+                            p[j] = v;
+                            <span class="kw">if</span> (type[j] == <span class="dv">0</span>)
+                                q.push_front(j);
+                            <span class="kw">else</span> <span class="kw">if</span> (type[j] == <span class="dv">2</span>)
+                                q.push_back(j);
+                            type[j] = <span class="dv">1</span>;
+                        }
+                    }
+                }
+            }
+        }
+
+        <span class="dt">int</span> curcost = INF;
+        <span class="kw">for</span> (<span class="dt">int</span> i = n; i &lt; n + n; ++i) {
+            <span class="kw">if</span> (f[i][t] == <span class="dv">0</span> &amp;&amp; dist[i] &lt; curcost) {
+                curcost = dist[i];
+                p[t] = i;
+            }
+        }
+        <span class="kw">if</span> (curcost == INF)
+            <span class="kw">break</span>;
+        cost += curcost;
+        <span class="kw">for</span> (<span class="dt">int</span> cur = t; cur != <span class="dv">-1</span>; cur = p[cur]) {
+            <span class="dt">int</span> prev = p[cur];
+            <span class="kw">if</span> (prev != <span class="dv">-1</span>)
+                f[cur][prev] = -(f[prev][cur] = <span class="dv">1</span>);
+        }
+    }
+
+    vector&lt;<span class="dt">int</span>&gt; answer(n);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; n; ++j) {
+            <span class="kw">if</span> (f[i][j + n] == <span class="dv">1</span>)
+                answer[i] = j;
+        }
+    }
+    <span class="kw">return</span> answer;
+}</code></pre></div>
+</body>
+</html>

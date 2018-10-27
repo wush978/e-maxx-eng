@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Lowest Common Ancestor - Farach-Colton and Bender algorithm -->
+<h1 id="lowest-common-ancestor---farach-colton-and-bender-algorithm">Lowest Common Ancestor - Farach-Colton and Bender Algorithm</h1>
+<p>Let <span class="math inline"><em>G</em></span> be a tree. For every query of the form <span class="math inline">(<em>u</em>, <em>v</em>)</span> we want to find the lowest common ancestor of the nodes <span class="math inline"><em>u</em></span> and <span class="math inline"><em>v</em></span>, i.e. we want to find a node <span class="math inline"><em>w</em></span> that lies on the path from <span class="math inline"><em>u</em></span> to the root node, that lies on the path from <span class="math inline"><em>v</em></span> to the root node, and if there are multiple nodes we pick the one that is farthest away from the root node. In other words the desired node <span class="math inline"><em>w</em></span> is the lowest ancestor of <span class="math inline"><em>u</em></span> and <span class="math inline"><em>v</em></span>. In particular if <span class="math inline"><em>u</em></span> is an ancestor of <span class="math inline"><em>v</em></span>, then <span class="math inline"><em>u</em></span> is their lowest common ancestor.</p>
+<p>The algorithm which will be described in this article was developed by Farach-Colton and Bender. It is asymptotically optimal.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>We use the classical reduction of the LCA problem to the RMQ problem. We traverse all nodes of the tree with <a href="./graph/depth-first-search.html">DFS</a> and keep an array with all visited nodes and the heights of these nodes. The LCA of two nodes <span class="math inline"><em>u</em></span> and <span class="math inline"><em>v</em></span> is the node between the occurrences of <span class="math inline"><em>u</em></span> and <span class="math inline"><em>v</em></span> in the tour, that has the smallest height.</p>
+<p>In the following picture you can see a possible Euler-Tour of a graph and in the list below you can see the visited nodes and their heights.</p>
+<center>
+<img src="&amp;imgroot&amp;/LCA_Euler.png" alt="LCA_Euler_Tour" />
+</center>
+<p><br /><span class="math display">$$\begin{array}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\text{Nodes:}   &amp; 1 &amp; 2 &amp; 5 &amp; 2 &amp; 6 &amp; 2 &amp; 1 &amp; 3 &amp; 1 &amp; 4 &amp; 7 &amp; 4 &amp; 1 \\\\ \hline
+\text{Heights:} &amp; 1 &amp; 2 &amp; 3 &amp; 2 &amp; 3 &amp; 2 &amp; 1 &amp; 2 &amp; 1 &amp; 2 &amp; 3 &amp; 2 &amp; 1 \\\\ \hline
+\end{array}$$</span><br /></p>
+<p>You can read more about this reduction in the article <a href="./graph/lca.html">Lowest Common Ancestor</a>. In that article the minimum of a range was either found by sqrt-decomposition in <span class="math inline">$O(\sqrt{N})$</span> or in <span class="math inline"><em>O</em>(log<em>N</em>)</span> using a Segment tree. In this article we look at how we can solve the given range minimum queries in <span class="math inline"><em>O</em>(1)</span> time, while still only taking <span class="math inline"><em>O</em>(<em>N</em>)</span> time for preprocessing.</p>
+<p>Note that the reduced RMQ problem is very specific: any two adjacent elements in the array differ exactly by one (since the elements of the array are nothing more than the heights of the nodes visited in order of traversal, and we either go to a descendant, in which case the next element is one bigger, or go back to the ancestor, in which case the next element is one lower). The Farach-Colton and Bender algorithm describes a solution for exactly this specialized RMQ problem.</p>
+<p>Let's denote with <span class="math inline"><em>A</em></span> the array on which we want to perform the range minimum queries. And <span class="math inline"><em>N</em></span> will be the size of <span class="math inline"><em>A</em></span>.</p>
+<p>There is an easy data structure that we can use for solving the RMQ problem with <span class="math inline"><em>O</em>(<em>N</em>log<em>N</em>)</span> preprocessing and <span class="math inline"><em>O</em>(1)</span> for each query: the <a href="./data_structures/sparse-table.html">Sparse Table</a>. We create a table <span class="math inline"><em>T</em></span> where each element <span class="math inline"><em>T</em>[<em>i</em>][<em>j</em>]</span> is equal to the minimum of <span class="math inline"><em>A</em></span> in the interval <span class="math inline">[<em>i</em>, <em>i</em> + 2<sup><em>j</em></sup> − 1]</span>. Obviously <span class="math inline">0 ≤ <em>j</em> ≤ ⌈log<em>N</em>⌉</span>, and therefore the size of the Sparse Table will be <span class="math inline"><em>O</em>(<em>N</em>log<em>N</em>)</span>. You can build the table easily in <span class="math inline"><em>O</em>(<em>N</em>log<em>N</em>)</span> by noting that <span class="math inline"><em>T</em>[<em>i</em>][<em>j</em>]=min(<em>T</em>[<em>i</em>][<em>j</em> − 1],<em>T</em>[<em>i</em> + 2<sup><em>j</em> − 1</sup>][<em>j</em> − 1])</span>.</p>
+<p>How can we answer a query RMQ in <span class="math inline"><em>O</em>(1)</span> using this data structure? Let the received query be <span class="math inline">[<em>l</em>, <em>r</em>]</span>, then the answer is <span class="math inline">min(<em>T</em>[<em>l</em>][sz],<em>T</em>[<em>r</em> − 2<sup>sz</sup> + 1][sz])</span>, where <span class="math inline">sz</span> is the biggest exponent such that <span class="math inline">2<sup>sz</sup></span> is not bigger than the range length <span class="math inline"><em>r</em> − <em>l</em> + 1</span>. Indeed we can take the range <span class="math inline">[<em>l</em>, <em>r</em>]</span> and cover it two segments of length <span class="math inline">2<sup>sz</sup></span> - one starting in <span class="math inline"><em>l</em></span> and the other ending in <span class="math inline"><em>r</em></span>. These segments overlap, but this doesn't interfere with our computation. To really achieve the time complexity of <span class="math inline"><em>O</em>(1)</span> per query, we need to know the values of <span class="math inline">sz</span> for all possible lengths from <span class="math inline">1</span> to <span class="math inline"><em>N</em></span>. But this can be easily precomputed.</p>
+<p>Now we want to improve the complexity of the preprocessing down to <span class="math inline"><em>O</em>(<em>N</em>)</span>.</p>
+<p>We divide the array <span class="math inline"><em>A</em></span> into blocks of size <span class="math inline"><em>K</em> = 0.5log<em>N</em></span> with <span class="math inline">log</span> being the logarithm to base 2. For each block we calculate the minimum element and store them in an array <span class="math inline"><em>B</em></span>. <span class="math inline"><em>B</em></span> has the size <span class="math inline">$\frac{N}{K}$</span>. We construct a sparse table from the array <span class="math inline"><em>B</em></span>. The size and the time complexity of it will be: <br /><span class="math display">$$\frac{N}{K}\log\left(\frac{N}{K}\right) = \frac{2N}{\log(N)} \log\left(\frac{2N}{\log(N)}\right) =$$</span><br /> <br /><span class="math display">$$= \frac{2N}{\log(N)} \left(1 + \log\left(\frac{N}{\log(N)}\right)\right) \leq \frac{2N}{\log(N)} + 2N = O(N)$$</span><br /></p>
+<p>Now we only have to learn how to quickly answer range minimum queries within each block. In fact if the received range minimum query is <span class="math inline">[<em>l</em>, <em>r</em>]</span> and <span class="math inline"><em>l</em></span> and <span class="math inline"><em>r</em></span> are in different blocks then the answer is the minimum of the following three values: the minimum of the suffix of block of <span class="math inline"><em>l</em></span> starting at <span class="math inline"><em>l</em></span>, the minimum of the prefix of block of <span class="math inline"><em>r</em></span> ending at <span class="math inline"><em>r</em></span>, and the minimum of the blocks between those. The minimum of the blocks in between can be answered in <span class="math inline"><em>O</em>(1)</span> using the Sparse Table. So this leaves us only the range minimum queries inside blocks.</p>
+<p>Here we will exploit the property of the array. Remember that the values in the array - which are just height values in the tree - will always differ by one. If we remove the first element of a block, and subtract it from every other item in the block, every block can be identified by a sequence of length <span class="math inline"><em>K</em> − 1</span> consisting of the number <span class="math inline">+1</span> and <span class="math inline">−1</span>. Because these blocks are so small, there are only a few different sequences that can occur. The number of possible sequences is: <br /><span class="math display">$$2^{K-1} = 2^{0.5 \log(N) - 1} = 0.5 \left(2^{\log(N)}\right)^{0.5} = 0.5 \sqrt{N}$$</span><br /></p>
+<p>Thus the number of different blocks is <span class="math inline">$O(\sqrt{N})$</span>, and therefore we can precompute the results of range minimum queries inside all different blocks in <span class="math inline">$O(\sqrt{N} K^2) = O(\sqrt{N} \log^2(N)) = O(N)$</span> time. For the implementation we can characterize a block by a bitmask of length <span class="math inline"><em>K</em> − 1</span> (which will fit in a standard int) and store the index of the minimum in an array <span class="math inline">block[mask][<em>l</em>][<em>r</em>]</span> of size <span class="math inline">$O(\sqrt{N} \log^2(N))$</span>.</p>
+<p>So we learned how to precompute range minimum queries within each block, as well as range minimum queries over a range of blocks, all in <span class="math inline"><em>O</em>(<em>N</em>)</span>. With these precomputations we can answer each query in <span class="math inline"><em>O</em>(1)</span>, by using at most four precomputed values: the minimum of the block containing <code>l</code>, the minimum of the block containing <code>r</code>, and the two minima of the overlapping segments of the blocks between them.</p>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> n;
+vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; adj;
+
+<span class="dt">int</span> block_size, block_cnt;
+vector&lt;<span class="dt">int</span>&gt; first_visit;
+vector&lt;<span class="dt">int</span>&gt; euler_tour;
+vector&lt;<span class="dt">int</span>&gt; height;
+vector&lt;<span class="dt">int</span>&gt; log_2;
+vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; st;
+vector&lt;vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt;&gt; blocks;
+vector&lt;<span class="dt">int</span>&gt; block_mask;
+
+<span class="dt">void</span> dfs(<span class="dt">int</span> v, <span class="dt">int</span> p, <span class="dt">int</span> h) {
+    first_visit[v] = euler_tour.size();
+    euler_tour.push_back(v);
+    height[v] = h;
+    
+    <span class="kw">for</span> (<span class="dt">int</span> u : adj[v]) {
+        <span class="kw">if</span> (u == p)
+            <span class="kw">continue</span>;
+        dfs(u, v, h + <span class="dv">1</span>);
+        euler_tour.push_back(v);
+    }
+}
+
+<span class="dt">int</span> min_by_h(<span class="dt">int</span> i, <span class="dt">int</span> j) {
+    <span class="kw">return</span> height[euler_tour[i]] &lt; height[euler_tour[j]] ? i : j;
+}
+
+<span class="dt">void</span> precompute_lca(<span class="dt">int</span> root) {
+    <span class="co">// get euler tour &amp; indices of first occurences</span>
+    first_visit.assign(n, <span class="dv">-1</span>);
+    height.assign(n, <span class="dv">0</span>);
+    euler_tour.reserve(<span class="dv">2</span> * n);
+    dfs(root, <span class="dv">-1</span>, <span class="dv">0</span>);
+
+    <span class="co">// precompute all log values</span>
+    <span class="dt">int</span> m = euler_tour.size();
+    log_2.reserve(m + <span class="dv">1</span>);
+    log_2.push_back(<span class="dv">-1</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= m; i++)
+        log_2.push_back(log_2[i / <span class="dv">2</span>] + <span class="dv">1</span>);
+
+    block_size = max(<span class="dv">1</span>, log_2[m] / <span class="dv">2</span>);
+    block_cnt = (m + block_size - <span class="dv">1</span>) / block_size;
+
+    <span class="co">// precompute minimum of each block and build sparse table</span>
+    st.assign(block_cnt, vector&lt;<span class="dt">int</span>&gt;(log_2[block_cnt] + <span class="dv">1</span>));
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>, j = <span class="dv">0</span>, b = <span class="dv">0</span>; i &lt; m; i++, j++) {
+        <span class="kw">if</span> (j == block_size)
+            j = <span class="dv">0</span>, b++;
+        <span class="kw">if</span> (j == <span class="dv">0</span> || min_by_h(i, st[b][<span class="dv">0</span>]) == i)
+            st[b][<span class="dv">0</span>] = i;
+    }
+    <span class="kw">for</span> (<span class="dt">int</span> l = <span class="dv">1</span>; l &lt;= log_2[block_cnt]; l++) {
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; block_cnt; i++) {
+            <span class="dt">int</span> ni = i + (<span class="dv">1</span> &lt;&lt; (l - <span class="dv">1</span>));
+            <span class="kw">if</span> (ni &gt;= block_cnt)
+                st[i][l] = st[i][l<span class="dv">-1</span>];
+            <span class="kw">else</span>
+                st[i][l] = min_by_h(st[i][l<span class="dv">-1</span>], st[ni][l<span class="dv">-1</span>]);
+        }
+    }
+
+    <span class="co">// precompute mask for each block</span>
+    block_mask.assign(block_cnt, <span class="dv">0</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>, j = <span class="dv">0</span>, b = <span class="dv">0</span>; i &lt; m; i++, j++) {
+        <span class="kw">if</span> (j == block_size)
+            j = <span class="dv">0</span>, b++;
+        <span class="kw">if</span> (j &gt; <span class="dv">0</span> &amp;&amp; (i &gt;= m || min_by_h(i - <span class="dv">1</span>, i) == i - <span class="dv">1</span>))
+            block_mask[b] += <span class="dv">1</span> &lt;&lt; (j - <span class="dv">1</span>);
+    }
+
+    <span class="co">// precompute RMQ for each unique block</span>
+    <span class="dt">int</span> possibilities = <span class="dv">1</span> &lt;&lt; (block_size - <span class="dv">1</span>);
+    blocks.resize(possibilities);
+    <span class="kw">for</span> (<span class="dt">int</span> b = <span class="dv">0</span>; b &lt; block_cnt; b++) {
+        <span class="dt">int</span> mask = block_mask[b];
+        <span class="kw">if</span> (!blocks[mask].empty())
+            <span class="kw">continue</span>;
+        blocks[mask].assign(block_size, vector&lt;<span class="dt">int</span>&gt;(block_size));
+        <span class="kw">for</span> (<span class="dt">int</span> l = <span class="dv">0</span>; l &lt; block_size; l++) {
+            blocks[mask][l][l] = l;
+            <span class="kw">for</span> (<span class="dt">int</span> r = l + <span class="dv">1</span>; r &lt; block_size; r++) {
+                blocks[mask][l][r] = blocks[mask][l][r - <span class="dv">1</span>];
+                <span class="kw">if</span> (b * block_size + r &lt; m)
+                    blocks[mask][l][r] = min_by_h(b * block_size + blocks[mask][l][r], 
+                            b * block_size + r) - b * block_size;
+            }
+        }
+    }
+}
+
+<span class="dt">int</span> lca_in_block(<span class="dt">int</span> b, <span class="dt">int</span> l, <span class="dt">int</span> r) {
+    <span class="kw">return</span> blocks[block_mask[b]][l][r] + b * block_size;
+}
+
+<span class="dt">int</span> lca(<span class="dt">int</span> v, <span class="dt">int</span> u) {
+    <span class="dt">int</span> l = first_visit[v];
+    <span class="dt">int</span> r = first_visit[u];
+    <span class="kw">if</span> (l &gt; r)
+        swap(l, r);
+    <span class="dt">int</span> bl = l / block_size;
+    <span class="dt">int</span> br = r / block_size;
+    <span class="kw">if</span> (bl == br)
+        <span class="kw">return</span> euler_tour[lca_in_block(bl, l % block_size, r % block_size)];
+    <span class="dt">int</span> ans1 = lca_in_block(bl, l % block_size, block_size - <span class="dv">1</span>);
+    <span class="dt">int</span> ans2 = lca_in_block(br, <span class="dv">0</span>, r % block_size);
+    <span class="dt">int</span> ans = min_by_h(ans1, ans2);
+    <span class="kw">if</span> (bl + <span class="dv">1</span> &lt; br) {
+        <span class="dt">int</span> l = log_2[br - bl - <span class="dv">1</span>];
+        <span class="dt">int</span> ans3 = st[bl<span class="dv">+1</span>][l];
+        <span class="dt">int</span> ans4 = st[br - (<span class="dv">1</span> &lt;&lt; l)][l];
+        ans = min_by_h(ans, min_by_h(ans3, ans4));
+    }
+    <span class="kw">return</span> euler_tour[ans];
+}</code></pre></div>
+</body>
+</html>

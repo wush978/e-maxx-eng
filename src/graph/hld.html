@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Heavy-light decomposition -->
+<h1 id="heavy-light-decomposition">Heavy-light decomposition</h1>
+<p><strong>Heavy-light decomposition</strong> is a fairly general technique that allows us to effectively solve many problems that come down to <strong>queries on a tree</strong> .</p>
+<h2 id="description">Description</h2>
+<p>Let there be a tree <span class="math inline"><em>G</em></span> of <span class="math inline"><em>n</em></span> vertices, with an arbitrary root.</p>
+<p>The essence of this tree decomposition is to <strong>split the tree into several paths</strong> so that we can reach the root vertex from any <span class="math inline"><em>v</em></span> by traversing at most <span class="math inline">log<em>n</em></span> paths. In addition, none of these paths should intersect with another.</p>
+<p>It is clear that if we find such a decomposition for any tree, it will allow us to reduce certain single queries of the form <em>“calculate something on the path from <span class="math inline"><em>a</em></span> to <span class="math inline"><em>b</em></span>”</em> to several queries of the type <em>”calculate something on the segment <span class="math inline">[<em>l</em>; <em>r</em>]</span> of the <span class="math inline"><em>k</em><sup><em>t</em><em>h</em></sup></span> path”</em>.</p>
+<h3 id="construction-algorithm">Construction algorithm</h3>
+<p>We calculate for each vertex <span class="math inline"><em>v</em></span> the size of its subtree <span class="math inline"><em>s</em>(<em>v</em>)</span>, i.e. the number of vertices in the subtree of the vertex <span class="math inline"><em>v</em></span> including itself.</p>
+<p>Next, consider all the edges leading to the children of a vertex <span class="math inline"><em>v</em></span>. We call an edge <strong>heavy</strong> if it leads to a vertex <span class="math inline"><em>c</em></span> such that:</p>
+<p><br /><span class="math display">$$
+s(c) \ge \frac{s(v)}{2} \iff \text{edge }(v, c)\text{ is heavy}
+$$</span><br /></p>
+<p>All other edges are labeled <strong>light</strong>.</p>
+<p>It is obvious that at most one heavy edge can emanate from one vertex downward, because otherwise the vertex <span class="math inline"><em>v</em></span> would have at least two children of size <span class="math inline">$\ge \frac{s(v)}{2}$</span>, but size of subtree of <span class="math inline"><em>v</em></span>, <span class="math inline">$s(v) &lt; 1 + 2 \frac{s(v)}{2}$</span> which leads to a contradiction.</p>
+<p>Now we will decompose the tree into disjoint paths. Consider all the vertices from which no heavy edges come down. We will go up from each such vertex until we reach the root of the tree or go through a light edge. As a result, we will get several paths which are made up of zero or more heavy edges plus one light edge. The path which has an end at the root is an exception to this and will not have a light edge. Let these be called <strong>heavy paths</strong> - these are the desired paths of heavy-light decomposition.</p>
+<h3 id="proof-of-correctness">Proof of correctness</h3>
+<p>First, we note that the heavy paths obtained by the algorithm will be <strong>disjoint</strong> . In fact, if two such paths have a common edge, it would imply that there are two heavy edges coming out of one vertex, which is impossible.</p>
+<p>Secondly, we will show that going down from the root of the tree to an arbitrary vertex, we will <strong>change no more than <span class="math inline">log<em>n</em></span> heavy paths along the way</strong> . Moving down a light edge reduces the size of the current subtree to half or lower:</p>
+<p><br /><span class="math display">$$
+s(c) &lt; \frac{s(v)}{2} \iff \text{edge }(v, c)\text{ is light}
+$$</span><br /></p>
+<p>Thus, we can go through at most <span class="math inline">log<em>n</em></span> light edges before subtree size reduces to one.</p>
+<p>Since we can move from one heavy path to another only through a light edge (each heavy path, except the one starting at the root, has one light edge), we cannot change heavy paths more than <span class="math inline">log<em>n</em></span> times along the path from the root to any vertex, as required.</p>
+<p>The following image illustrates the decomposition of a sample tree. The heavy edges are thicker than the light edges. The heavy paths are marked by dotted boundaries.</p>
+<center>
+<img src="&amp;imgroot&amp;/hld.png" alt="Image of HLD" />
+</center>
+<h2 id="sample-problems">Sample problems</h2>
+<p>When solving problems, it is sometimes more convenient to consider the heavy-light decomposition as a set of <strong>vertex disjoint</strong> paths (rather than edge disjoint paths). To do this, it suffices to exclude the last edge from each heavy path if it is a light edge, then no properties are violated, but now each vertex belongs to exactly one heavy path.</p>
+<p>Below we will look at some typical tasks that can be solved with the help of heavy-light decomposition.</p>
+<p>Separately, it is worth paying attention to the problem of the <strong>sum of numbers on the path</strong>, since this is an example of a problem that can be solved by simpler techniques.</p>
+<h3 id="maximum-value-on-the-path-between-two-vertices">Maximum value on the path between two vertices</h3>
+<p>Given a tree, each vertex is assigned a value. There are queries of the form <span class="math inline">(<em>a</em>, <em>b</em>)</span>, where <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> are two vertices in the tree, and it is required to find the maximum value on the path between the vertices <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>.</p>
+<p>We construct in advance a heavy-light decomposition of the tree. Over each heavy path we will construct a <a href="./data_structures/segment_tree.html">segment tree</a>, which will allow us to search for a vertex with the maximum assigned value in the specified segment of the specified heavy path in <span class="math inline">𝒪(log<em>n</em>)</span>. Although the number of heavy paths in heavy-light decomposition can reach <span class="math inline"><em>n</em> − 1</span>, the total size of all paths is bounded by <span class="math inline">𝒪(<em>n</em>)</span>, therefore the total size of the segment trees will also be linear.</p>
+<p>In order to answer a query <span class="math inline">(<em>a</em>, <em>b</em>)</span>, we find the <a href="https://en.wikipedia.org/wiki/Lowest_common_ancestor">lowest common ancestor</a> of <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> as <span class="math inline"><em>l</em></span>, by any preferred method. Now the task has been reduced to two queries <span class="math inline">(<em>a</em>, <em>l</em>)</span> and <span class="math inline">(<em>b</em>, <em>l</em>)</span>, for each of which we can do the following: find the heavy path that the lower vertex lies in, make a query on this path, move to the top of this path, again determine which heavy path we are on and make a query on it, and so on, until we get to the path containing <span class="math inline"><em>l</em></span>.</p>
+<p>One should be careful with the case when, for example, <span class="math inline"><em>a</em></span> and <span class="math inline"><em>l</em></span> are on the same heavy path - then the maximum query on this path should be done not on any prefix, but on the internal section between <span class="math inline"><em>a</em></span> and <span class="math inline"><em>l</em></span>.</p>
+<p>Responding to the subqueries <span class="math inline">(<em>a</em>, <em>l</em>)</span> and <span class="math inline">(<em>b</em>, <em>l</em>)</span> each requires going through <span class="math inline">𝒪(log<em>n</em>)</span> heavy paths and for each path a maximum query is made on some section of the path, which again requires <span class="math inline">𝒪(log<em>n</em>)</span> operations in the segment tree. Hence, one query <span class="math inline">(<em>a</em>, <em>b</em>)</span> takes <span class="math inline">𝒪(log<sup>2</sup><em>n</em>)</span> time.</p>
+<p>If you additionally calculate and store maximums of all prefixes for each heavy path, then you get a <span class="math inline">𝒪(log<em>n</em>)</span> solution because all maximum queries are on prefixes except at most once when we reach the ancestor <span class="math inline"><em>l</em></span>.</p>
+<h3 id="sum-of-the-numbers-on-the-path-between-two-vertices">Sum of the numbers on the path between two vertices</h3>
+<p>Given a tree, each vertex is assigned a value. There are queries of the form <span class="math inline">(<em>a</em>, <em>b</em>)</span>, where <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> are two vertices in the tree, and it is required to find the sum of the values on the path between the vertices <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>. A variant of this task is possible where additionally there are update operations that change the number assigned to one or more vertices.</p>
+<p>This task can be solved similar to the previous problem of maximums with the help of heavy-light decomposition by building segment trees on heavy paths. Prefix sums can be used instead if there are no updates. However, this problem can be solved by simpler techniques too.</p>
+<p>If there are no updates, then it is possible to find out the sum on the path between two vertices in parallel with the LCA search of two vertices by <a href="./graph/lca_binary_lifting.html">binary lifting</a> — for this, along with the <span class="math inline">2<sup><em>k</em></sup></span>-th ancestors of each vertex it is also necessary to store the sum on the paths up to those ancestors during the preprocessing.</p>
+<p>There is a fundamentally different approach to this problem - to consider the <a href="https://en.wikipedia.org/wiki/Euler_tour_technique">Euler tour</a> of the tree, and build a segment tree on it. This algorithm is considered in an <a href="./graph/tree_painting.html">article about a similar problem</a>. Again, if there are no updates, storing prefix sums is enough and a segment tree is not required.</p>
+<p>Both of these methods provide relatively simple solutions taking <span class="math inline">𝒪(log<em>n</em>)</span> for one query.</p>
+<h3 id="repainting-the-edges-of-the-path-between-two-vertices">Repainting the edges of the path between two vertices</h3>
+<p>Given a tree, each edge is initially painted white. There are updates of the form <span class="math inline">(<em>a</em>, <em>b</em>, <em>c</em>)</span>, where <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> are two vertices and <span class="math inline"><em>c</em></span> is a color, which instructs that all the edges on the path from <span class="math inline"><em>a</em></span> to <span class="math inline"><em>b</em></span> must be repainted with color <span class="math inline"><em>c</em></span>. After all repaintings, it is required to report how many edges of each color were obtained.</p>
+<p>Similar to the above problems, the solution is to simply apply heavy-light decomposition and make a <a href="./data_structures/segment_tree.html">segment tree</a> over each heavy path.</p>
+<p>Each repainting on the path <span class="math inline">(<em>a</em>, <em>b</em>)</span> will turn into two updates <span class="math inline">(<em>a</em>, <em>l</em>)</span> and <span class="math inline">(<em>b</em>, <em>l</em>)</span>, where <span class="math inline"><em>l</em></span> is the lowest common ancestor of the vertices <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>.<br />
+<span class="math inline">𝒪(log<em>n</em>)</span> per path for <span class="math inline">𝒪(log<em>n</em>)</span> paths leads to a complexity of <span class="math inline">𝒪(log<sup>2</sup><em>n</em>)</span> per update.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Certain parts of the above discussed approach can be modified to make implementation easier without losing efficiency.</p>
+<ul>
+<li>The definition of <strong>heavy edge</strong> can be changed to <strong>the edge leading to the child with largest subtree</strong>, with ties broken arbitrarily. This may result is some light edges being converted to heavy, which means some heavy paths will combine to form a single path, but all heavy paths will remain disjoint. It is also still guaranteed that going down a light edge reduces subtree size to half or less.</li>
+<li>Instead of a building segment tree over every heavy path, a single segment tree can be used with disjoint segments allocated to each heavy path.</li>
+<li>It has been mentioned that answering queries requires calculation of the LCA. While LCA can be calculated separately, it is also possible to integrate LCA calculation in the process of answering queries.</li>
+</ul>
+<p>To perform heavy-light decomposition:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;<span class="dt">int</span>&gt; parent, depth, heavy, head, pos;
+<span class="dt">int</span> cur_pos;
+
+<span class="dt">int</span> dfs(<span class="dt">int</span> v, vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; <span class="dt">const</span>&amp; adj) {
+    <span class="dt">int</span> size = <span class="dv">1</span>;
+    <span class="dt">int</span> max_c_size = <span class="dv">0</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> c : adj[v]) {
+        <span class="kw">if</span> (c != parent[v]) {
+            parent[c] = v, depth[c] = depth[v] + <span class="dv">1</span>;
+            <span class="dt">int</span> c_size = dfs(c, adj);
+            size += c_size;
+            <span class="kw">if</span> (c_size &gt; max_c_size)
+                max_c_size = c_size, heavy[v] = c;
+        }
+    }
+    <span class="kw">return</span> size;
+}
+
+<span class="dt">int</span> decompose(<span class="dt">int</span> v, <span class="dt">int</span> h, vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; <span class="dt">const</span>&amp; adj) {
+    head[v] = h, pos[v] = cur_pos++;
+    <span class="kw">if</span> (heavy[v] != <span class="dv">-1</span>)
+        decompose(heavy[v], h, adj);
+    <span class="kw">for</span> (<span class="dt">int</span> c : adj[v]) {
+        <span class="kw">if</span> (c != parent[v] &amp;&amp; c != heavy[v])
+            decompose(c, c, adj);
+    }
+}
+
+<span class="dt">void</span> init(vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; <span class="dt">const</span>&amp; adj) {
+    <span class="dt">int</span> n = adj.size();
+    parent = vector&lt;<span class="dt">int</span>&gt;(n);
+    depth = vector&lt;<span class="dt">int</span>&gt;(n);
+    heavy = vector&lt;<span class="dt">int</span>&gt;(n, <span class="dv">-1</span>);
+    head = vector&lt;<span class="dt">int</span>&gt;(n);
+    pos = vector&lt;<span class="dt">int</span>&gt;(n);
+    cur_pos = <span class="dv">0</span>;
+
+    dfs(<span class="dv">0</span>, adj);
+    decompose(<span class="dv">0</span>, <span class="dv">0</span>, adj);
+}</code></pre></div>
+<p>The adjacency list of the tree must be passed to the <code>init</code> function, and decomposition is performed assuming vertex <code>0</code> as root.</p>
+<p>The <code>dfs</code> function is used to calculate <code>heavy[v]</code>, the child at the other end of the heavy edge from <code>v</code>, for every vertex <code>v</code>. Additionally <code>dfs</code> also stores the parent and depth of each vertex, which will be useful later during queries.</p>
+<p>The <code>decompose</code> function assigns for each vertex <code>v</code> the values <code>head[v]</code> and <code>pos[v]</code>, which are respectively the head of the heavy path <code>v</code> belongs to and the position of <code>v</code> on the single segment tree that covers all vertices.</p>
+<p>To answer queries on paths, for example the maximum query discussed, we can do something like this:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> query(<span class="dt">int</span> a, <span class="dt">int</span> b) {
+    <span class="dt">int</span> res = <span class="dv">0</span>;
+    <span class="kw">for</span> (; head[a] != head[b]; b = parent[head[b]]) {
+        <span class="kw">if</span> (depth[head[a]] &gt; depth[head[b]])
+            swap(a, b);
+        <span class="dt">int</span> cur_heavy_path_max = segment_tree_query(pos[head[b]], pos[b]);
+        res = max(res, cur_heavy_path_max);
+    }
+    <span class="kw">if</span> (depth[a] &gt; depth[b])
+        swap(a, b);
+    <span class="dt">int</span> last_heavy_path_max = segment_tree_query(pos[a], pos[b]);
+    res = max(res, last_heavy_path_max);
+    <span class="kw">return</span> res;
+}</code></pre></div>
+</body>
+</html>

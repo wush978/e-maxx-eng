@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Submask Enumeration -->
+<h1 id="submask-enumeration">Submask Enumeration</h1>
+<h2 id="enumerating-all-submasks-of-a-given-mask">Enumerating all submasks of a given mask</h2>
+<p>Given a bitmask <span class="math inline"><em>m</em></span>, you want to efficiently iterate through all its submasks, that is, masks <span class="math inline"><em>s</em></span> in which only bits that were included in mask <span class="math inline"><em>m</em></span> are set.</p>
+<p>Consider the implementation of this algorithm, based on tricks with bit operations:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> s = m;
+<span class="kw">while</span> (s &gt; <span class="dv">0</span>) {
+ ... you can use s ...
+ s = (s<span class="dv">-1</span>) &amp; m;
+}</code></pre></div>
+<p>or, using a more compact for statement:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span> (<span class="dt">int</span> s=m; s; s=(s<span class="dv">-1</span>)&amp;m)
+ ... you can use s ...</code></pre></div>
+<p>In both variants of the code, the submask equal to zero will not be processed. We can either process it outside the loop, or use a less elegant design, for example:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span> (<span class="dt">int</span> s=m; ; s=(s<span class="dv">-1</span>)&amp;m) {
+ ... you can use s ...
+ <span class="kw">if</span> (s==<span class="dv">0</span>)  <span class="kw">break</span>;
+}</code></pre></div>
+<p>Let us examine why the above code visits all submasks of <span class="math inline"><em>m</em></span>, without repetition, and in descending order.</p>
+<p>Suppose we have a current bitmask <span class="math inline"><em>s</em></span>, and we want to move on to the next bitmask. By subtracting from the mask <span class="math inline"><em>s</em></span> one unit, we will remove the rightmost set bit and all bits to the right of it will become 1. Then we remove all the &quot;extra&quot; one bits that are not included in the mask <span class="math inline"><em>m</em></span> and therefore can't be a part of a submask. We do this removal by using the bitwise operation <code>(s-1) &amp; m</code>. As a result, we &quot;cut&quot; mask s-1 to determine the highest value that it can take, that is, the next submask after <span class="math inline"><em>s</em></span> in descending order.</p>
+<p>Thus, this algorithm generates all submasks of this mask in descending order, performing only two operations per iteration.</p>
+<p>A special case is when <span class="math inline"><em>s</em> = 0</span>. After executing <span class="math inline"><em>s</em> − 1</span> we get a mask where all bits are set (bit representation of -1), and after <code>(s-1) &amp; m</code> we will have that <span class="math inline"><em>s</em></span> will be equal to <span class="math inline"><em>m</em></span>. Therefore, with the mask <span class="math inline"><em>s</em> = 0</span> be careful — if the loop does not end at zero, the algorithm may enter an infinite loop.</p>
+<h2 id="iterating-through-all-masks-with-their-submasks.-complexity-o3n">Iterating through all masks with their submasks. Complexity <span class="math inline"><em>O</em>(3<sup><em>n</em></sup>)</span></h2>
+<p>In many problems, especially those that use bitmask dynamic programming, you want to iterate through all bitmasks and for each mask, iterate through all of its submasks:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span> (<span class="dt">int</span> m=<span class="dv">0</span>; m&lt;(<span class="dv">1</span>&lt;&lt;n); ++m)
+    <span class="kw">for</span> (<span class="dt">int</span> s=m; s; s=(s<span class="dv">-1</span>)&amp;m)
+ ... s <span class="kw">and</span> m ...</code></pre></div>
+<p>Let's prove that the inner loop will execute a total of <span class="math inline"><em>O</em>(3<sup><em>n</em></sup>)</span> iterations.</p>
+<p><strong>First proof</strong>: Consider the i-th bit. There are exactly three options for it: it is not included in the mask <span class="math inline"><em>m</em></span> (and therefore not included in submask <span class="math inline"><em>s</em></span>); it is included in <span class="math inline"><em>m</em></span>, but not included in <span class="math inline"><em>s</em></span>, or it's included in both <span class="math inline"><em>m</em></span> and <span class="math inline"><em>s</em></span>. As there are a total of <span class="math inline"><em>n</em></span> bits, there will be <span class="math inline">3<sup><em>n</em></sup></span> different combinations.</p>
+<p><strong>Second proof</strong>: Note that if mask <span class="math inline"><em>m</em></span> has <span class="math inline"><em>k</em></span> enabled bits, then it will have <span class="math inline">2<sup><em>k</em></sup></span> submasks. As we have a total of <span class="math inline">$\binom{n}{k}$</span> masks with <span class="math inline"><em>k</em></span> enabled bits (see &quot;binomial coefficients&quot;), then the total number of combinations for all masks will be:</p>
+<p><br /><span class="math display">$$\sum_{k=0}^n \binom{n}{k} \cdot 2^k$$</span><br /></p>
+<p>To calculate this number, note that the sum above is equal to the expansion of <span class="math inline">(1 + 2)<sup><em>n</em></sup></span> using the binomial theorem. Therefore, we have <span class="math inline">3<sup><em>n</em></sup></span> combinations, as we wanted to prove.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://codeforces.com/problemset/problem/71/E">Codeforces - Nuclear Fusion</a></li>
+<li><a href="http://codeforces.com/problemset/problem/599/E">Codeforces - Sandy and Nuts</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=4185">Uva 1439 - Exclusive Access 2</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2925">UVa 11825 - Hackers' Crackdown</a></li>
+</ul>
+</body>
+</html>

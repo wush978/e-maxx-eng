@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Suffix Array-->
+<h1 id="suffix-array">Suffix Array</h1>
+<h2 id="definition">Definition</h2>
+<p>Let <span class="math inline"><em>s</em></span> be a string of length <span class="math inline"><em>n</em></span>. The <span class="math inline"><em>i</em></span>-th suffix of <span class="math inline"><em>s</em></span> is the substring <span class="math inline"><em>s</em>[<em>i</em>…<em>n</em> − 1]</span>.</p>
+<p>A <strong>suffix array</strong> will contain integers that represent the <strong>starting indexes</strong> of the all the suffixes of a given string, after the aforementioned suffixes are sorted.</p>
+<p>As an example look at the string <span class="math inline"><em>s</em> = <em>a</em><em>b</em><em>a</em><em>a</em><em>b</em></span>. All suffixes are as follows <br /><span class="math display">$$\begin{array}{ll}
+0. &amp; abaab \\\\
+1. &amp; baab \\\\
+2. &amp; aab \\\\
+3. &amp; ab \\\\
+4. &amp; b
+\end{array}$$</span><br /></p>
+<p>After sorting these strings: <br /><span class="math display">$$\begin{array}{ll}
+2. &amp; aab \\\\
+3. &amp; ab \\\\
+0. &amp; abaab \\\\
+4. &amp; b \\\\
+1. &amp; baab
+\end{array}$$</span><br /></p>
+<p>Therefore the suffix array for <span class="math inline"><em>s</em></span> will be <span class="math inline">(2,  3,  0,  4,  1)</span>.</p>
+<p>As a data structure it is widely used in areas such as data compression, bioinformatics and, in general, in any area that deals with strings and string matching problems.</p>
+<h2 id="construction">Construction</h2>
+<h3 id="on2-log-n-approach"><span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>log<em>n</em>)</span> approach</h3>
+<p>This is the most naive approach. Get all the suffixes and sort them using quicksort or mergesort and simultaneously retain their original indices. Sorting uses <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> comparisons, and since comparing two strings will additionally take <span class="math inline"><em>O</em>(<em>n</em>)</span> time, we get the final complexity of <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>log<em>n</em>)</span>.</p>
+<h3 id="on-log-n-approach"><span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> approach</h3>
+<p>Strictly speaking the following algorithm will not sort the suffixes, but rather the cyclic shifts of a string. However we can very easily derive an algorithm for sorting suffixes from it: it is enough to append an arbitrary character to the end of the string which is smaller than any character from the string. It is common to use the symbol <span class="math inline">$\\$</span>$. Then the order of the sorted cyclic shifts is equivalent to the order of the sorted suffixes, as demonstrated here with the string <span class="math inline"><em>d</em><em>a</em><em>b</em><em>b</em><em>b</em></span>.</p>
+<p><br /><span class="math display">$$\begin{array}{lll}
+1. &amp; abbb\\$d &amp; abbb \\\\
+4. &amp; b\\$dabb &amp; b \\\\
+3. &amp; bb\\$dab &amp; bb \\\\
+2. &amp; bbb\\$da &amp; bbb \\\\
+0. &amp; dabbb\\$ &amp; dabbb
+\end{array}$$</span><br /></p>
+<p>Since we are going to sort cyclic shifts, we will consider <strong>cyclic substrings</strong>. We will use the notation <span class="math inline"><em>s</em>[<em>i</em>…<em>j</em>]</span> for the substring of <span class="math inline"><em>s</em></span> even if <span class="math inline"><em>i</em> &gt; <em>j</em></span>. In this case we actually mean the string <span class="math inline"><em>s</em>[<em>i</em>…<em>n</em> − 1]+<em>s</em>[0…<em>j</em>]</span>. In addition we will take all indices modulo the length of <span class="math inline"><em>s</em></span>, and will omit the modulo operation for simplicity.</p>
+<p>The algorithm we discuss will perform <span class="math inline">⌈log<em>n</em>⌉+1</span> iterations. In the <span class="math inline"><em>k</em></span>-th iteration (<span class="math inline"><em>k</em> = 0…⌈log<em>n</em>⌉</span>) we sort the <span class="math inline"><em>n</em></span> cyclic substrings of <span class="math inline"><em>s</em></span> of length <span class="math inline">2<sup><em>k</em></sup></span>. After the <span class="math inline">⌈log<em>n</em>⌉</span>-th iteration the substrings of length <span class="math inline">2<sup>⌈log<em>n</em>⌉</sup> ≥ <em>n</em></span> will be sorted, so this is equivalent to sorting the cyclic shifts altogether.</p>
+<p>In each iteration of the algorithm, in addition to the permutation <span class="math inline"><em>p</em>[0…<em>n</em> − 1]</span>, where <span class="math inline"><em>p</em>[<em>i</em>]</span> is the index of the <span class="math inline"><em>i</em></span>-th substring (starting at <span class="math inline"><em>i</em></span> and with length <span class="math inline">2<sup><em>k</em></sup></span>) in the sorted order, we will also maintain an array <span class="math inline"><em>c</em>[0…<em>n</em> − 1]</span>, where <span class="math inline"><em>c</em>[<em>i</em>]</span> corresponds to the <strong>equivalence class</strong> to which the substring belongs. Because some of the substrings will be identical, and the algorithm needs to treat them equally. For convenience the classes will be labeled by numbers started from zero. In addition the numbers <span class="math inline"><em>c</em>[<em>i</em>]</span> will be assigned in such a way that they preserve information about the order: if one substring is smaller than the other, then it should also have a smaller class label. The number of equivalence classes will be stored in a variable <span class="math inline">classes</span>.</p>
+<p>Let's look at an example. Consider the string <span class="math inline"><em>s</em> = <em>a</em><em>a</em><em>b</em><em>a</em></span>. The cyclic substrings and the corresponding arrays <span class="math inline"><em>p</em>[]</span> and <span class="math inline"><em>c</em>[]</span> are given for each iteration: <br /><span class="math display">$$\begin{array}{cccc}
+0: &amp; (a,~ a,~ b,~ a) &amp; p = (0,~ 1,~ 3,~ 2) &amp; c = (0,~ 0,~ 1,~ 0)\\\\
+1: &amp; (aa,~ ab,~ ba,~ aa) &amp; p = (0,~ 3,~ 1,~ 2) &amp; c = (0,~ 1,~ 2,~ 0)\\\\
+2: &amp; (aaba,~ abaa,~ baaa,~ aaab) &amp; p = (3,~ 0,~ 1,~ 2) &amp; c = (1,~ 2,~ 3,~ 0)\\\\
+\end{array}$$</span><br /> It is worth noting that the values of <span class="math inline"><em>p</em>[]</span> can be different. For example in the <span class="math inline">0</span>-th iteration the array could also be <span class="math inline"><em>p</em> = (3,  1,  0,  2)</span> or <span class="math inline"><em>p</em> = (3,  0,  1,  2)</span>. All these options permutation the substrings into a sorted order. So they are all valid. At the same time the array <span class="math inline"><em>c</em>[]</span> is fixed, there can be no ambiguities.</p>
+<p>Let us now focus on the implementation of the algorithm. We will write a function that takes a string <span class="math inline"><em>s</em></span> and returns the permutations of the sorted cyclic shifts. <code>cpp suffix_array_sort_cyclic1 vector&lt;int&gt; sort_cyclic_shifts(string const&amp; s) {     int n = s.size();     const int alphabet = 256;</code></p>
+<p>At the beginning (in the <strong><span class="math inline">0</span>-th iteration</strong>) we must sort the cyclic substrings of length <span class="math inline">1</span>, that is we have to sort all characters of the string and divide them into equivalence classes (same symbols get assigned to the same class). This can be done trivially, for example, by using <strong>counting sort</strong>. For each character we count how many times it appears in the string, and then use this information to create the array <span class="math inline"><em>p</em>[]</span>. After that we go through the array <span class="math inline"><em>p</em>[]</span> and construct <span class="math inline"><em>c</em>[]</span> by comparing adjacent characters. <code>cpp suffix_array_sort_cyclic2     vector&lt;int&gt; p(n), c(n), cnt(max(alphabet, n), 0);     for (int i = 0; i &lt; n; i++)         cnt[s[i]]++;     for (int i = 1; i &lt; alphabet; i++)         cnt[i] += cnt[i-1];     for (int i = 0; i &lt; n; i++)         p[--cnt[s[i]]] = i;     c[p[0]] = 0;     int classes = 1;     for (int i = 1; i &lt; n; i++) {         if (s[p[i]] != s[p[i-1]])             classes++;         c[p[i]] = classes - 1;     }</code></p>
+<p>Now we have to talk about the iteration step. Let's assume we have already performed the <span class="math inline"><em>k</em> − 1</span>-th step and computed the values of the arrays <span class="math inline"><em>p</em>[]</span> and <span class="math inline"><em>c</em>[]</span> for it. We want to compute the values for the <span class="math inline"><em>k</em></span>-th step in <span class="math inline"><em>O</em>(<em>n</em>)</span> time. Since we perform this step <span class="math inline"><em>O</em>(log<em>n</em>)</span> times, the complete algorithm will have a time complexity of <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>.</p>
+<p>To do this, note that the cyclic substrings of length <span class="math inline">2<sup><em>k</em></sup></span> consists of two substrings of length <span class="math inline">2<sup><em>k</em> − 1</sup></span> which we can compare with each other in <span class="math inline"><em>O</em>(1)</span> using the information from the previous phase - the values of the equivalence classes <span class="math inline"><em>c</em>[]</span>. Thus, for two substrings of length <span class="math inline">2<sup><em>k</em></sup></span> starting at position <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>, all necessary information to compare them is contained in the pairs <span class="math inline">(<em>c</em>[<em>i</em>], <em>c</em>[<em>i</em> + 2<sup><em>k</em> − 1</sup>])</span> and <span class="math inline">(<em>c</em>[<em>j</em>], <em>c</em>[<em>j</em> + 2<sup><em>k</em> − 1</sup>])</span>. <br /><span class="math display">$$\dots
+\overbrace{
+\underbrace{s_i \dots s_{i+2^{k-1}-1}}\_{\text{length} = 2^{k-1},~ \text{class} = c[i]}
+\quad
+\underbrace{s_{i+2^{k-1}} \dots s_{i+2^k-1}}\_{\text{length} = 2^{k-1},~ \text{class} = c[i + 2^{k-1}]}
+}^{\text{length} = 2^k}
+\dots
+\overbrace{
+\underbrace{s_j \dots s_{j+2^{k-1}-1}}\_{\text{length} = 2^{k-1},~ \text{class} = c[j]}
+\quad
+\underbrace{s_{j+2^{k-1}} \dots s_{j+2^k-1}}\_{\text{length} = 2^{k-1},~ \text{class} = c[j + 2^{k-1}]}
+}^{\text{length} = 2^k}
+\dots
+$$</span><br /></p>
+<p>This gives us a very simple solution: <strong>sort</strong> the substrings of length <span class="math inline">2<sup><em>k</em></sup></span> <strong>by these pairs of numbers</strong>. This will give us the required order <span class="math inline"><em>p</em>[]</span>. However a normal sort runs in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time, with which we are not satisfied. This will only give us an algorithm for constructing a suffix array in <span class="math inline"><em>O</em>(<em>n</em>log<sup>2</sup><em>n</em>)</span> times.</p>
+<p>How do we quickly perform such a sorting of the pairs? Since the elements of the pairs do not exceed <span class="math inline"><em>n</em></span>, we can use counting sort again. However sorting pairs with counting sort is not the most efficient. To achieve a better hidden constant in the complexity, we will use another trick.</p>
+<p>We use here the technique on which <strong>radix sort</strong> is based: to sort the pairs we first sort them by the second element, and then by the first element (with a stable sort, i.e. sorting without breaking the relative order of equal elements). However the second elements were already sorted in the previous iteration. Thus, in order to sort the pairs by the second elements, we just need to subtract <span class="math inline">2<sup><em>k</em> − 1</sup></span> from the indices in <span class="math inline"><em>p</em>[]</span> (e.g. if the smallest substring of length <span class="math inline">2<sup><em>k</em> − 1</sup></span> starts at position <span class="math inline"><em>i</em></span>, then the substring of length <span class="math inline">2<sup><em>k</em></sup></span> with the smallest second half starts at <span class="math inline"><em>i</em> − 2<sup><em>k</em> − 1</sup></span>).</p>
+<p>So only by simple subtractions we can sort the second elements of the pairs in <span class="math inline"><em>p</em>[]</span>. Now we need to perform a stable sort by the first elements. As already mentioned, this can be accomplished with counting sort.</p>
+<p>The only thing left is to compute the equivalence classes <span class="math inline"><em>c</em>[]</span>, but as before this can be done by simply iterating over the sorted permutation <span class="math inline"><em>p</em>[]</span> and comparing neighboring pairs.</p>
+<p>Here is the remaining implementation. We use temporary arrays <span class="math inline"><em>p</em><em>n</em>[]</span> and <span class="math inline"><em>c</em><em>n</em>[]</span> to store the permutation by the second elements and the new equivalent class indices.</p>
+<p><code>cpp suffix_array_sort_cyclic3     vector&lt;int&gt; pn(n), cn(n);     for (int h = 0; (1 &lt;&lt; h) &lt; n; ++h) {         for (int i = 0; i &lt; n; i++) {             pn[i] = p[i] - (1 &lt;&lt; h);             if (pn[i] &lt; 0)                 pn[i] += n;         }         fill(cnt.begin(), cnt.begin() + classes, 0);         for (int i = 0; i &lt; n; i++)             cnt[c[pn[i]]]++;         for (int i = 1; i &lt; classes; i++)             cnt[i] += cnt[i-1];         for (int i = n-1; i &gt;= 0; i--)             p[--cnt[c[pn[i]]]] = pn[i];         cn[p[0]] = 0;         classes = 1;         for (int i = 1; i &lt; n; i++) {             pair&lt;int, int&gt; cur = {c[p[i]], c[(p[i] + (1 &lt;&lt; h)) % n]};             pair&lt;int, int&gt; prev = {c[p[i-1]], c[(p[i-1] + (1 &lt;&lt; h)) % n]};             if (cur != prev)                 ++classes;             cn[p[i]] = classes - 1;         }         c.swap(cn);     }     return p; }</code> The algorithm requires <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time and <span class="math inline"><em>O</em>(<em>n</em>)</span> memory. However if we take the size of the alphabet <span class="math inline"><em>k</em></span> into account, then it uses <span class="math inline"><em>O</em>((<em>n</em> + <em>k</em>)log<em>n</em>)</span> time and <span class="math inline"><em>O</em>(<em>n</em> + <em>k</em>)</span> memory.</p>
+<p>For simplicity we used the complete ASCII range as alphabet. If we know that the string only contains a subset of characters, e.g. only lowercase letters, then this implementation can obviously be optimized. However not by much, since the alphabet size only appears with a factor of <span class="math inline"><em>O</em>(log<em>n</em>)</span> in the complexity.</p>
+<p>Also note, that this algorithm only sorts the cycle shifts. As mentioned at the beginning of this section we can generate the sorted order of the suffixes by appending a character that is smaller than all other characters of the string, and sorting this resulting string by cycle shifts, e.g. by sorting the cycle shifts of <span class="math inline">$s + \\$</span>$. This will obviously give the suffix array of <span class="math inline"><em>s</em></span>, however prepended with <span class="math inline">|<em>s</em>|</span>.</p>
+<p><code>cpp suffix_array_construction vector&lt;int&gt; suffix_array_construction(string s) {     s += &quot;$&quot;;     vector&lt;int&gt; sorted_shifts = sort_cyclic_shifts(s);     sorted_shifts.erase(sorted_shifts.begin());     return sorted_shifts; }</code></p>
+<h2 id="applications">Applications</h2>
+<h3 id="finding-the-smallest-cyclic-shift">Finding the smallest cyclic shift</h3>
+<p>The algorithm above sorts all cyclic shifts (without appending a character to the string), and therefore <span class="math inline"><em>p</em>[0]</span> gives the position of the smallest cyclic shift.</p>
+<h3 id="finding-a-substring-in-a-string">Finding a substring in a string</h3>
+<p>The task is to find a string <span class="math inline"><em>s</em></span> inside some text <span class="math inline"><em>t</em></span> online - we know the text <span class="math inline"><em>t</em></span> beforehand, but not the string <span class="math inline"><em>s</em></span>. We can create the suffix array for the text <span class="math inline"><em>t</em></span> in <span class="math inline"><em>O</em>(|<em>t</em>|log|<em>t</em>|)</span> time. Now we can look for the substring <span class="math inline"><em>s</em></span> in the following way. The occurrence of <span class="math inline"><em>s</em></span> must be a prefix of some suffix from <span class="math inline"><em>t</em></span>. Since we sorted all the suffixes we can perform a binary search for <span class="math inline"><em>s</em></span> in <span class="math inline"><em>p</em></span>. Comparing the current suffix and the substring <span class="math inline"><em>s</em></span> within the binary search can be done in <span class="math inline"><em>O</em>(|<em>s</em>|)</span> time, therefore the complexity for finding the substring is <span class="math inline"><em>O</em>(|<em>s</em>|log|<em>t</em>|)</span>. Also notice that if the substring occurs multiple times in <span class="math inline"><em>t</em></span>, then all occurrences will be next to each other in <span class="math inline"><em>p</em></span>. Therefore the number of occurrences can be found with a second binary search, and all occurrences can be printed easily.</p>
+<h3 id="comparing-two-substrings-of-a-string">Comparing two substrings of a string</h3>
+<p>We want to be able to compare two substrings of the same length of a given string <span class="math inline"><em>s</em></span> in <span class="math inline"><em>O</em>(1)</span> time, i.e. checking if the first substring is smaller than the second one.</p>
+<p>For this we construct the suffix array in <span class="math inline"><em>O</em>(|<em>s</em>|log|<em>s</em>|)</span> time and store all the intermediate results of the equivalence classes <span class="math inline"><em>c</em>[]</span>.</p>
+<p>Using this information we can compare any two substring whose length is equal to a power of two in O(1): for this it is sufficient to compare the equivalence classes of both substrings. Now we want to generalize this method to substrings of arbitrary length.</p>
+<p>Let's compare two substrings of length <span class="math inline"><em>l</em></span> with the starting indices <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>. We find the largest length of a block that is placed inside a substring of this length: the greatest <span class="math inline"><em>k</em></span> such that <span class="math inline">2<sup><em>k</em></sup> ≤ <em>l</em></span>. Then comparing the two substrings can be replaced by comparing two overlapping blocks of length <span class="math inline">2<sup><em>k</em></sup></span>: first you need to compare the two blocks starting at <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>, and if these are equal then compare the two blocks ending in positions <span class="math inline"><em>i</em> + <em>l</em> − 1</span> and <span class="math inline"><em>j</em> + <em>l</em> − 1</span>: <br /><span class="math display">$$\dots
+\overbrace{\underbrace{s_i \dots s_{i+l-2^k} \dots s_{i+2^k-1}}\_{2^k} \dots s_{i+l-1}}^{\text{first}}
+\dots
+\overbrace{\underbrace{s_j \dots s_{j+l-2^k} \dots s_{j+2^k-1}}\_{2^k} \dots s_{j+l-1}}^{\text{second}}
+\dots$$</span><br /> <br /><span class="math display">$$\dots
+\overbrace{s_i \dots \underbrace{s_{i+l-2^k} \dots s_{i+2^k-1} \dots s_{i+l-1}}\_{2^k}}^{\text{first}}
+\dots
+\overbrace{s_j \dots \underbrace{s_{j+l-2^k} \dots s_{j+2^k-1} \dots s_{j+l-1}}\_{2^k}}^{\text{second}}
+\dots$$</span><br /></p>
+<p>Here is the implementation of the comparison. Note that it is assumed that the function gets called with the already calculated <span class="math inline"><em>k</em></span>. <span class="math inline"><em>k</em></span> can be computed with <span class="math inline">⌊log<em>l</em>⌋</span>, but it is more efficient to precompute all <span class="math inline"><em>k</em></span> values for every <span class="math inline"><em>l</em></span>. See for instance the article about the <a href="./data_structures/sparse-table.html">Sparse Table</a>, which uses a similar idea and computes all <span class="math inline">log</span> values.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> compare(<span class="dt">int</span> i, <span class="dt">int</span> j, <span class="dt">int</span> l, <span class="dt">int</span> k) {
+    pair&lt;<span class="dt">int</span>, <span class="dt">int</span>&gt; a = {c[k][i], c[k][(i+l-(<span class="dv">1</span> &lt;&lt; k))%n]};
+    pair&lt;<span class="dt">int</span>, <span class="dt">int</span>&gt; b = {c[k][j], c[k][(j+l-(<span class="dv">1</span> &lt;&lt; k))%n]};
+    <span class="kw">return</span> a == b ? <span class="dv">0</span> : a &lt; b ? <span class="dv">-1</span> : <span class="dv">1</span>;
+}</code></pre></div>
+<h3 id="longest-common-prefix-of-two-substrings-with-additional-memory">Longest common prefix of two substrings with additional memory</h3>
+<p>For a given string <span class="math inline"><em>s</em></span> we want to compute the longest common prefix (<strong>LCP</strong>) of two arbitrary suffixes with position <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>.</p>
+<p>The method described here uses <span class="math inline"><em>O</em>(|<em>s</em>|log|<em>s</em>|)</span> additional memory. A completely different approach that will only use a linear amount of memory is described in the next section.</p>
+<p>We construct the suffix array in <span class="math inline"><em>O</em>(|<em>s</em>|log|<em>s</em>|)</span> time, and remember the intermediate results of the arrays <span class="math inline"><em>c</em>[]</span> from each iteration.</p>
+<p>Let's compute the LCP for two suffixes starting at <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>. We can compare any two substrings with a length equal to a power of two in <span class="math inline"><em>O</em>(1)</span>. To do this, we compare the strings by power of twos (from highest to lowest power) and if the substrings of this length are the same, then we add the equal length to the answer and continue checking for the LCP to the right of the equal part, i.e. <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> get added by the current power of two.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> lcp(<span class="dt">int</span> i, <span class="dt">int</span> j) {
+    <span class="dt">int</span> ans = <span class="dv">0</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> k = log_n; k &gt;= <span class="dv">0</span>; k--) {
+        <span class="kw">if</span> (c[k][i] == c[k][j]) {
+            ans += <span class="dv">1</span> &lt;&lt; k;
+            i += <span class="dv">1</span> &lt;&lt; k;
+            j += <span class="dv">1</span> &lt;&lt; k;
+        }
+    }
+    <span class="kw">return</span> ans;
+}</code></pre></div>
+<p>Here <code>log_n</code> denotes a constant that is equal to the logarithm of <span class="math inline"><em>n</em></span> in base <span class="math inline">2</span> rounded down.</p>
+<h3 id="longest-common-prefix-of-two-substrings-without-additional-memory">Longest common prefix of two substrings without additional memory</h3>
+<p>We have the same task as in the previous section. We have compute the longest common prefix (<strong>LCP</strong>) for two suffixes of a string <span class="math inline"><em>s</em></span>.</p>
+<p>Unlike the previous method this one will only use <span class="math inline"><em>O</em>(|<em>s</em>|)</span> memory. The result of the preprocessing will be an array (which itself is an important source of information about the string, and therefore also used to solve other tasks). LCP queries can be answered by performing RMQ queries (range minimum queries) in this array, so for different implementations it is possible to achieve logarithmic and even constant query time.</p>
+<p>The basis for this algorithm is the following idea: we will compute the longest common prefix for each <strong>pair of adjacent suffixes in the sorted order</strong>. In other words we construct an array <span class="math inline">lcp[0…<em>n</em> − 2]</span>, where <span class="math inline">lcp[<em>i</em>]</span> is equal to the length of the longest common prefix of the suffixes starting at <span class="math inline"><em>p</em>[<em>i</em>]</span> and <span class="math inline"><em>p</em>[<em>i</em> + 1]</span>. This array will give us an answer for any two adjacent suffixes of the string. Then the answer for arbitrary two suffixes, not necessarily neighboring ones, can be obtained from this array. In fact, let the request be to compute the LCP of the suffixes <span class="math inline"><em>p</em>[<em>i</em>]</span> and <span class="math inline"><em>p</em>[<em>j</em>]</span>. Then the answer to this query will be <span class="math inline">min(<em>l</em><em>c</em><em>p</em>[<em>i</em>], <em>l</em><em>c</em><em>p</em>[<em>i</em> + 1], …, <em>l</em><em>c</em><em>p</em>[<em>j</em> − 1])</span>.</p>
+<p>Thus if we have such an array <span class="math inline">lcp</span>, then the problem is reduced to the <a href="./sequences/rmq.html">RMQ</a>, which has many wide number of different solutions with different complexities.</p>
+<p>So the main task is to <strong>build</strong> this array <span class="math inline">lcp</span>. We will use <strong>Kasai's algorithm</strong>, which can compute this array in <span class="math inline"><em>O</em>(<em>n</em>)</span> time.</p>
+<p>Let's look at two adjacent suffixes in the sorted order (order of the suffix array). Let their starting positions be <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> and their <span class="math inline">lcp</span> equal to <span class="math inline"><em>k</em> &gt; 0</span>. If we remove the first letter of both suffixes - i.e. we take the suffixes <span class="math inline"><em>i</em> + 1</span> and <span class="math inline"><em>j</em> + 1</span> - then it should be obvious that the <span class="math inline">lcp</span> of these two is <span class="math inline"><em>k</em> − 1</span>. However we cannot use this value and write it in the <span class="math inline">lcp</span> array, because these two suffixes might not be next to each other in the sorted order. The suffix <span class="math inline"><em>i</em> + 1</span> will of course be smaller than the suffix <span class="math inline"><em>j</em> + 1</span>, but there might be some suffixes between them. However, since we know that the LCP between two suffixes is the minimum value of all transitions, we also know that the LCP between any two pairs in that interval has to be at least <span class="math inline"><em>k</em> − 1</span>, especially also between <span class="math inline"><em>i</em> + 1</span> and the next suffix. And possibly it can be bigger.</p>
+<p>Now we already can implement the algorithm. We will iterate over the suffixes in order of their length. This way we can reuse the last value <span class="math inline"><em>k</em></span>, since going from suffix <span class="math inline"><em>i</em></span> to the suffix <span class="math inline"><em>i</em> + 1</span> is exactly the same as removing the first letter. Will will need an additional array <span class="math inline">rank</span>, which will give us the position of a suffix in the sorted list of suffixes.</p>
+<p>```cpp suffix_array_lcp_construction vector<int> lcp_construction(string const&amp; s, vector<int> const&amp; p) { int n = s.size(); vector<int> rank(n, 0); for (int i = 0; i &lt; n; i++) rank[p[i]] = i;</p>
+<pre><code>int k = 0;
+vector&lt;int&gt; lcp(n-1, 0);
+for (int i = 0; i &lt; n; i++) {
+    if (rank[i] == n - 1) {
+        k = 0;
+        continue;
+    }
+    int j = p[rank[i] + 1];
+    while (i + k &lt; n &amp;&amp; j + k &lt; n &amp;&amp; s[i+k] == s[j+k])
+        k++;
+    lcp[rank[i]] = k;
+    if (k)
+        k--;
+}
+return lcp;</code></pre>
+<p>} ```</p>
+<p>It is easy to see, that we decrease <span class="math inline"><em>k</em></span> at most <span class="math inline"><em>O</em>(<em>n</em>)</span> times (each iteration at most once, except for <span class="math inline">rank[<em>i</em>]= = <em>n</em> − 1</span>, where we directly reset it to <span class="math inline">0</span>), and the LCP between two strings is at most <span class="math inline"><em>n</em> − 1</span>, we will also increase <span class="math inline"><em>k</em></span> only <span class="math inline"><em>O</em>(<em>n</em>)</span> times. Therefore the algorithm runs in <span class="math inline"><em>O</em>(<em>n</em>)</span> time.</p>
+<h3 id="number-of-different-substrings">Number of different substrings</h3>
+<p>We preprocess the string <span class="math inline"><em>s</em></span> by computing the suffix array and the LCP array. Using this information we can compute the number of different substrings in the string.</p>
+<p>To do this, we will think about which <strong>new</strong> substrings begin at position <span class="math inline"><em>p</em>[0]</span>, then at <span class="math inline"><em>p</em>[1]</span>, etc. In fact we take the suffixes in sorted order and see what prefixes give new substrings. Thus we will not overlook any by accident.</p>
+<p>Because the suffixes are sorted, it is clear that the current suffix <span class="math inline"><em>p</em>[<em>i</em>]</span> will give new substrings for all its prefixes, except for the prefixes that coincide with the suffix <span class="math inline"><em>p</em>[<em>i</em> − 1]</span>. Thus, all its prefixes except the first <span class="math inline">lcp[<em>i</em> − 1]</span> one. Since the length of the current suffix is <span class="math inline"><em>n</em> − <em>p</em>[<em>i</em>]</span>, <span class="math inline"><em>n</em> − <em>p</em>[<em>i</em>]−lcp[<em>i</em> − 1]</span> new suffixes start at <span class="math inline"><em>p</em>[<em>i</em>]</span>. Summing over all the suffixes, we get the final answer: <br /><span class="math display">$$\sum_{i=0}^{n-1} (n - p[i]) - \sum_{i=0}^{n-2} \text{lcp}[i] = \frac{n^2 + n}{2} - \sum_{i=0}^{n-2} \text{lcp}[i]$$</span><br /></p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=701">Uva 760 - DNA Sequencing</a></li>
+<li><a href="http://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=3664">Uva 1223 - Editor</a></li>
+<li><a href="https://www.codechef.com/problems/TANDEM">Codechef - Tandem</a></li>
+<li><a href="https://www.codechef.com/problems/ANUSAR">Codechef - Substrings and Repetitions</a></li>
+<li><a href="https://www.codechef.com/problems/TANGLED">Codechef - Entangled Strings</a></li>
+<li><a href="http://codeforces.com/problemset/problem/149/E">Codeforces - Martian Strings</a></li>
+<li><a href="http://codeforces.com/problemset/problem/204/E">Codeforces - Little Elephant and Strings</a></li>
+<li><a href="http://www.spoj.com/problems/ADAPHOTO/">SPOJ - Ada and Terramorphing</a></li>
+<li><a href="http://www.spoj.com/problems/ADASTRNG/">SPOJ - Ada and Substring</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=3668">UVA - 1227 - The longest constant gene</a></li>
+<li><a href="http://www.spoj.com/problems/LCS/en/">SPOJ - Longest Common Substring</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2507">UVA 11512 - GATTACA</a></li>
+<li><a href="https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=720&amp;page=show_problem&amp;problem=5524">LA 7502 - Suffixes and Palindromes</a></li>
+<li><a href="http://codeforces.com/gym/100923/problem/D">GYM - Por Costel and the Censorship Committee</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3695">UVA 1254 - Top 10</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3343">UVA 12191 - File Recover</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=3358">UVA 12206 - Stammering Aliens</a></li>
+<li><a href="https://www.codechef.com/problems/INSQ16F">Codechef - Jarvis and LCP</a></li>
+<li><a href="https://icpcarchive.ecs.baylor.edu/index.php?option=onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1944">LA 3943 - Liking's Letter</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2048">UVA 11107 - Life Forms</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=862&amp;page=show_problem&amp;problem=4853">UVA 12974 - Exquisite Strings</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1467">UVA 10526 - Intellectual Property</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=3760">UVA 12338 - Anti-Rhyme Pairs</a></li>
+<li><a href="https://devskill.com/CodingProblems/ViewProblem/328">DevSkills Reconstructing Blue Print of Life</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3343">UVA 12191 - File Recover</a></li>
+<li><a href="http://www.spoj.com/problems/SARRAY/">SPOJ - Suffix Array</a></li>
+<li><a href="https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2514">LA 4513 - Stammering Aliens</a></li>
+<li><a href="http://www.spoj.com/problems/LCS2/">SPOJ - LCS2</a></li>
+<li><a href="http://codeforces.com/contest/802/problem/I">Codeforces - Fake News (hard)</a></li>
+<li><a href="http://www.spoj.com/problems/LONGCS/">SPOJ - Longest Commong Substring</a></li>
+<li><a href="http://www.spoj.com/problems/SUBLEX/">SPOJ - Lexicographical Substring Search</a></li>
+<li><a href="http://codeforces.com/contest/873/problem/F">Codeforces - Forbidden Indices</a></li>
+<li><a href="http://codeforces.com/contest/30/problem/E">Codeforces - Tricky and Clever Password</a></li>
+<li><a href="https://icpcarchive.ecs.baylor.edu/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=4868">LA 6856 - Circle of digits</a></li>
+</ul>
+</body>
+</html>

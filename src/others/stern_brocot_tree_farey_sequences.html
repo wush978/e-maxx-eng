@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title The Stern-Brocot Tree and Farey Sequences -->
+<h1 id="the-stern-brocot-tree-and-farey-sequences">The Stern-Brocot tree and Farey sequences</h1>
+<h2 id="stern-brocot-tree">Stern-Brocot tree</h2>
+<p>The Stern-Brocot tree is an elegant construction to represent the set of all positive fractions. It was independently discovered by German mathematician Moritz Stern in 1858 and by French watchmaker Achille Brocot in 1861. However, some sources attribute the discovery to ancient Greek mathematician Eratosthenes.</p>
+<p>The construction starts at the zeroth iteration with the two fractions <br /><span class="math display">$$
+    \frac{0}{1}, \frac{1}{0}
+$$</span><br /> where it should be noted that the second quantity is not strictly a fraction, but it can be interpreted as an irreducible fraction representing infinity.</p>
+<p>At every subsequent iteration, consider all adjacent fractions <span class="math inline">$\frac{a}{b}$</span> and <span class="math inline">$\frac{c}{d}$</span> and insert their mediant <span class="math inline">$\frac{a+c}{b+d}$</span> between them.</p>
+<p>The first few iterations look like this: <br /><span class="math display">$$
+    \begin{array}{c}
+    \dfrac{0}{1}, \dfrac{1}{1}, \dfrac{1}{0} \\\\\\\\
+    \dfrac{0}{1}, \dfrac{1}{2}, \dfrac{1}{1}, \dfrac{2}{1}, \dfrac{1}{0} \\\\\\\\
+    \dfrac{0}{1}, \dfrac{1}{3}, \dfrac{1}{2}, \dfrac{2}{3}, \dfrac{1}{1}, \dfrac{3}{2}, \dfrac{2}{1}, \dfrac{3}{1}, \dfrac{1}{0}
+    \end{array}
+$$</span><br /></p>
+<p>Continuing this process to infinity this covers <em>all</em> positive fractions. Additionally, all fractions will be <em>unique</em> and <em>irreducible</em>. Finally, the fractions will also appear in ascending order.</p>
+<p>Before proving these properties, let us actually show a visualization of the Stern-Brocot tree, rather than the list representation. Every fraction in the tree has two children. Each child is the mediant of the closest ancestor on the left and closest ancestor to the right.</p>
+<center>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/SternBrocotTree.svg/1024px-SternBrocotTree.svg.png" alt="Stern-Brocot tree" />
+</center>
+<h2 id="proofs">Proofs</h2>
+<p><strong>Ordering.</strong> Proving ordering is simple. We note that the mediant of two fractions is always in-between the fractions <br /><span class="math display">$$
+    \frac{a}{b} \le \frac{a+c}{b+d} \le \frac{c}{d}
+$$</span><br /> given that <br /><span class="math display">$$
+    \frac{a}{b} \le \frac{c}{d}.
+$$</span><br /> The two inequalities can be easily shown by rewriting the fractions with common denominators.</p>
+<p>As the ordering is ascending in the zeroth iteration, it will be maintained at every subsequent iteration.</p>
+<p><strong>Irreducibility.</strong> To prove this we will show that for any two adjacent fractions <span class="math inline">$\frac{a}{b}$</span> and <span class="math inline">$\frac{c}{d}$</span> we have that <br /><span class="math display"><em>b</em><em>c</em> − <em>a</em><em>d</em> = 1.</span><br /> Recall that a Diophantine equation with two variables <span class="math inline"><em>a</em><em>x</em> + <em>b</em><em>y</em> = <em>c</em></span> has a solution iff <span class="math inline"><em>c</em></span> is a multiple of <span class="math inline">gcd(<em>a</em>, <em>b</em>)</span>. In our case this implies that <span class="math inline">gcd(<em>a</em>, <em>b</em>)=gcd(<em>c</em>, <em>d</em>)=1</span>, which is what we want to show.</p>
+<p>Clearly at the zeroth iteration <span class="math inline"><em>b</em><em>c</em> − <em>a</em><em>d</em> = 1</span>. What remains to be shown is that mediants retain this property.</p>
+<p>Assume our two adjacent fractions uphold <span class="math inline"><em>b</em><em>c</em> − <em>a</em><em>d</em> = 1</span>, after the mediant is added to the list <br /><span class="math display">$$
+    \frac{a}{b}, \frac{a+c}{b+d}, \frac{c}{d}
+$$</span><br /> the new expressions become <br /><span class="math display">$$\begin{align}
+    b(a+c) - a(b+d) &amp;= 1 \\\\
+    c(b+d) - d(a+c) &amp;= 1
+\end{align}$$</span><br /> which, using that <span class="math inline"><em>b</em><em>c</em> − <em>a</em><em>d</em> = 1</span>, can be easily shown to be true.</p>
+<p>From this we see that the property is always maintained and thus all fractions are irreducible.</p>
+<p><strong>The presence of all fractions.</strong> This proof is closely related to locating a fraction in the Stern-Brocot tree. From the ordering property we have that left subtree of a fraction contains only fractions smaller than the parent fraction, and the right subtree contains only fractions larger than the parent fraction. This means we can search for a fraction by traversing the tree from the root, going left if the target is smaller than the fraction and going right if the target is larger.</p>
+<p>Pick an arbitrary positive target fraction <span class="math inline">$\frac{x}{y}$</span>. It is obviously between <span class="math inline">$\frac{0}{1}$</span> and <span class="math inline">$\frac{1}{0}$</span>, so the only way for the fraction to not be in the tree is if it takes an infinite number of steps to get to it.</p>
+<p>If that is the case we would at all iterations have <br /><span class="math display">$$
+    \frac{a}{b} \lt \frac{x}{y} \lt \frac{c}{d}
+$$</span><br /> which (using the fact than an integer <span class="math inline"><em>z</em> &gt; 0 ⇔ <em>z</em> ≥ 1</span>) can be rewritten as <br /><span class="math display">$$\begin{align}
+    bx - ay &amp;\ge 1 \\\\
+    cy - dx &amp;\ge 1.
+\end{align}$$</span><br /> Now multiply the first inequality by <span class="math inline"><em>c</em> + <em>d</em></span> and the second with <span class="math inline"><em>a</em> + <em>b</em></span> and add them to get <br /><span class="math display">(<em>c</em> + <em>d</em>)(<em>b</em><em>x</em> − <em>a</em><em>y</em>)+(<em>a</em> + <em>b</em>)(<em>c</em><em>y</em> − <em>d</em><em>x</em>)≥<em>a</em> + <em>b</em> + <em>c</em> + <em>d</em>.</span><br /> Expanding this and using the previously shown property <span class="math inline"><em>b</em><em>c</em> − <em>a</em><em>d</em> = 1</span> we get that <br /><span class="math display"><em>x</em> + <em>y</em> ≥ <em>a</em> + <em>b</em> + <em>c</em> + <em>d</em>.</span><br /> And given that at every iteration at least one of <span class="math inline"><em>a</em>, <em>b</em>, <em>c</em>, <em>d</em></span> will increase, the fraction searching process will contain no more than <span class="math inline"><em>x</em> + <em>y</em></span> iterations. This contradicts the assumption that the path to <span class="math inline">$\frac{x}{y}$</span> was infinite and hence <span class="math inline">$\frac{x}{y}$</span> must be part of the tree.</p>
+<h2 id="tree-building-algorithm">Tree Building Algorithm</h2>
+<p>To build any subtree of the Stern-Brocot tree it suffices to know the left and right ancestor. On the first level the left and right ancestor is <span class="math inline">$\frac{0}{1}$</span> and <span class="math inline">$\frac{1}{0}$</span> respectively. Using these we calculate the mediant and proceed one level deeper, with the median replacing the right ancestor in the left subtree, and vice versa.</p>
+<p>This pseudocode tries to build the entire infinite tree:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">void</span> build(<span class="dt">int</span> a = <span class="dv">0</span>, <span class="dt">int</span> b = <span class="dv">1</span>, <span class="dt">int</span> c = <span class="dv">1</span>, <span class="dt">int</span> d = <span class="dv">0</span>, <span class="dt">int</span> level = <span class="dv">1</span>) {
+    <span class="dt">int</span> x = a + c, y = b + d;
+
+    ... output the current fraction x/y at the current level in the tree
+    
+    build(a, b, x, y, level + <span class="dv">1</span>);
+    build(x, y, c, d, level + <span class="dv">1</span>);
+}</code></pre></div>
+<h2 id="fraction-search-algorithm">Fraction Search Algorithm</h2>
+<p>The search algorithm was already described in the proof that all fractions appear in the tree, but we will repeat it here. The algorithm is a binary search algorithm. Initially we stand at the root of the tree and we compare our target with the current fraction. If they are the same we are done and stop the process. If our target is smaller we move to the left child, otherwise we move to the right child.</p>
+<p>Here is an implementation that returns the path to a given fraction <span class="math inline">$\frac{x}{y}$</span> as a sequence of <code>'L'</code> and <code>'R'</code> characters, meaning traversal to the left and right child respectively. This sequence of characters uniquely defines all positive fractions and is called the Stern-Brocot number system.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">string find(<span class="dt">int</span> x, <span class="dt">int</span> y, <span class="dt">int</span> a = <span class="dv">0</span>, <span class="dt">int</span> b = <span class="dv">1</span>, <span class="dt">int</span> c = <span class="dv">1</span>, <span class="dt">int</span> d = <span class="dv">0</span>) {
+    <span class="dt">int</span> m = a + c, n = b + d;
+    <span class="kw">if</span> (x == m &amp;&amp; y == n)
+        <span class="kw">return</span> <span class="st">&quot;&quot;</span>;
+    <span class="kw">if</span> (x*n &lt; y*m)
+        <span class="kw">return</span> <span class="st">&#39;L&#39;</span> + find(x, y, a, b, m, n);
+    <span class="kw">else</span>
+        <span class="kw">return</span> <span class="st">&#39;R&#39;</span> + find(x, y, m, n, c, d);
+}</code></pre></div>
+<p>Irrational numbers in the Stern-Brocot number system corresponds to infinite sequences of characters. Along the endless path towards the irrational number the algorithm will find reduced fractions with gradually increasing denominators that provides increasingly better approximations of the irrational number. So by taking a prefix of the infinite sequence approximations with any desired precision can be achieved. This application is important in watch-making, which explains why the tree was discovered in that domain.</p>
+<h2 id="farey-sequence">Farey Sequence</h2>
+<p>The Farey sequence or order <span class="math inline"><em>n</em></span> is the sorted sequence of fractions between <span class="math inline">0</span> and <span class="math inline">1</span> whose denominators do not exceed <span class="math inline"><em>n</em></span>.</p>
+<p>The sequences are named after English geologist John Farey, who in 1816 conjectured that any fraction in a Farey sequence is the mediant of its neighbors. This was proven some time later by Cauchy, but independent of both of them the mathematician Haros had come to almost the same conclusion in 1802.</p>
+<p>The Farey sequences has many interesting properties on their own, but the connection to Stern-Brocot tree is the most obvious. In fact, the Farey sequence can be obtained by trimming branches from the tree.</p>
+<p>From the algorithm for building the Stern-Brocot tree we get an algorithm for Farey sequences. Start with the list of fractions <span class="math inline">$\frac{0}{1}, \frac{1}{0}$</span>. At every subsequent iteration insert the mediant only if the denominator does not exceed <span class="math inline"><em>n</em></span>. At some point the list will stop changing and the desired Farey sequence has been found.</p>
+<h3 id="length-of-a-farey-sequence">Length of a Farey Sequence</h3>
+<p>A Farey sequence of order <span class="math inline"><em>n</em></span> contains all elements of the Farey sequence of order <span class="math inline"><em>n</em> − 1</span> as well as all irreducible fractions with denominator <span class="math inline"><em>n</em></span>, but the latter is just the totient <span class="math inline"><em>φ</em>(<em>n</em>)</span>. So the length <span class="math inline"><em>L</em><sub><em>n</em></sub></span> of the Farey sequence of order <span class="math inline"><em>n</em></span> is <br /><span class="math display"><em>L</em><sub><em>n</em></sub> = <em>L</em><sub><em>n</em> − 1</sub> + <em>φ</em>(<em>n</em>)</span><br /> or equivalently by unraveling the recursion we get <br /><span class="math display">$$
+    L_n = 1 + \sum_{k=1}^n \varphi(k).
+$$</span><br /></p>
+</body>
+</html>

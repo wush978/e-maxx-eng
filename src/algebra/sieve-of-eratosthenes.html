@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Sieve of Eratosthenes -->
+<h1 id="sieve-of-eratosthenes">Sieve of Eratosthenes</h1>
+<p>Sieve of Eratosthenes is an algorithm for finding all the prime numbers in a segment <span class="math inline">[1; <em>n</em>]</span> using <span class="math inline"><em>O</em>(<em>n</em>loglog<em>n</em>)</span> operations.</p>
+<p>The algorithm is very simple: at the beginning we write down all numbers between 2 and <span class="math inline"><em>n</em></span>. We mark all proper multiples of 2 (since 2 is the smallest prime number) as composite. A proper multiple of a number <span class="math inline"><em>x</em></span>, is a number greater than <span class="math inline"><em>x</em></span> and divisible by <span class="math inline"><em>x</em></span>. Then we find the next number that hasn't been marked as composite, in this case it is 3. Which means 3 is prime, and we mark all proper multiples of 3 as composite. The next unmarked number is 5, which is the next prime number, and we mark all proper multiples of it. And we continue this procedure until we processed all numbers in the row.</p>
+<p>In the following image you can see a visualization of the algorithm for computing all prime numbers in the range <span class="math inline">[1; 16]</span>. It can be seen, that quite often we mark numbers as composite multiple times.</p>
+<div class="figure">
+<img src="&amp;imgroot&amp;/sieve_eratosthenes.png" alt="Sieve of Eratosthenes" />
+<p class="caption">Sieve of Eratosthenes</p>
+</div>
+<p>The idea behind is this: A number is prime, if none of the smaller prime numbers divides it. Since we iterate over the prime numbers in order, we already marked all numbers, who are divisible by at least one of the prime numbers, as divisible. Hence if we reach a cell and it is not marked, then it isn't divisible by any smaller prime number and therefore has to be prime.</p>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> n;
+vector&lt;<span class="dt">char</span>&gt; is_prime(n<span class="dv">+1</span>, <span class="kw">true</span>);
+is_prime[<span class="dv">0</span>] = is_prime[<span class="dv">1</span>] = <span class="kw">false</span>;
+<span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">2</span>; i &lt;= n; i++) {
+    <span class="kw">if</span> (is_prime[i] &amp;&amp; (<span class="dt">long</span> <span class="dt">long</span>)i * i &lt;= n) {
+        <span class="kw">for</span> (<span class="dt">int</span> j = i * i; j &lt;= n; j += i)
+            is_prime[j] = <span class="kw">false</span>;
+    }
+}</code></pre></div>
+<p>This code first marks all numbers except zero and one as potential prime numbers, then it begins the process of sifting composite numbers. For this it iterates over all numbers from <span class="math inline">2</span> to <span class="math inline"><em>n</em></span>. If the current number <span class="math inline"><em>i</em></span> is a prime number, it marks all numbers that are multiples of <span class="math inline"><em>i</em></span> as composite numbers, starting from <span class="math inline"><em>i</em><sup>2</sup></span>. This is already an optimization over naive way of implementing it, and is allowed as all smaller numbers that are multiples of <span class="math inline"><em>i</em></span> necessary also have a prime factor which is less than <span class="math inline"><em>i</em></span>, so all of them were already sifted earlier. Since <span class="math inline"><em>i</em><sup>2</sup></span> can easily overflow the type <code>int</code>, the additional verification is done using type <code>long long</code> before the second nested loop.</p>
+<p>Using such implementation the algorithm consumes <span class="math inline"><em>O</em>(<em>n</em>)</span> of the memory (obviously) and performs <span class="math inline"><em>O</em>(<em>n</em>loglog<em>n</em>)</span> (see next section).</p>
+<h2 id="asymptotic-analysis">Asymptotic analysis</h2>
+<p>Let's prove that algorithm's running time is <span class="math inline"><em>O</em>(<em>n</em>loglog<em>n</em>)</span>. The algorithm will perform <span class="math inline">$\frac{n}{p}$</span> operations for every prime <span class="math inline"><em>p</em> ≤ <em>n</em></span> the inner loop. Hence, we need to evaluate the next expression:</p>
+<p><br /><span class="math display">$$\sum_{\substack{p \le n, \\\ p \text{ prime}}} \frac n p = n \cdot \sum_{\substack{p \le n, \\\ p \text{ prime}}} \frac 1 p.$$</span><br /></p>
+<p>Let's recall two known facts.</p>
+<ul>
+<li>The number of prime numbers less than or equal to <span class="math inline"><em>n</em></span> is approximately <span class="math inline">$\frac n {\ln n}$</span>.</li>
+<li>The <span class="math inline"><em>k</em></span>-th prime number approximately equals <span class="math inline"><em>k</em>ln<em>k</em></span> (that follows immediately from the previous fact).</li>
+</ul>
+<p>Thus we can write down the sum in the following way:</p>
+<p><br /><span class="math display">$$\sum_{\substack{p \le n, \\\ p \text{ prime}}} \frac 1 p \approx \frac 1 2 + \sum_{k = 2}^{\frac n {\ln n}} \frac 1 {k \ln k}.$$</span><br /></p>
+<p>Here we extracted the first prime number 2 from the sum, because <span class="math inline"><em>k</em> = 1</span> in approximation <span class="math inline"><em>k</em>ln<em>k</em></span> is <span class="math inline">0</span> and causes a division by zero.</p>
+<p>Now, let's evaluate this sum using the integral of a same function over <span class="math inline"><em>k</em></span> from <span class="math inline">2</span> to <span class="math inline">$\frac n {\ln n}$</span> (we can make such approximation because, in fact, the sum is related to the integral as its approximation using the rectangle method):</p>
+<p><br /><span class="math display">$$\sum_{k = 2}^{\frac n {\ln n}} \frac 1 {k \ln k} \approx \int_2^{\frac n {\ln n}} \frac 1 {k \ln k} dk.$$</span><br /></p>
+<p>The antiderivative for the integrand is <span class="math inline">lnln<em>k</em></span>. Using a substitution and removing terms of lower order, we'll get the result:</p>
+<p><br /><span class="math display">$$\int_2^{\frac n {\ln n}} \frac 1 {k \ln k} dk = \ln \ln \frac n {\ln n} - \ln \ln 2 = \ln(\ln n - \ln \ln n) - \ln \ln 2 \approx \ln \ln n.$$</span><br /></p>
+<p>Now, returning to the original sum, we'll get its approximate evaluation:</p>
+<p><br /><span class="math display">$$\sum_{\substack{p \le n, \\\ p\ is\ prime}} \frac n p \approx n \ln \ln n + o(n).$$</span><br /></p>
+<p>You can find a more strict proof (that gives more precise evaluation which is accurate within constant multipliers) in the book authored by Hardy &amp; Wright &quot;An Introduction to the Theory of Numbers&quot; (p. 349).</p>
+<h2 id="different-optimizations-of-the-sieve-of-eratosthenes">Different optimizations of the Sieve of Eratosthenes</h2>
+<p>The biggest weakness of the algorithm is, that it &quot;walks&quot; along the memory multiple times, only manipulating single elements. This is not very cache friendly. And because of that, the constant which is concealed in <span class="math inline"><em>O</em>(<em>n</em>loglog<em>n</em>)</span> is comparably big.</p>
+<p>Besides, the consumed memory is a bottleneck for big <span class="math inline"><em>n</em></span>.</p>
+<p>The methods presented below allow us to reduce the quantity of the performed operations, as well as to shorten the consumed memory noticeably.</p>
+<h3 id="sieving-till-root">Sieving till root</h3>
+<p>Obviously, to find all the prime numbers until <span class="math inline"><em>n</em></span>, it will be enough just to perform the sifting only by the prime numbers, which do not exceed the root of <span class="math inline"><em>n</em></span>.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> n;
+vector&lt;<span class="dt">char</span>&gt; is_prime(n<span class="dv">+1</span>, <span class="kw">true</span>);
+is_prime[<span class="dv">0</span>] = is_prime[<span class="dv">1</span>] = <span class="kw">false</span>;
+<span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">2</span>; i * i &lt;= n; i++) {
+    <span class="kw">if</span> (is_prime[i]) {
+        <span class="kw">for</span> (<span class="dt">int</span> j = i * i; j &lt;= n; j += i)
+            is_prime[j] = <span class="kw">false</span>;
+    }
+}</code></pre></div>
+<p>Such optimization doesn't affect the complexity (indeed, by repeating the proof presented above we'll get the evaluation <span class="math inline">$n \ln \ln \sqrt n + o(n)$</span>, which is asymptotically the same according to the properties of logarithms), though the number of operations will reduce noticeably.</p>
+<h3 id="sieving-by-the-odd-numbers-only">Sieving by the odd numbers only</h3>
+<p>Since all even numbers (except <span class="math inline">2</span>) are composite, we can stop checking even numbers at all. Instead, we need to operate with odd numbers only.</p>
+<p>First, it will allow us to half the needed memory. Second, it will reduce the number of operations performing by algorithm approximately in half.</p>
+<h3 id="reducing-consumed-memory">Reducing consumed memory</h3>
+<p>We should notice that algorithm of Eratosthenes operates with <span class="math inline"><em>n</em></span> bits of memory. Hence, we can essentially reduce consumed memory by preserving not <span class="math inline"><em>n</em></span> bytes, which are the variables of Boolean type, but <span class="math inline"><em>n</em></span> bits, i.e. <span class="math inline">$\frac n 8$</span> bytes of memory.</p>
+<p>However, such an approach, which is called <strong>bit-level compression</strong>, will complicate the operations with these bits. Read or write operation on any bit will require several arithmetic operations and ultimately slow down the algorithm.</p>
+<p>Thus, this approach is only justified, if <span class="math inline"><em>n</em></span> is so big that we cannot allocate <span class="math inline"><em>n</em></span> bytes of memory anymore. In this case we will trade saving memory (<span class="math inline">8</span> times less) with significant slowing down of the algorithm.</p>
+<p>After all, it's worth mentioning there exist data structures that automatically do a bit-level compression, such as <code>vector&lt;bool&gt;</code> and <code>bitset&lt;&gt;</code> in C++.</p>
+<h3 id="block-sieving">Block sieving</h3>
+<p>It follows from the optimization &quot;sieving till root&quot; that there is no need to keep the whole array <code>is_prime[1...n]</code> at all time. For performing of sieving it's enough to keep just prime numbers until root of <span class="math inline"><em>n</em></span>, i.e. <code>prime[1... sqrt(n)]</code>, split the complete range into blocks, and sieve each block separately. In doing so, we never have to keep multiple blocks in memory at the same time, and the CPU handles caching a lot better.</p>
+<p>Let <span class="math inline"><em>s</em></span> be a constant which determines the size of the block, then we have <span class="math inline">$\lceil {\frac n s} \rceil$</span> blocks altogether, and the block <span class="math inline"><em>k</em></span> (<span class="math inline">$k = 0 ... \lfloor {\frac n s} \rfloor$</span>) contains the numbers in a segment <span class="math inline">[<em>k</em><em>s</em>; <em>k</em><em>s</em> + <em>s</em> − 1]</span>. We can work on blocks by turns, i.e. for every block <span class="math inline"><em>k</em></span> we will go through all the prime numbers (from <span class="math inline">1</span> to <span class="math inline">$\sqrt n$</span>) and perform sieving using them. It is worth noting, that we have to modify the strategy a little bit when handling the first numbers: first, all the prime numbers from <span class="math inline">$[1; \sqrt n]$</span> shouldn't remove themselves; and second, the numbers <span class="math inline">0</span> and <span class="math inline">1</span> should be marked as non-prime numbers. While working on the last block it should not be forgotten that the last needed number <span class="math inline"><em>n</em></span> is not necessary located in the end of the block.</p>
+<p>Here we have an implementation that counts the number of primes smaller than or equal to <span class="math inline"><em>n</em></span> using block sieving.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> count_primes(<span class="dt">int</span> n) {
+    <span class="dt">const</span> <span class="dt">int</span> S = <span class="dv">10000</span>;
+
+    vector&lt;<span class="dt">int</span>&gt; primes;
+    <span class="dt">int</span> nsqrt = sqrt(n);
+    vector&lt;<span class="dt">char</span>&gt; is_prime(nsqrt + <span class="dv">1</span>, <span class="kw">true</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">2</span>; i &lt;= nsqrt; i++) {
+        <span class="kw">if</span> (is_prime[i]) {
+            primes.push_back(i);
+            <span class="kw">for</span> (<span class="dt">int</span> j = i * i; j &lt;= nsqrt; j += i)
+                is_prime[j] = <span class="kw">false</span>;
+        }
+    }
+
+    <span class="dt">int</span> result = <span class="dv">0</span>;
+    vector&lt;<span class="dt">char</span>&gt; block(S);
+    <span class="kw">for</span> (<span class="dt">int</span> k = <span class="dv">0</span>; k * S &lt;= n; k++) {
+        fill(block.begin(), block.end(), <span class="kw">true</span>);
+        <span class="dt">int</span> start = k * S;
+        <span class="kw">for</span> (<span class="dt">int</span> p : primes) {
+            <span class="dt">int</span> start_idx = (start + p - <span class="dv">1</span>) / p;
+            <span class="dt">int</span> j = max(start_idx, p) * p - start;
+            <span class="kw">for</span> (; j &lt; S; j += p)
+                block[j] = <span class="kw">false</span>;
+        }
+        <span class="kw">if</span> (k == <span class="dv">0</span>)
+            block[<span class="dv">0</span>] = block[<span class="dv">1</span>] = <span class="kw">false</span>;
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; S &amp;&amp; start + i &lt;= n; i++) {
+            <span class="kw">if</span> (block[i])
+                result++;
+        }
+    }
+    <span class="kw">return</span> result;
+}</code></pre></div>
+<p>The running time of block sieving is the same as for regular sieve of Eratosthenes (unless the size of the blocks is very small), but the needed memory will shorten to <span class="math inline">$O(\sqrt{n} + S)$</span> and we have better caching results. On the other hand, there will be a division for each pair of a block and prime number from <span class="math inline">$[1; \sqrt{n}]$</span>, and that will be far worse for smaller block sizes. Hence, it is necessary to keep balance when selecting the constant <span class="math inline"><em>S</em></span>. We achieved the best results for block sizes between <span class="math inline">10<sup>4</sup></span> and <span class="math inline">10<sup>5</sup></span>.</p>
+<h2 id="linear-time-modification">Linear time modification</h2>
+<p>We can modify the algorithm in a such a way, that it only has linear time complexity. This approach is described in the article <a href="./algebra/prime-sieve-linear.html">Sieve of Eratosthenes Having Linear Time Complexity</a>. However, this algorithm also has its own weaknesses.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/TDPRIMES/">SPOJ - Printing Some Primes</a></li>
+<li><a href="http://www.spoj.com/problems/HS08PAUL/">SPOJ - A Conjecture of Paul Erdos</a></li>
+<li><a href="http://www.spoj.com/problems/VECTAR8/">SPOJ - Primal Fear</a></li>
+<li><a href="http://www.spoj.com/problems/PTRI/">SPOJ - Primes Triangle (I)</a></li>
+<li><a href="http://codeforces.com/contest/26/problem/A">Codeforces - Almost Prime</a></li>
+<li><a href="http://codeforces.com/contest/776/problem/B">Codeforces - Sherlock And His Girlfriend</a></li>
+<li><a href="http://www.spoj.com/problems/NGIRL/">SPOJ - Namit in Trouble</a></li>
+<li><a href="http://www.spoj.com/problems/DCEPC505/">SPOJ - Bazinga!</a></li>
+<li><a href="https://www.hackerrank.com/contests/projecteuler/challenges/euler134">Project Euler - Prime pair connection</a></li>
+<li><a href="http://www.spoj.com/problems/NFACTOR/">SPOJ - N-Factorful</a></li>
+<li><a href="http://www.spoj.com/problems/BSPRIME/">SPOJ - Binary Sequence of Prime Numbers</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2338">UVA 11353 - A Different Kind of Sorting</a></li>
+<li><a href="http://www.spoj.com/problems/PRIMES2/">SPOJ - Printing some primes (hard)</a></li>
+</ul>
+</body>
+</html>

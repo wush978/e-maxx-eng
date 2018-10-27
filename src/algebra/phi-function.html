@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Euler's totient function-->
+<h1 id="eulers-totient-function">Euler's totient function</h1>
+<p>Euler's totient function, also known as <strong>phi-function</strong> <span class="math inline"><em>ϕ</em>(<em>n</em>)</span>, counts the number of integers between 1 and <span class="math inline"><em>n</em></span> inclusive, which are coprime to <span class="math inline"><em>n</em></span>. Two numbers are coprime if their greatest common divisor equals <span class="math inline">1</span> (<span class="math inline">1</span> is considered to be coprime to any number).</p>
+<p>Here are values of <span class="math inline"><em>ϕ</em>(<em>n</em>)</span> for the first few positive integers: <br /><span class="math display">$$\begin{array}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+n &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 &amp; 6 &amp; 7 &amp; 8 &amp; 9 &amp; 10 &amp; 11 &amp; 12 &amp; 13 &amp; 14 &amp; 15 &amp; 16 &amp; 17 &amp; 18 &amp; 19 &amp; 20 &amp; 21 \\\\ \hline
+\phi(n) &amp; 1 &amp; 1 &amp; 2 &amp; 2 &amp; 4 &amp; 2 &amp; 6 &amp; 4 &amp; 6 &amp; 4 &amp; 10 &amp; 4 &amp; 12 &amp; 6 &amp; 8 &amp; 8 &amp; 16 &amp; 6 &amp; 18 &amp; 8 &amp; 12 \\\\ \hline
+\end{array}$$</span><br /></p>
+<h2 id="properties">Properties</h2>
+<p>The following properties of Euler totient function are sufficient to calculate it for any number:</p>
+<ul>
+<li><p>If <span class="math inline"><em>p</em></span> is a prime number, then <span class="math inline">gcd(<em>p</em>, <em>q</em>)=1</span> for all <span class="math inline">1 ≤ <em>q</em> &lt; <em>p</em></span>. Therefore we have: <br /><span class="math display"><em>ϕ</em>(<em>p</em>)=<em>p</em> − 1.</span><br /></p></li>
+<li><p>If <span class="math inline"><em>p</em></span> is a prime number and <span class="math inline"><em>k</em> ≥ 1</span>, then there are exactly <span class="math inline"><em>p</em><sup><em>k</em></sup>/<em>p</em></span> numbers between <span class="math inline">1</span> and <span class="math inline"><em>p</em><sup><em>k</em></sup></span> that are divisible by <span class="math inline"><em>p</em></span>. Which gives us: <br /><span class="math display"><em>ϕ</em>(<em>p</em><sup><em>k</em></sup>)=<em>p</em><sup><em>k</em></sup> − <em>p</em><sup><em>k</em> − 1</sup>.</span><br /></p></li>
+<li><p>If <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> are relatively prime, then: <br /><span class="math display"><em>ϕ</em>(<em>a</em><em>b</em>)=<em>ϕ</em>(<em>a</em>)⋅<em>ϕ</em>(<em>b</em>).</span><br /> This relation is not trivial to see. It follows from the <a href="../algebra/chinese-remainder-theorem.html">Chinese remainder theorem</a>. The Chinese remainder theorem guarantees, that for each <span class="math inline">0 ≤ <em>x</em> &lt; <em>a</em></span> and each <span class="math inline">0 ≤ <em>y</em> &lt; <em>b</em></span>, there exists a unique <span class="math inline">0 ≤ <em>z</em> &lt; <em>a</em><em>b</em></span> with <span class="math inline">$z \equiv x \pmod{a}$</span> and <span class="math inline">$z \equiv y \pmod{b}$</span>. It's not hard to show that <span class="math inline"><em>z</em></span> is coprime to <span class="math inline"><em>a</em><em>b</em></span> if and only if <span class="math inline"><em>x</em></span> is coprime to <span class="math inline"><em>a</em></span> and <span class="math inline"><em>y</em></span> is coprime to <span class="math inline"><em>b</em></span>. Therefore the amount of integers coprime to <span class="math inline"><em>a</em><em>b</em></span> is equal to product of the amounts of <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>.</p></li>
+<li><p>In general, for not coprime <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>, the equation <br /><span class="math display">$$\phi(ab) = \phi(a) \cdot \phi(b) \cdot \dfrac{d}{\phi(d)}$$</span><br /> with <span class="math inline"><em>d</em> = gcd(<em>a</em>, <em>b</em>)</span> holds.</p></li>
+</ul>
+<p>Thus, using the first three properties, we can compute <span class="math inline"><em>ϕ</em>(<em>n</em>)</span> through the factorization of <span class="math inline"><em>n</em></span> (decomposition of <span class="math inline"><em>n</em></span> into a product of its prime factors). If <span class="math inline"><em>n</em> = <em>p</em><sub>1</sub><sup><em>a</em><sub>1</sub></sup> ⋅ <em>p</em><sub>2</sub><sup><em>a</em><sub>2</sub></sup>⋯<em>p</em><sub><em>k</em></sub><sup><em>a</em><sub><em>k</em></sub></sup></span>, where <span class="math inline"><em>p</em><sub><em>i</em></sub></span> are prime factors of <span class="math inline"><em>n</em></span>,</p>
+<p><br /><span class="math display">$$\begin{align}
+\phi (n) &amp;= \phi ({p_1}^{a_1}) \cdot \phi ({p_2}^{a_2}) \cdots  \phi ({p_k}^{a_k}) \\\\
+&amp;= \left({p_1}^{a_1} - {p_1}^{a_1 - 1}\right) \cdot \left({p_2}^{a_2} - {p_2}^{a_2 - 1}\right) \cdots \left({p_k}^{a_k} - {p_k}^{a_k - 1}\right) \\\\
+&amp;= p_1^{a_1} \cdot \left(1 - \frac{1}{p_1}\right) \cdot p_2^{a_2} \cdot \left(1 - \frac{1}{p_2}\right) \cdots p_k^{a_k} \cdot \left(1 - \frac{1}{p_k}\right) \\\\
+&amp;= n \cdot \left(1 - \frac{1}{p_1}\right) \cdot \left(1 - \frac{1}{p_2}\right) \cdots \left(1 - \frac{1}{p_k}\right)
+\end{align}$$</span><br /></p>
+<h2 id="implementation">Implementation</h2>
+<p>Here is an implementation using factorization in <span class="math inline">$O(\sqrt{n})$</span>:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> phi(<span class="dt">int</span> n) {
+    <span class="dt">int</span> result = n;
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">2</span>; i * i &lt;= n; i++) {
+        <span class="kw">if</span>(n % i == <span class="dv">0</span>) {
+            <span class="kw">while</span>(n % i == <span class="dv">0</span>)
+                n /= i;
+            result -= result / i;
+        }
+    }
+    <span class="kw">if</span>(n &gt; <span class="dv">1</span>)
+        result -= result / n;
+    <span class="kw">return</span> result;
+}</code></pre></div>
+<h2 id="application-in-eulers-theorem">Application in Euler's theorem</h2>
+<p>The most famous and important property of Euler's totient function is expressed in <strong>Euler's theorem</strong>: <br /><span class="math display">$$a^{\phi(m)} \equiv 1 \pmod m$$</span><br /> if <span class="math inline"><em>a</em></span> and <span class="math inline"><em>m</em></span> are relatively prime.</p>
+<p>In the particular case when <span class="math inline"><em>m</em></span> is prime, Euler's theorem turns into <strong>Fermat's little theorem</strong>: <br /><span class="math display">$$a^{m - 1} \equiv 1 \pmod m$$</span><br /></p>
+<p>Euler's theorem and Euler's totient function occur quite often in practical applications, for example both are used to compute the <a href="../algebra/module-inverse.html">modular multiplicative inverse</a>.</p>
+<p>As immediate consequence we also get the equivalence: <br /><span class="math display">$$a^n \equiv a^{n \bmod \phi(m)} \pmod m$$</span><br /> This allows computing <span class="math inline">$x^n \bmod m$</span> for very big <span class="math inline"><em>n</em></span>, especially if <span class="math inline"><em>n</em></span> is the result of another computation, as it allows to compute <span class="math inline"><em>n</em></span> under a modulo.</p>
+<h2 id="generalization">Generalization</h2>
+<p>There is a less known version of the last equivalence, that allows computing <span class="math inline">$x^n \bmod m$</span> efficiently for not coprime <span class="math inline"><em>x</em></span> and <span class="math inline"><em>m</em></span>. For arbitrary <span class="math inline"><em>x</em>, <em>m</em></span> and <span class="math inline"><em>n</em> ≥ log<sub>2</sub><em>m</em></span>: <br /><span class="math display">$$x^{n}\equiv x^{\varphi(m)+[n \bmod \varphi(m)]} \mod m$$</span><br /></p>
+<p>Proof:</p>
+<p>Let <span class="math inline"><em>p</em><sub>1</sub>, …, <em>p</em><sub><em>t</em></sub></span> be common prime divisors of <span class="math inline"><em>x</em></span> and <span class="math inline"><em>m</em></span>, and <span class="math inline"><em>k</em><sub><em>i</em></sub></span> their exponents in <span class="math inline"><em>m</em></span>. With those we define <span class="math inline"><em>a</em> = <em>p</em><sub>1</sub><sup><em>k</em><sub>1</sub></sup>…<em>p</em><sub><em>t</em></sub><sup><em>k</em><sub><em>t</em></sub></sup></span>, which makes <span class="math inline">$\frac{m}{a}$</span> coprime to <span class="math inline"><em>x</em></span>. And let <span class="math inline"><em>k</em></span> be the smallest number such that <span class="math inline"><em>a</em></span> divides <span class="math inline"><em>x</em><sup><em>k</em></sup></span>. Assuming <span class="math inline"><em>n</em> ≥ <em>k</em></span>, we can write:</p>
+<p><br /><span class="math display">$$\begin{align}x^n \bmod m &amp;= \frac{x^k}{a}ax^{n-k}\bmod m \\\\
+&amp;= \frac{x^k}{a}\left(ax^{n-k}\bmod m\right) \bmod m \\\\
+&amp;= \frac{x^k}{a}\left(ax^{n-k}\bmod a \frac{m}{a}\right) \bmod m \\\\
+&amp;=\frac{x^k}{a} a \left(x^{n-k} \bmod \frac{m}{a}\right)\bmod m \\\\
+&amp;= x^k\left(x^{n-k} \bmod \frac{m}{a}\right)\bmod m
+\end{align}$$</span><br /></p>
+<p>The equivalence between the third and forth line follows from the fact that <span class="math inline">$ab \bmod ac = a(b \bmod c)$</span>. Indeed if <span class="math inline"><em>b</em> = <em>c</em><em>d</em> + <em>r</em></span> with <span class="math inline"><em>r</em> &lt; <em>c</em></span>, then <span class="math inline"><em>a</em><em>b</em> = <em>a</em><em>c</em><em>d</em> + <em>a</em><em>r</em></span> with <span class="math inline"><em>a</em><em>r</em> &lt; <em>a</em><em>c</em></span>.</p>
+<p>Since <span class="math inline"><em>x</em></span> and <span class="math inline">$\frac{m}{a}$</span> are coprime, we can apply Euler's theorem and get the efficient (since <span class="math inline"><em>k</em></span> is very small; in fact <span class="math inline"><em>k</em> ≤ log<sub>2</sub><em>m</em></span>) formula: <br /><span class="math display">$$x^n \bmod m = x^k\left(x^{n-k \bmod \phi(\frac{m}{a})} \bmod \frac{m}{a}\right)\bmod m.$$</span><br /></p>
+<p>This formula is difficult to apply, but we can use it to analyze the behavior of <span class="math inline">$x^n \bmod m$</span>. We can see that the sequence of powers <span class="math inline">$(x^1 \bmod m, x^2 \bmod m, x^3 \bmod m, \dots)$</span> enters a cycle of length <span class="math inline">$\phi\left(\frac{m}{a}\right)$</span> after the first <span class="math inline"><em>k</em></span> (or less) elements. <span class="math inline"><em>ϕ</em>(<em>m</em>)</span> divides <span class="math inline">$\phi\left(\frac{m}{a}\right)$</span> (because <span class="math inline"><em>a</em></span> and <span class="math inline">$\frac{m}{a}$</span> are coprime we have <span class="math inline">$\phi(a) \cdot \phi\left(\frac{m}{a}\right) = \phi(m)$</span>), therefore we can also say that the period has length <span class="math inline"><em>ϕ</em>(<em>m</em>)</span>. And since <span class="math inline"><em>ϕ</em>(<em>m</em>)≥log<sub>2</sub><em>m</em> ≥ <em>k</em></span>, we can conclude the desired, much simpler, formula: <br /><span class="math display">$$ x^n \equiv x^{\varphi(m)} x^{(n - \varphi(m)) \bmod \varphi(m)} \bmod m \equiv x^{\varphi(m)+[n \bmod \varphi(m)]} \mod m.$$</span><br /></p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/ETF/">SPOJ #4141 &quot;Euler Totient Function&quot; [Difficulty: CakeWalk]</a></li>
+<li><a href="http://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1120">UVA #10179 &quot;Irreducible Basic Fractions&quot; [Difficulty: Easy]</a></li>
+<li><a href="http://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1240">UVA #10299 &quot;Relatives&quot; [Difficulty: Easy]</a></li>
+<li><a href="http://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2302">UVA #11327 &quot;Enumerating Rational Numbers&quot; [Difficulty: Medium]</a></li>
+<li><a href="http://acm.timus.ru/problem.aspx?space=1&amp;num=1673">TIMUS #1673 &quot;Admission to Exam&quot; [Difficulty: High]</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1931">UVA 10990 - Another New Function</a></li>
+<li><a href="https://www.codechef.com/problems/COZIE">Codechef - Golu and Sweetness</a></li>
+<li><a href="http://www.spoj.com/problems/LCMSUM/">SPOJ - LCM Sum</a></li>
+<li><a href="http://codeforces.com/gym/100975">GYM - Simple Calculations (F)</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=5043">UVA 13132 - Laser Mirrors</a></li>
+<li><a href="http://www.spoj.com/problems/GCDEX/">SPOJ - GCDEX</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=4878">UVA 12995 - Farey Sequence</a></li>
+<li><a href="http://www.spoj.com/problems/TIP1/">SPOJ - Totient in Permutation (easy)</a></li>
+<li><a href="http://lightoj.com/volume_showproblem.php?problem=1007">LOJ - Mathematically Hard</a></li>
+<li><a href="http://www.spoj.com/problems/DCEPCA03/">SPOJ - Totient Extreme</a></li>
+<li><a href="http://www.spoj.com/problems/NAJPWG/">SPOJ - Playing with GCD</a></li>
+<li><a href="http://www.spoj.com/problems/DCEPC12G/">SPOJ - G Force</a></li>
+<li><a href="http://www.spoj.com/problems/INVPHI/">SPOJ - Smallest Inverse Euler Totient Function</a></li>
+<li><a href="http://codeforces.com/problemset/problem/906/D">Codeforces - Power Tower</a></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Minimum spanning tree - Kruskal's algorithm -->
+<h1 id="minimum-spanning-tree---kruskals-algorithm">Minimum spanning tree - Kruskal's algorithm</h1>
+<p>Given a weighted undirected graph. We want to find a subtree of this graph which connects all vertices (i.e. it is a spanning tree) and has the least weight (i.e. the sum of weights of all the edges is minimum) of all possible spanning trees. This spanning tree is called a minimum spanning tree.</p>
+<p>In the left image you can see a weighted undirected graph, and in the right image you can see the corresponding minimum spanning tree.</p>
+<p><img src="&amp;imgroot&amp;/MST_before.png" alt="Random graph" /> <img src="&amp;imgroot&amp;/MST_after.png" alt="MST of this graph" /></p>
+<p>This article will discuss few important facts associated with minimum spanning trees, and then will give the simplest implementation of Kruskal's algorithm for finding minimum spanning tree.</p>
+<h2 id="properties-of-the-minimum-spanning-tree">Properties of the minimum spanning tree</h2>
+<ul>
+<li>A minimum spanning tree of a graph is unique, if the weight of all the edges are distinct. Otherwise, there may be multiple minimum spanning trees. (Specific algorithms typically output one of the possible minimum spanning trees).</li>
+<li>Minimum spanning tree is also the tree with minimum product of weights of edges. (It can be easily proved by replacing the weights of all edges with their logarithms)</li>
+<li>In a minimum spanning tree of a graph, the maximum weight of an edge is the minimum possible from all possible spanning trees of that graph. (This follows from the validity of Kruskal's algorithm).</li>
+<li>The maximum spanning tree (spanning tree with the sum of weights of edges being maximum) of a graph can be obtained similarly to that of the minimum spanning tree, by changing the signs of the weights of all the edges to their opposite and then applying any of the minimum spanning tree algorithm.</li>
+</ul>
+<h2 id="kruskals-algorithm">Kruskal's algorithm</h2>
+<p>This algorithm was described by Joseph Bernard Kruskal, Jr. in 1956.</p>
+<p>Kruskal's algorithm initially places all the nodes of the original graph isolated from each other, to form a forest of single node trees, and then gradually merges these trees, combining at each iteration any two of all the trees with some edge of the original graph. Before the execution of the algorithm, all edges are sorted by weight (in non-decreasing order). Then begins the process of unification: pick all edges from the first to the last (in sorted order), and if the ends of the currently picked edge belong to different subtrees, these subtrees are combined, and the edge is added to the answer. After iterating through all the edges, all the vertices will belong to the same sub-tree, and we will get the answer.</p>
+<h2 id="the-simplest-implementation">The simplest implementation</h2>
+<p>The following code directly implements the algorithm described above, and is having <span class="math inline"><em>O</em>(<em>M</em>log<em>M</em> + <em>N</em><sup>2</sup>)</span> time complexity. Sorting edges requires <span class="math inline"><em>O</em>(<em>M</em>log<em>N</em>)</span> (which is the same as <span class="math inline"><em>O</em>(<em>M</em>log<em>M</em>)</span>) operations. Information regarding the subtree to which a vertex belongs is maintained with the help of an array <code>tree_id[]</code> - for each vertex <code>v</code>, <code>tree_id[v]</code> stores the number of the tree , to which <code>v</code> belongs. For each edge, whether it belongs to the ends of different trees, can be determined in <span class="math inline"><em>O</em>(1)</span>. Finally, the union of the two trees is carried out in <span class="math inline"><em>O</em>(<em>N</em>)</span> by a simple pass through <code>tree_id[]</code> array. Given that the total number of merge operations is <span class="math inline"><em>N</em> − 1</span>, we obtain the asymptotic behavior of <span class="math inline"><em>O</em>(<em>M</em>log<em>N</em> + <em>N</em><sup>2</sup>)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">struct</span> Edge {
+    <span class="dt">int</span> u, v, weight;
+    <span class="dt">bool</span> <span class="kw">operator</span>&lt;(Edge <span class="dt">const</span>&amp; other) {
+        <span class="kw">return</span> weight &lt; other.weight;
+    }
+};
+
+<span class="dt">int</span> n;
+vector&lt;Edge&gt; edges;
+
+<span class="dt">int</span> cost = <span class="dv">0</span>;
+vector&lt;<span class="dt">int</span>&gt; tree_id(n);
+vector&lt;Edge&gt; result;
+<span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; i++)
+    tree_id[i] = i;
+
+sort(edges.begin(), edges.end());
+   
+<span class="kw">for</span> (Edge e : edges) {
+    <span class="kw">if</span> (tree_id[e.u] != tree_id[e.v]) {
+        cost += e.weight;
+        result.push_back(e);
+
+        <span class="dt">int</span> old_id = tree_id[e.u], new_id = tree_id[e.v];
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; i++) {
+            <span class="kw">if</span> (tree_id[i] == old_id)
+                tree_id[i] = new_id;
+        }
+    }
+}</code></pre></div>
+<h2 id="proof-of-correctness">Proof of correctness</h2>
+<p>Why does Kruskal's algorithm give us the correct result?</p>
+<p>If the original graph was connected, then also the resulting graph will be connected. Because otherwise there would be two components that could be connected with at least one edge. Though this is impossible, because Kruskal would have have chosen one of these edges, since the ids of the components are different. Also the resulting graph doesn't contain any cycles, since we forbid this explicitly in the algorithm. Therefore the algorithm generates a spanning tree.</p>
+<p>So why does this algorithm give us a minimum spanning tree?</p>
+<p>We can show the proposal &quot;if <span class="math inline"><em>F</em></span> is a set of edges chosen by the algorithm at any stage in the algorithm, then there exists a MST that contains all edges of <span class="math inline"><em>F</em></span>&quot; using induction.</p>
+<p>The proposal is obviously true at the beginning, the empty set is a subset of any MST.</p>
+<p>Now lets assume <span class="math inline"><em>F</em></span> is some edge set at any stage of the algorithm, <span class="math inline"><em>T</em></span> is a MST containing <span class="math inline"><em>F</em></span> and <span class="math inline"><em>e</em></span> is the new edge we want to add using Kruskal.</p>
+<p>If <span class="math inline"><em>e</em></span> generates a cycle, then we don't add it, and so the proposal is still true after this step.</p>
+<p>In case that <span class="math inline"><em>T</em></span> already contains <span class="math inline"><em>e</em></span>, the proposal is also true after this step.</p>
+<p>In case <span class="math inline"><em>T</em></span> doesn't contain the edge <span class="math inline"><em>e</em></span>, then <span class="math inline"><em>T</em> + <em>e</em></span> will contains a cycle <span class="math inline"><em>C</em></span>. This cycle will contain at least one edge <span class="math inline"><em>f</em></span>, that is not in <span class="math inline"><em>F</em></span>. The set of edges <span class="math inline"><em>T</em> − <em>f</em> + <em>e</em></span> will also be a spanning tree. Notice that the weight of <span class="math inline"><em>f</em></span> cannot be smaller than the weight of <span class="math inline"><em>e</em></span>, because otherwise Kruskal would have chosen <span class="math inline"><em>f</em></span> earlier. It also cannot have a bigger weight, since that would make the total weight of <span class="math inline"><em>T</em> − <em>f</em> + <em>e</em></span> smaller than the total weight of <span class="math inline"><em>T</em></span>, which is impossible since <span class="math inline"><em>T</em></span> is already a MST. This means that the weight of <span class="math inline"><em>e</em></span> has to be the same as the weight of <span class="math inline"><em>f</em></span>. Therefore <span class="math inline"><em>T</em> − <em>f</em> + <em>e</em></span> is also a MST, and it contains all edges from <span class="math inline"><em>F</em> + <em>e</em></span>. So also here the proposal is still fulfilled after the step.</p>
+<p>This proves the proposal. Which means that after iterating over all edges the resulting edge set will be connected, and will be contained in a MST, which means that it has to be a MST already.</p>
+<h2 id="improved-implementation">Improved implementation</h2>
+<p>We can use the <a href="./data_structures/disjoint_set_union.html"><strong>Disjoint Set Union</strong> (DSU)</a> data structure to write a faster implementation of the Kruskal's algorithm with the time complexity of about <span class="math inline"><em>O</em>(<em>M</em>log<em>N</em>)</span>. <a href="./graph/mst_kruskal_with_dsu.html">This article</a> details such an approach.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/KOICOST/">SPOJ - Koicost</a></li>
+<li><a href="http://www.spoj.com/problems/MARYBMW/">SPOJ - MaryBMW</a></li>
+<li><a href="https://www.codechef.com/ICL2016/problems/ICL16A">Codechef - Fullmetal Alchemist</a></li>
+<li><a href="http://codeforces.com/contest/160/problem/D">Codeforces - Edges in MST</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3328">UVA 12176 - Bring Your Own Horse</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1541">UVA 10600 - ACM Contest and Blackout</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1665">UVA 10724 - Road Construction</a></li>
+<li><a href="https://www.hackerrank.com/contests/june-world-codesprint/challenges/johnland/problem">Hackerrank - Roads in HackerLand</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2757">UVA 11710 - Expensive subway</a></li>
+<li><a href="https://www.codechef.com/problems/CHEFELEC">Codechef - Chefland and Electricity</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1248">UVA 10307 - Killing Aliens in Borg Maze</a></li>
+<li><a href="http://codeforces.com/problemset/problem/32/C">Codeforces - Flea</a></li>
+<li><a href="http://codeforces.com/problemset/problem/598/D">Codeforces - Igon in Museum</a></li>
+<li><a href="http://codeforces.com/problemset/problem/744/A">Codeforces - Hongcow Builds a Nation</a></li>
+<li><a href="https://devskill.com/CodingProblems/ViewProblem/344">DevSkills - Repairing Road</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=849">UVA - 908 - Re-connecting Computer Sites</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3649">UVA 1208 - Oreon</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3676">UVA 1235 - Anti Brute Force Lock</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=975">UVA 10034 - Freckles</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=2169">UVA 11228 - Transportation system</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2678">UVA 11631 - Dark roads</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2833">UVA 11733 - Airports</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2847">UVA 11747 - Heavy Cycle Edges</a></li>
+<li><a href="http://www.spoj.com/problems/BLINNET/">SPOJ - Blinet</a></li>
+<li><a href="http://www.spoj.com/problems/IITKWPCG/">SPOJ - Help the Old King</a></li>
+<li><a href="http://codeforces.com/contest/17/problem/B">Codeforces - Hierarchy</a></li>
+</ul>
+</body>
+</html>

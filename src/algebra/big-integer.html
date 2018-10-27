@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Arbitrary-Precision Arithmetic -->
+<h1 id="arbitrary-precision-arithmetic">Arbitrary-Precision Arithmetic</h1>
+<p>Arbitrary-Precision arithmetic, also known as &quot;bignum&quot; or simply &quot;long arithmetic&quot; is a set of data structures and algorithms which allows to process much greater numbers than can be fit in standard data types. Here are several types of arbitrary-precision arithmetic.</p>
+<h2 id="classical-integer-long-arithmetic">Classical Integer Long Arithmetic</h2>
+<p>The main idea is that the number is stored as an array of its &quot;digits&quot; in some base. Several most frequently used bases are decimal, powers of decimal (<span class="math inline">10<sup>4</sup></span> or <span class="math inline">10<sup>9</sup></span>) and binary.</p>
+<p>Operations on numbers in this form are performed using &quot;school&quot; algorithms of column addition, subtraction, multiplication and division. It's also possible to use fast multiplication algorithms: fast Fourier transform and Karatsuba algorithm.</p>
+<p>Here we describe long arithmetic for only non-negative integers. To extend the algorithms to handle negative integers one has to introduce and maintain additional &quot;negative number&quot; flag or use two's complement integer representation.</p>
+<h3 id="data-structure">Data Structure</h3>
+<p>We'll store numbers as a <code>vector&lt;int&gt;</code>, in which each element is a single &quot;digit&quot; of the number.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">typedef</span> vector&lt;<span class="dt">int</span>&gt; lnum;</code></pre></div>
+<p>To improve performance we'll use <span class="math inline">10<sup>9</sup></span> as the base, so that each &quot;digit&quot; of the long number contains 9 decimal digits at once.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">int</span> base = <span class="dv">1000</span>*<span class="dv">1000</span>*<span class="dv">1000</span>;</code></pre></div>
+<p>Digits will be stored in order from least to most significant. All operations will be implemented so that after each of them the result doesn't have any leading zeros, as long as operands didn't have any leading zeros either. All operations which might result in a number with leading zeros should be followed by code which removes them. Note that in this representation there are two valid notations for number zero: and empty vector, and a vector with a single zero digit.</p>
+<h3 id="output">Output</h3>
+<p>Printing the long integer is the easiest operation. First we print the last element of the vector (or 0 if the vector is empty), followed by the rest of the elements padded with leading zeros if necessary so that they are exactly 9 digits long.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">printf (<span class="st">&quot;</span><span class="ch">%d</span><span class="st">&quot;</span>, a.empty() ? <span class="dv">0</span> : a.back());
+<span class="kw">for</span> (<span class="dt">int</span> i=(<span class="dt">int</span>)a.size()<span class="dv">-2</span>; i&gt;=<span class="dv">0</span>; --i)
+    printf (<span class="st">&quot;</span><span class="ch">%09d</span><span class="st">&quot;</span>, a[i]);</code></pre></div>
+<p>Note that we cast <code>a.size()</code> to integer to avoid unsigned integer underflow if vector contains less than 2 elements.</p>
+<h3 id="input">Input</h3>
+<p>To read a long integer, read its notation into a <code>string</code> and then convert it to &quot;digits&quot;:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span> (<span class="dt">int</span> i=(<span class="dt">int</span>)s.length(); i&gt;<span class="dv">0</span>; i-=<span class="dv">9</span>)
+    <span class="kw">if</span> (i &lt; <span class="dv">9</span>)
+        a.push_back (atoi (s.substr (<span class="dv">0</span>, i).c_str()));
+    <span class="kw">else</span>
+        a.push_back (atoi (s.substr (i<span class="dv">-9</span>, <span class="dv">9</span>).c_str()));</code></pre></div>
+<p>If we use an array of <code>char</code> instead of a <code>string</code>, the code will be even shorter:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span> (<span class="dt">int</span> i=(<span class="dt">int</span>)strlen(s); i&gt;<span class="dv">0</span>; i-=<span class="dv">9</span>) {
+    s[i] = <span class="dv">0</span>;
+    a.push_back (atoi (i&gt;=<span class="dv">9</span> ? s+i<span class="dv">-9</span> : s));
+}</code></pre></div>
+<p>If the input can contain leading zeros, they can be removed as follows:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">while</span> (a.size() &gt; <span class="dv">1</span> &amp;&amp; a.back() == <span class="dv">0</span>)
+    a.pop_back();</code></pre></div>
+<h3 id="addition">Addition</h3>
+<p>Increment long integer <span class="math inline"><em>a</em></span> by <span class="math inline"><em>b</em></span> and store result in <span class="math inline"><em>a</em></span>:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> carry = <span class="dv">0</span>;
+<span class="kw">for</span> (size_t i=<span class="dv">0</span>; i&lt;max(a.size(),b.size()) || carry; ++i) {
+    <span class="kw">if</span> (i == a.size())
+        a.push_back (<span class="dv">0</span>);
+    a[i] += carry + (i &lt; b.size() ? b[i] : <span class="dv">0</span>);
+    carry = a[i] &gt;= base;
+    <span class="kw">if</span> (carry)  a[i] -= base;
+}</code></pre></div>
+<h3 id="subtraction">Subtraction</h3>
+<p>Decrement long integer <span class="math inline"><em>a</em></span> by <span class="math inline"><em>b</em></span> (<span class="math inline"><em>a</em> ≥ <em>b</em></span>) and store result in <span class="math inline"><em>a</em></span>:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> carry = <span class="dv">0</span>;
+<span class="kw">for</span> (size_t i=<span class="dv">0</span>; i&lt;b.size() || carry; ++i) {
+    a[i] -= carry + (i &lt; b.size() ? b[i] : <span class="dv">0</span>);
+    carry = a[i] &lt; <span class="dv">0</span>;
+    <span class="kw">if</span> (carry)  a[i] += base;
+}
+<span class="kw">while</span> (a.size() &gt; <span class="dv">1</span> &amp;&amp; a.back() == <span class="dv">0</span>)
+    a.pop_back();</code></pre></div>
+<p>Note that after performing subtraction we remove leading zeros to keep up with the premise that our long integers don't have leading zeros.</p>
+<h3 id="multiplication-by-short-integer">Multiplication by short integer</h3>
+<p>Multiply long integer <span class="math inline"><em>a</em></span> by short integer <span class="math inline"><em>b</em></span> (<span class="math inline"><em>b</em> &lt; <em>b</em><em>a</em><em>s</em><em>e</em></span>) and store result in <span class="math inline"><em>a</em></span>:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> carry = <span class="dv">0</span>;
+<span class="kw">for</span> (size_t i=<span class="dv">0</span>; i&lt;a.size() || carry; ++i) {
+    <span class="kw">if</span> (i == a.size())
+        a.push_back (<span class="dv">0</span>);
+    <span class="dt">long</span> <span class="dt">long</span> cur = carry + a[i] * <span class="dv">1ll</span> * b;
+    a[i] = <span class="dt">int</span> (cur % base);
+    carry = <span class="dt">int</span> (cur / base);
+}
+<span class="kw">while</span> (a.size() &gt; <span class="dv">1</span> &amp;&amp; a.back() == <span class="dv">0</span>)
+    a.pop_back();</code></pre></div>
+<p>Additional optimization: If runtime is extremely important, you can try to replace two divisions with one by finding only integer result of division (variable <code>carry</code>) and then use it to find modulo using multiplication. This usually makes the code faster, though not dramatically.</p>
+<h3 id="multiplication-by-long-integer">Multiplication by long integer</h3>
+<p>Multiply long integers <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> and store result in <span class="math inline"><em>c</em></span>:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">lnum c (a.size()+b.size());
+<span class="kw">for</span> (size_t i=<span class="dv">0</span>; i&lt;a.size(); ++i)
+    <span class="kw">for</span> (<span class="dt">int</span> j=<span class="dv">0</span>, carry=<span class="dv">0</span>; j&lt;(<span class="dt">int</span>)b.size() || carry; ++j) {
+        <span class="dt">long</span> <span class="dt">long</span> cur = c[i+j] + a[i] * <span class="dv">1ll</span> * (j &lt; (<span class="dt">int</span>)b.size() ? b[j] : <span class="dv">0</span>) + carry;
+        c[i+j] = <span class="dt">int</span> (cur % base);
+        carry = <span class="dt">int</span> (cur / base);
+    }
+<span class="kw">while</span> (c.size() &gt; <span class="dv">1</span> &amp;&amp; c.back() == <span class="dv">0</span>)
+    c.pop_back();</code></pre></div>
+<h3 id="division-by-short-integer">Division by short integer</h3>
+<p>Divide long integer <span class="math inline"><em>a</em></span> by short integer <span class="math inline"><em>b</em></span> (<span class="math inline"><em>b</em> &lt; <em>b</em><em>a</em><em>s</em><em>e</em></span>), store integer result in <span class="math inline"><em>a</em></span> and remainder in <code>carry</code>:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> carry = <span class="dv">0</span>;
+<span class="kw">for</span> (<span class="dt">int</span> i=(<span class="dt">int</span>)a.size()<span class="dv">-1</span>; i&gt;=<span class="dv">0</span>; --i) {
+    <span class="dt">long</span> <span class="dt">long</span> cur = a[i] + carry * <span class="dv">1ll</span> * base;
+    a[i] = <span class="dt">int</span> (cur / b);
+    carry = <span class="dt">int</span> (cur % b);
+}
+<span class="kw">while</span> (a.size() &gt; <span class="dv">1</span> &amp;&amp; a.back() == <span class="dv">0</span>)
+    a.pop_back();</code></pre></div>
+<h2 id="long-integer-arithmetic-for-factorization-representation">Long Integer Arithmetic for Factorization Representation</h2>
+<p>The idea is to store the integer as its factorization, i.e. the powers of primes which divide it.</p>
+<p>This approach is very easy to implement, and allows to do multiplication and division easily (assymptotically faster than the classical method), but not addition or subtraction. It is also very memory-efficient compared to the classical approach.</p>
+<p>This method is often used for calculations modulo non-prime number M; in this case a number is stored as powers of divisors of M which divide the number, plus the remainder modulo M.</p>
+<h2 id="long-integer-arithmetic-in-prime-modulos-garner-algorithm">Long Integer Arithmetic in prime modulos (Garner Algorithm)</h2>
+<p>The idea is to choose a set of prime numbers (typically they are small enough to fit into standard integer data type) and to store an integer as a vector of remainders from division of the integer by each of those primes.</p>
+<p>Chinese remainder theorem states that this representation is sufficient to uniquely restore any number from 0 to product of these primes minus one. <a href="./algebra/chinese-remainder-theorem.html">Garner algorithm</a> allows to restore the number from such representation to normal integer.</p>
+<p>This method allows to save memory compared to the classical approach (though the savings are not as dramatic as in factorization representation). Besides, it allows to perform fast addition, subtraction and multiplication in time proportional to the number of prime numbers used as modulos (see <a href="./algebra/chinese-remainder-theorem.html">Chinese remainder theorem</a> article for implementation).</p>
+<p>The tradeoff is that converting the integer back to normal form is rather laborious and requires implementing classical arbitrary-precision arithmetic with multiplication. Besides, this method doesn't support division.</p>
+<h2 id="fractional-arbitrary-precision-arithmetic">Fractional Arbitrary-Precision Arithmetic</h2>
+<p>Fractions occur in programming competitions less frequently than integers, and long arithmetic is much trickier to implement for fractions, so programming competitions feature only a small subset of fractional long arithmetic.</p>
+<h3 id="arithmetic-in-irreducible-fractions">Arithmetic in Irreducible Fractions</h3>
+<p>A number is represented as an irreducible fraction <span class="math inline">$\frac{a}{b}$</span>, where <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> are integers. All operations on fractions can be represented as operations on integer numerators and denominators of these fractions. Usually this requires using classical arbitrary-precision arithmetic for storing numerator and denominator, but sometimes a built-in 64-bit integer data type suffices.</p>
+<h3 id="storing-floating-point-position-as-separate-type">Storing Floating Point Position as Separate Type</h3>
+<p>Sometimes a problem requires handling very small or very large numbers without allowing overflow or underflow. Built-in double data type uses 8-10 bytes and allows values of the exponent in <span class="math inline">[ − 308; 308]</span> range, which sometimes might be insufficient.</p>
+<p>The approach is very simple: a separate integer variable is used to store the value of the exponent, and after each operation the floating-point number is normalized, i.e. returned to <span class="math inline">[0.1; 1)</span> interval by adjusting the exponent accordingly.</p>
+<p>When two such numbers are multiplied or divided, their exponents should be added or subtracted, respectively. When numbers are added or subtracted, they have to be brought to common exponent first by multiplying one of them by 10 raised to the power equal to the difference of exponent values.</p>
+<p>As a final note, the exponent base doesn't have to equal 10. Based on the internal representation of floating-point numbers, it makes most sense to use 2 as the exponent base.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1124">UVA - How Many Fibs?</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1047">UVA - Product</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=728">UVA - Maximum Sub-sequence Product</a></li>
+<li><a href="http://www.spoj.com/problems/MUL/en/">SPOJ - Fast Multiplication</a></li>
+<li><a href="http://www.spoj.com/problems/GCD2/">SPOJ - GCD2</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1024">UVA - Division</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=436">UVA - Fibonacci Freeze</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1866">UVA - Krakovia</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1755">UVA - Simplifying Fractions</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=564">UVA - 500!</a></li>
+<li><a href="https://www.hackerrank.com/contests/projecteuler/challenges/euler020/problem">Hackerrank - Factorial digit sum</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=4803">UVA - Immortal Rabbits</a></li>
+<li><a href="http://www.spoj.com/problems/IWGBS/">SPOJ - 0110SS</a></li>
+<li><a href="http://codeforces.com/contest/17/problem/D">Codeforces - Notepad</a></li>
+</ul>
+</body>
+</html>

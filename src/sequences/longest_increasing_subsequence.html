@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Longest increasing subsequence -->
+<h1 id="longest-increasing-subsequence">Longest increasing subsequence</h1>
+<p>We are given an array with <span class="math inline"><em>n</em></span> numbers: <span class="math inline"><em>a</em>[0…<em>n</em> − 1]</span>. The task is to find the longest, strictly increasing, subsequence in <span class="math inline"><em>a</em></span>.</p>
+<p>Formally we look for the longest sequence of indices <span class="math inline"><em>i</em><sub>1</sub>, …<em>i</em><sub><em>k</em></sub></span> such that <br /><span class="math display">$$i_1 &lt; i_2 &lt; \dots &lt; i_k,\\\\
+a[i_1] &lt; a[i_2] &lt; \dots &lt; a[i_k]$$</span><br /></p>
+<p>In this article we discuss multiple algorithms for solving this task. Also we will discuss some other problems, that can be reduced to this problem.</p>
+<h2 id="solution-in-on2-with-dynamic-programming">Solution in <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> with dynamic programming</h2>
+<p>Dynamic programming is a very general technique that allows to solve a huge class of problems. Here we apply the technique for our specific task.</p>
+<p>First we will search only for the <strong>length</strong> of the longest increasing subsequence, and only later learn how to restore the subsequence itself.</p>
+<h3 id="finding-the-length">Finding the length</h3>
+<p>To accomplish this task, we define an array <span class="math inline"><em>d</em>[0…<em>n</em> − 1]</span>, where <span class="math inline"><em>d</em>[<em>i</em>]</span> is the length of the longest increasing subsequence that ends in the element at index <span class="math inline"><em>i</em></span>. We will compute this array gradually: first <span class="math inline"><em>d</em>[0]</span>, then <span class="math inline"><em>d</em>[1]</span>, and so on. After this array is computed, the answer to the problem will be the maximum value in the array <span class="math inline"><em>d</em>[]</span>.</p>
+<p>So let the current index be <span class="math inline"><em>i</em></span>. I.e. we want to compute the value <span class="math inline"><em>d</em>[<em>i</em>]</span> and all previous values <span class="math inline"><em>d</em>[0],…,<em>d</em>[<em>i</em> − 1]</span> are already known. Then there are two options:</p>
+<ul>
+<li><span class="math inline"><em>d</em>[<em>i</em>]=1</span>: the required subsequence consists of only the element <span class="math inline"><em>a</em>[<em>i</em>]</span>.</li>
+<li><span class="math inline"><em>d</em>[<em>i</em>]&gt;1</span>: then in the required subsequence is another number before the number <span class="math inline"><em>a</em>[<em>i</em>]</span>. Let's focus on that number: it can be any element <span class="math inline"><em>a</em>[<em>j</em>]</span> with <span class="math inline"><em>j</em> = 0…<em>i</em> − 1</span> and <span class="math inline"><em>a</em>[<em>j</em>]&lt;<em>a</em>[<em>i</em>]</span>. In this fashion we can compute <span class="math inline"><em>d</em>[<em>i</em>]</span> using the following formula: If we fixate the index <span class="math inline"><em>j</em></span>, than the longest increasing subsequence ending in the two elements <span class="math inline"><em>a</em>[<em>j</em>]</span> and <span class="math inline"><em>a</em>[<em>i</em>]</span> has the length <span class="math inline"><em>d</em>[<em>j</em>]+1</span>. All of these values <span class="math inline"><em>d</em>[<em>j</em>]</span> are already known, so we can directly compute <span class="math inline"><em>d</em>[<em>i</em>]</span> with: <br /><span class="math display">$$d[i] = \max_{\substack{j = 0 \dots i-1 \\\\ a[j] &lt; a[i]}} \left(d[j] + 1\right)$$</span><br /></li>
+</ul>
+<p>If we combine these two cases we get the final answer for <span class="math inline"><em>d</em>[<em>i</em>]</span>:</p>
+<p><br /><span class="math display">$$d[i] = \max\left(1, \max_{\substack{j = 0 \dots i-1 \\\\ a[j] &lt; a[i]}} \left(d[j] + 1\right)\right)$$</span><br /></p>
+<h3 id="implementation">Implementation</h3>
+<p>Here is an implementation of the algorithm described above, which computes the length of the longest increasing subsequence.</p>
+<p>```cpp lis_n2 int lis(vector<int> const&amp; a) { int n = a.size(); vector<int> d(n, 1); for (int i = 0; i &lt; n; i++) { for (int j = 0; j &lt; i; j++) { if (a[j] &lt; a[i]) d[i] = max(d[i], d[j] + 1); } }</p>
+<pre><code>int ans = d[0];
+for (int i = 1; i &lt; n; i++) {
+    ans = max(ans, d[i]);
+}
+return ans;</code></pre>
+<p>} ```</p>
+<h3 id="restoring-the-subsequence">Restoring the subsequence</h3>
+<p>So far we only learned how to find the length of the subsequence, but not how to find the subsequence itself.</p>
+<p>To be able to restore the subsequence we generate an additional auxiliary array <span class="math inline"><em>p</em>[0…<em>n</em> − 1]</span> that we will compute alongside the array <span class="math inline"><em>d</em>[]</span>. <span class="math inline"><em>p</em>[<em>i</em>]</span> will be the index <span class="math inline"><em>j</em></span> of the second last element in the longest increasing subsequence ending in <span class="math inline"><em>i</em></span>. In other words the index <span class="math inline"><em>p</em>[<em>i</em>]</span> is the same index <span class="math inline"><em>j</em></span> at which the highest value <span class="math inline"><em>d</em>[<em>i</em>]</span> was obtained. This auxiliary array <span class="math inline"><em>p</em>[]</span> points in some sense to the ancestors.</p>
+<p>Then to derive the subsequence, we just start at the index <span class="math inline"><em>i</em></span> with the maximal <span class="math inline"><em>d</em>[<em>i</em>]</span>, and follow the ancestors until we deduced the entire subsequence, i.e. until we reach the element with <span class="math inline"><em>d</em>[<em>i</em>]=1</span>.</p>
+<h3 id="implementation-of-restoring">Implementation of restoring</h3>
+<p>We will change the code from the previous sections a little bit. We will compute the array <span class="math inline"><em>p</em>[]</span> alongside <span class="math inline"><em>d</em>[]</span>, and afterwards compute the subsequence.</p>
+<p>For convenience we originally assign the ancestors with <span class="math inline"><em>p</em>[<em>i</em>]= − 1</span>. For elements with <span class="math inline"><em>d</em>[<em>i</em>]=1</span>, the ancestors value will remain <span class="math inline">−1</span>, which will be slightly more convenient for restoring the subsequence.</p>
+<p>```cpp lis_n2_restore vector<int> lis(vector<int> const&amp; a) { int n = a.size(); vector<int> d(n, 1), p(n, -1); for (int i = 0; i &lt; n; i++) { for (int j = 0; j &lt; i; j++) { if (a[j] &lt; a[i] &amp;&amp; d[i] &lt; d[j] + 1) { d[i] = d[j] + 1; p[i] = j; } } }</p>
+<pre><code>int ans = d[0], pos = 0;
+for (int i = 1; i &lt; n; i++) {
+    if (d[i] &gt; ans) {
+        ans = d[i];
+        pos = i;
+    }
+}
+
+vector&lt;int&gt; subseq;
+while (pos != -1) {
+    subseq.push_back(a[pos]);
+    pos = p[pos];
+}
+reverse(subseq.begin(), subseq.end());
+return subseq;</code></pre>
+<p>} ```</p>
+<h3 id="alternative-way-of-restoring-the-subsequence">Alternative way of restoring the subsequence</h3>
+<p>It is also possible to restore the subsequence without the auxiliary array <span class="math inline"><em>p</em>[]</span>. We can simply recalculate the current value of <span class="math inline"><em>d</em>[<em>i</em>]</span> and also see how the maximum was reached.</p>
+<p>This method leads to a slightly longer code, but in return we save some memory.</p>
+<h2 id="solution-in-on-log-n-with-dynamic-programming-and-binary-search">Solution in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> with dynamic programming and binary search</h2>
+<p>In order to obtain a faster solution for the problem, we construct a different dynamic programming solution that runs in <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span>, and then later improve it to <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>.</p>
+<p>We will use the dynamic programming array <span class="math inline"><em>d</em>[0…<em>n</em>]</span>. This time <span class="math inline"><em>d</em>[<em>i</em>]</span> will be the element at which a subsequence of length <span class="math inline"><em>i</em></span> terminates. If there are multiple such sequences, then we take the one that ends in the smallest element.</p>
+<p>Initially we assume <span class="math inline"><em>d</em>[0]= − ∞</span> and for all other elements <span class="math inline"><em>d</em>[<em>i</em>]=∞</span>.</p>
+<p>We will again gradually process the numbers, first <span class="math inline"><em>a</em>[0]</span>, then <span class="math inline"><em>a</em>[1]</span>, etc, and in each step maintain the array <span class="math inline"><em>d</em>[]</span> so that it is up to date.</p>
+<p>After processing all the elements of <span class="math inline"><em>a</em>[]</span> the length of the desired subsequence is the largest <span class="math inline"><em>l</em></span> with <span class="math inline"><em>d</em>[<em>l</em>]&lt;∞</span>.</p>
+<p>```cpp lis_method2_n2 int lis(vector<int> const&amp; a) { int n = a.size(); const int INF = 1e9; vector<int> d(n+1, INF); d[0] = -INF;</p>
+<pre><code>for (int i = 0; i &lt; n; i++) {
+    for (int j = 1; j &lt;= n; j++) {
+        if (d[j-1] &lt; a[i] &amp;&amp; a[i] &lt; d[j])
+            d[j] = a[i];
+    }
+}
+
+int ans = 0;
+for (int i = 0; i &lt;= n; i++) {
+    if (d[i] &lt; INF)
+        ans = i;
+}
+return ans;</code></pre>
+<p>} ```</p>
+<p>We now make two important observations.</p>
+<p>The array <span class="math inline"><em>d</em></span> will always be sorted: <span class="math inline"><em>d</em>[<em>i</em> − 1]≤<em>d</em>[<em>i</em>]</span> for all <span class="math inline"><em>i</em> = 1…<em>n</em></span>. And also the element <span class="math inline"><em>a</em>[<em>i</em>]</span> will only update at most one value <span class="math inline"><em>d</em>[<em>j</em>]</span>.</p>
+<p>Thus we can find this element in the array <span class="math inline"><em>d</em>[]</span> using binary search in <span class="math inline"><em>O</em>(log<em>n</em>)</span>. In fact we are simply looking in the array <span class="math inline"><em>d</em>[]</span> for the first number that is strictly greater than <span class="math inline"><em>a</em>[<em>i</em>]</span>, and we try to update this element in the same way as the above implementation.</p>
+<h3 id="implementation-1">Implementation</h3>
+<p>```cpp lis_method2_nlogn int lis(vector<int> const&amp; a) { int n = a.size(); const int INF = 1e9; vector<int> d(n+1, INF); d[0] = -INF;</p>
+<pre><code>for (int i = 0; i &lt; n; i++) {
+    int j = upper_bound(d.begin(), d.end(), a[i]) - d.begin();
+    if (d[j-1] &lt; a[i] &amp;&amp; a[i] &lt; d[j])
+        d[j] = a[i];
+}
+
+int ans = 0;
+for (int i = 0; i &lt;= n; i++) {
+    if (d[i] &lt; INF)
+        ans = i;
+}
+return ans;</code></pre>
+<p>} ```</p>
+<h3 id="restoring-the-subsequence-1">Restoring the subsequence</h3>
+<p>It is also possible to restore the subsequence using this approach. This time we have to maintain two auxiliary arrays. One that tells us the index of the elements in <span class="math inline"><em>d</em>[]</span>. And again we have to create an array of &quot;ancestors&quot; <span class="math inline"><em>p</em>[<em>i</em>]</span>. <span class="math inline"><em>p</em>[<em>i</em>]</span> will be the index of the previous element for the optimal subsequence ending in element <span class="math inline"><em>i</em></span>.</p>
+<p>It's easy to maintain these two arrays in the course of iteration over the array <span class="math inline"><em>a</em>[]</span> alongside the computations of <span class="math inline"><em>d</em>[]</span>. And at the end it in not difficult to restore the desired subsequence using these arrays.</p>
+<h2 id="solution-in-on-log-n-with-data-structures">Solution in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> with data structures</h2>
+<p>Instead of the above method for computing the longest increasing subsequence in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> we can also solve the problem in a different way: using some simple data structures.</p>
+<p>Let's go back to the first method. Remember that <span class="math inline"><em>d</em>[<em>i</em>]</span> is the value <span class="math inline"><em>d</em>[<em>j</em>]+1</span> with <span class="math inline"><em>j</em> &lt; <em>i</em></span> and <span class="math inline"><em>a</em>[<em>j</em>]&lt;<em>a</em>[<em>i</em>]</span>.</p>
+<p>Thus if we define an additional array <span class="math inline"><em>t</em>[]</span> such that <br /><span class="math display"><em>t</em>[<em>a</em>[<em>i</em>]] = <em>d</em>[<em>i</em>],</span><br /> then the problem of computing the value <span class="math inline"><em>d</em>[<em>i</em>]</span> is equivalent to finding the <strong>maximum value in a prefix</strong> of the array <span class="math inline"><em>t</em>[]</span>: <br /><span class="math display"><em>d</em>[<em>i</em>]=max(<em>t</em>[0…<em>a</em>[<em>i</em>]−1]+1)</span><br /></p>
+<p>The problem of finding the maximum of a prefix of an array (which changes) is a standard problem that can be solved by many different data structures. For instance we can use a <a href="./data_structures/segment_tree.html">Segment tree</a> or a <a href="./data_structures/fenwick.html">Fenwick tree</a>.</p>
+<p>This method has obviously some <strong>shortcomings</strong>: in terms of length and complexity of the implementation this approach will be worse than the method using binary search. In addition if the input numbers <span class="math inline"><em>a</em>[<em>i</em>]</span> are especially large, then we would have to use some tricks, like compressing the numbers (i.e. renumber them from <span class="math inline">0</span> to <span class="math inline"><em>n</em> − 1</span>), or use an implicit Segment tree (only generate the branches of the tree that are important). Otherwise the memory consumption will be too high.</p>
+<p>On the other hand this method has also some <strong>advantages</strong>: with this method you don't have to think about any tricky properties in the dynamic programming solution. And this approach allows us to generalize the problem very easily (see below).</p>
+<h2 id="related-tasks">Related tasks</h2>
+<p>Here are several problems that are closely related to the problem of finding the longest increasing subsequence.</p>
+<h3 id="longest-non-decreasing-subsequence">Longest non-decreasing subsequence</h3>
+<p>This is in fact nearly the same problem. Only now it is allowed to use identical numbers in the subsequence.</p>
+<p>The solution is essentially also nearly the same. We just have to change the inequality signs, and make a slightly modification to the binary search.</p>
+<h3 id="number-of-longest-increasing-subsequences">Number of longest increasing subsequences</h3>
+<p>We can use the first discussed method, either the <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> version or the version using data structures. We only have to additionally store in how many ways we can obtain longest increasing subsequences ending in the values <span class="math inline"><em>d</em>[<em>i</em>]</span>.</p>
+<p>The number of ways to form a longest increasing subsequences ending in <span class="math inline"><em>a</em>[<em>i</em>]</span> is the sum of all ways for all longest increasing subsequences ending in <span class="math inline"><em>j</em></span> where <span class="math inline"><em>d</em>[<em>j</em>]</span> is maximal. There can be multiple such <span class="math inline"><em>j</em></span>, so we need to sum all of them.</p>
+<p>Using a Segment tree this approach can also be implemented in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>.</p>
+<p>It is not possible to use the binary search approach for this task.</p>
+<h3 id="smallest-number-of-non-increasing-subsequences-covering-a-sequence">Smallest number of non-increasing subsequences covering a sequence</h3>
+<p>For a given array with <span class="math inline"><em>n</em></span> numbers <span class="math inline"><em>a</em>[0…<em>n</em> − 1]</span> we have to colorize the numbers in the smallest number of colors, so that each color forms a non-increasing subsequence.</p>
+<p>To solve this, we notice that the minimum number of required colors is equal to the length of the longest increasing subsequence.</p>
+<p><strong>Proof</strong>: We need to prove the <strong>duality</strong> of these two problems.</p>
+<p>Let's denote by <span class="math inline"><em>x</em></span> the length of the longest increasing subsequence and by <span class="math inline"><em>y</em></span> the least number of non-increasing subsequences that form a cover. We need to prove that <span class="math inline"><em>x</em> = <em>y</em></span>.</p>
+<p>It is clear that <span class="math inline"><em>y</em> &lt; <em>x</em></span> is not possible, because if we have <span class="math inline"><em>x</em></span> strictly increasing elements, than no two can be part of the same non-increasing subsequence. Therefore we have <span class="math inline"><em>y</em> ≥ <em>x</em></span>.</p>
+<p>We now show that <span class="math inline"><em>y</em> &gt; <em>x</em></span> is not possible by contradiction. Suppose that <span class="math inline"><em>y</em> &gt; <em>x</em></span>. Then we consider any optimal set of <span class="math inline"><em>y</em></span> non-increasing subsequences. We transform this in set in the following way: as long as there are two such subsequences such that the first begins before the second subsequence, and the first sequence start with a number greater than or equal to the second, then we unhook this starting number and attach it to the beginning of second. After a finite number of steps we have <span class="math inline"><em>y</em></span> subsequences, and their starting numbers will form an increasing subsequence of length <span class="math inline"><em>y</em></span>. Since we assumed that <span class="math inline"><em>y</em> &gt; <em>x</em></span> we reached a contradiction.</p>
+<p>Thus it follows that <span class="math inline"><em>y</em> = <em>x</em></span>.</p>
+<p><strong>Restoring the sequences</strong>: The desired partition of the sequence into subsequences can be done greedily. I.e. go from left to right and assign the current number or that subsequence ending with the minimal number which is greater than or equal to the current one.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://community.topcoder.com/stat?c=problem_statement&amp;pm=5922&amp;rd=8075">Topcoder - IntegerSequence</a></li>
+<li><a href="https://community.topcoder.com/stat?c=problem_statement&amp;pm=3937&amp;rd=6532">Topcoder - AutoMarket</a></li>
+<li><a href="http://codeforces.com/contest/76/problem/F">Codeforces - Tourist</a></li>
+<li><a href="http://codeforces.com/problemset/problem/10/D">Codeforces - LCIS</a></li>
+<li><a href="http://www.spoj.com/problems/SUPPER/">SPOJ - SUPPER</a></li>
+<li><a href="https://community.topcoder.com/stat?c=problem_statement&amp;pm=2967&amp;rd=5881">Topcoder - BridgeArrangement</a></li>
+<li><a href="http://codeforces.com/problemsets/acmsguru/problem/99999/521">ACMSGURU - &quot;North-East&quot;</a></li>
+</ul>
+</body>
+</html>

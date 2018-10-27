@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Euclidean algorithm for computing the greatest common divisor -->
+<h1 id="euclidean-algorithm-for-computing-the-greatest-common-divisor">Euclidean algorithm for computing the greatest common divisor</h1>
+<p>Given two non-negative integers <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>, we have to find their <strong>GCD</strong> (greatest common divisor), i.e. the largest number which is a divisor of both <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>. It's commonly denoted by <span class="math inline">gcd(<em>a</em>, <em>b</em>)</span>. Mathematically it is defined as: <br /><span class="math display">gcd(<em>a</em>, <em>b</em>)=max<sub><em>k</em> = 1…∞  :  <em>k</em> ∣ <em>a</em>  ∧ <em>k</em>  ∣ <em>b</em></sub><em>k</em>.</span><br /> (here the symbol &quot;<span class="math inline">∣</span>&quot; denotes divisibility, i.e. &quot;<span class="math inline"><em>k</em> ∣ <em>a</em></span>&quot; means &quot;<span class="math inline"><em>k</em></span> divides <span class="math inline"><em>a</em></span>&quot;)</p>
+<p>When one of the numbers is zero, while the other is non-zero, their greatest common divisor, by definition, is the second number. When both numbers are zero, their greatest common divisor is undefined (it can be any arbitrarily large number), but we can define it to be zero. Which gives us a simple rule: if one of the numbers is zero, the greatest common divisor is the other number.</p>
+<p>The Euclidean algorithm, discussed below, allows to find the greatest common divisor of two numbers <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> in <span class="math inline"><em>O</em>(logmin(<em>a</em>, <em>b</em>))</span>.</p>
+<p>The algorithm was first described in Euclid's &quot;Elements&quot; (circa 300 BC), but it is possible that the algorithm has even earlier origins.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>The algorithm is extremely simple:</p>
+<p><br /><span class="math display">$$\gcd(a, b) = \begin{cases}a,&amp;\text{if }b = 0 \\\\ \gcd(b, a \bmod b),&amp;\text{otherwise.}\end{cases}$$</span><br /></p>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> gcd (<span class="dt">int</span> a, <span class="dt">int</span> b) {
+    <span class="kw">if</span> (b == <span class="dv">0</span>)
+        <span class="kw">return</span> a;
+    <span class="kw">else</span>
+        <span class="kw">return</span> gcd (b, a % b);
+}</code></pre></div>
+<p>Using the ternary operator in C++, we can write it as a one-liner.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> gcd (<span class="dt">int</span> a, <span class="dt">int</span> b) {
+    <span class="kw">return</span> b ? gcd (b, a % b) : a;
+}</code></pre></div>
+<p>And finally, here is a non-recursive implementation:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> gcd (<span class="dt">int</span> a, <span class="dt">int</span> b) {
+    <span class="kw">while</span> (b) {
+        a %= b;
+        swap(a, b);
+    }
+    <span class="kw">return</span> a;
+}</code></pre></div>
+<h2 id="correctness-proof">Correctness Proof</h2>
+<p>First, notice that in each iteration of the Euclidean algorithm the second argument strictly decreases, therefore (since the arguments are always non-negative) the algorithm will always terminate.</p>
+<p>For the proof of correctness, we need to show that <span class="math inline">$\gcd(a, b) = \gcd(b, a \bmod b)$</span> for all <span class="math inline"><em>a</em> ≥ 0</span>, <span class="math inline"><em>b</em> &gt; 0</span>.</p>
+<p>We will show that the value on the left side of the equation divides the value on the right side and vice versa. Obviously, this would mean that the left and right sides are equal, which will prove Euclid's algorithm.</p>
+<p>Let <span class="math inline"><em>d</em> = gcd(<em>a</em>, <em>b</em>)</span>. Then by definition <span class="math inline"><em>d</em> ∣ <em>a</em></span> and <span class="math inline"><em>d</em> ∣ <em>b</em></span>.</p>
+<p>Now let's represent the remainder of the division of <span class="math inline"><em>a</em></span> by <span class="math inline"><em>b</em></span> as follows: <br /><span class="math display">$$a \bmod b = a - b \cdot \Bigl\lfloor\dfrac{a}{b}\Bigr\rfloor$$</span><br /></p>
+<p>From this it follows that <span class="math inline">$d \mid (a \bmod b)$</span>, which means we have the system of divisiblities: <br /><span class="math display">$$\begin{cases}d \mid b,\\\\ d \mid (a \mod b)\end{cases}$$</span><br /></p>
+<p>Now we use the fact that for any three numbers <span class="math inline"><em>p</em></span>, <span class="math inline"><em>q</em></span>, <span class="math inline"><em>r</em></span>, if <span class="math inline"><em>p</em> ∣ <em>q</em></span> and <span class="math inline"><em>p</em> ∣ <em>r</em></span> then <span class="math inline"><em>p</em> ∣ gcd(<em>q</em>, <em>r</em>)</span>. In our case, we get: <br /><span class="math display"><em>d</em> = gcd(<em>a</em>, <em>b</em>)∣gcd(<em>b</em>, <em>a</em>mod<em>b</em>)</span><br /></p>
+<p>Thus we have shown that the left side of the original equation divides the right. The second half of the proof is similar.</p>
+<h2 id="time-complexity">Time Complexity</h2>
+<p>The running time of the algorithm is estimated by Lamé's theorem, which establishes a surprising connection between the Euclidean algorithm and the Fibonacci sequence:</p>
+<p>If <span class="math inline"><em>a</em> &gt; <em>b</em> ≥ 1</span> and <span class="math inline"><em>b</em> &lt; <em>F</em><sub><em>n</em></sub></span> for some <span class="math inline"><em>n</em></span>, the Euclidean algorithm performs at most <span class="math inline"><em>n</em> − 2</span> recursive calls.</p>
+<p>Moreover, it is possible to show that the upper bound of this theorem is optimal. When <span class="math inline"><em>a</em> = <em>F</em><sub><em>n</em></sub></span> and <span class="math inline"><em>b</em> = <em>F</em><sub><em>n</em> − 1</sub></span>, <span class="math inline"><em>g</em><em>c</em><em>d</em>(<em>a</em>, <em>b</em>)</span> will perform exactly <span class="math inline"><em>n</em> − 2</span> recursive calls. In other words, consecutive Fibonacci numbers are the worst case input for Euclid's algorithm.</p>
+<p>Given that Fibonacci numbers grow exponentially, we get that the Euclidean algorithm works in <span class="math inline"><em>O</em>(logmin(<em>a</em>, <em>b</em>))</span>.</p>
+<h2 id="least-common-multiple">Least common multiple</h2>
+<p>Calculating the least common multiple (commonly denoted <strong>LCM</strong>) can be reduced to calculating the GCD with the following simple formula: <br /><span class="math display">$$\text{lcm}(a, b) = \frac{a \cdot b}{\gcd(a, b)}$$</span><br /></p>
+<p>Thus, LCM can be calculated using the Euclidean algorithm with the same time complexity:</p>
+<p>A possible implementation, that cleverly avoids integer overflows by first dividing <span class="math inline"><em>a</em></span> with the GCD, is given here:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> lcm (<span class="dt">int</span> a, <span class="dt">int</span> b) {
+    <span class="kw">return</span> a / gcd(a, b) * b;
+}</code></pre></div>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://www.codechef.com/problems/FLOW016">Codechef - GCD and LCM</a></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Dijkstra on sparse graphs -->
+<h1 id="dijkstra-on-sparse-graphs">Dijkstra on sparse graphs</h1>
+<p>For the statement of the problem, the algorithm with implementation and proof can be found on the article <a href="./graph/dijkstra.html">Dijkstra's algorithm</a>.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>We recall in the derivation of the complexity of Dijkstra's algorithm we used two factors: the time of finding the unmarked vertex with the smallest distance <span class="math inline"><em>d</em>[<em>v</em>]</span>, and the time of the relaxation, i.e. the time of changing the values <span class="math inline"><em>d</em>[to]</span>.</p>
+<p>In the simplest implementation these operations require <span class="math inline"><em>O</em>(<em>n</em>)</span> and <span class="math inline"><em>O</em>(1)</span> time. Therefore, since we perform the first operation <span class="math inline"><em>O</em>(<em>n</em>)</span> times, and the second one <span class="math inline"><em>O</em>(<em>m</em>)</span> times, we obtained the complexity <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup> + <em>m</em>)</span>.</p>
+<p>It is clear, that this complexity is optimal for a dense graph, i.e. when <span class="math inline"><em>m</em> ≈ <em>n</em><sup>2</sup></span>. However in sparse graphs, when <span class="math inline"><em>m</em></span> is much smaller than the maximal number of edges <span class="math inline"><em>n</em><sup>2</sup></span>, the complexity gets less optimal because of the first term. Thus it is necessary to improve the execution time of the first operation (and of course without greatly affecting the second operation by much).</p>
+<p>To accomplish that we can use a variation of multiple auxiliary data structures. The most efficient is the <strong>Fibonacci heap</strong>, which allows the first operation to run in <span class="math inline"><em>O</em>(log<em>n</em>)</span>, and the second operation in <span class="math inline"><em>O</em>(1)</span>. Therefore we will get the complexity <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em> + <em>m</em>)</span> for Dijkstra's algorithm, which is also the theoretical minimum for the shortest path search problem. Therefore this algorithm works optimal, and Fibonacci heaps are the optimal data structure. There doesn't exist any data structure, that can perform both operations in <span class="math inline"><em>O</em>(1)</span>, because this would also allow to sort a list of random numbers in linear time, which is impossible. Interestingly there exists an algorithm by Thorup that finds the shortest path in <span class="math inline"><em>O</em>(<em>m</em>)</span> time, however only works for integer weights, and uses a completely different idea. So this doesn't lead to any contradictions. Fibonacci heaps provide the optimal complexity for this task. However they are quite complex to implement, and also have a quite large hidden constant.</p>
+<p>As a compromise you can use data structures, that perform both types of operations (extracting a minimum and updating an item) in <span class="math inline"><em>O</em>(log<em>n</em>)</span>. Then the complexity of Dijkstra's algorithm is <span class="math inline"><em>O</em>(<em>n</em>log<em>m</em> + <em>m</em>log<em>n</em>)=<em>O</em>(<em>m</em>log<em>n</em>)</span>.</p>
+<p>C++ provides two such data structures: <code>set</code> and <code>priority_queue</code>. The first is based on red-black trees, and the second one on heaps. Therefore <code>priority_queue</code> has a smaller constant hidden constant, but also has a drawback: it doesn't support the operation of removing an element. Because of this we need to do a &quot;workaround&quot;, that actually leads to a slightly worse factor <span class="math inline">log<em>m</em></span> instead of <span class="math inline">log<em>n</em></span> (although in terms of complexity they are identical).</p>
+<h2 id="implementation">Implementation</h2>
+<h3 id="set">set</h3>
+<p>Let us start with the container <code>set</code>. Since we need to store vertices ordered by their values <span class="math inline"><em>d</em>[]</span>, it is convenient to store actual pairs: the distance and the index of the vertex. As a result in a <code>set</code> pairs are automatically sorted by their distances.</p>
+<p>```cpp dijkstra_sparse_set const int INF = 1000000000; vector<vector<pair<int, int>&gt;&gt; adj;</p>
+<p>void dijkstra(int s, vector<int> &amp; d, vector<int> &amp; p) { int n = adj.size(); d.assign(n, INF); p.assign(n, -1);</p>
+<pre><code>d[s] = 0;
+set&lt;pair&lt;int, int&gt;&gt; q;
+q.insert({0, s});
+while (!q.empty()) {
+    int v = q.begin()-&gt;second;
+    q.erase(q.begin());
+
+    for (auto edge : adj[v]) {
+        int to = edge.first;
+        int len = edge.second;
+        
+        if (d[v] + len &lt; d[to]) {
+            q.erase({d[to], to});
+            d[to] = d[v] + len;
+            p[to] = v;
+            q.insert({d[to], to});
+        }
+    }
+}</code></pre>
+<p>} ```</p>
+<p>We don't need the array <span class="math inline"><em>u</em>[]</span> from the normal Dijkstra's algorithm implementation any more. We will use the <code>set</code> to store that information, and also find the vertex with the shortest distance with it. It kinda acts like a queue. The main loops executes until there are no more vertices in the set/queue. A vertex with the smallest distance gets extracted, and for each successful relaxation we first remove the old pair, and then after the relaxation add the new pair into the queue.</p>
+<h3 id="priority_queue">priority_queue</h3>
+<p>The main difference to the implementation with <code>set</code> is that we cannot remove elements from the <code>priority_queue</code> (although heaps can support that operation in theory). Therefore we have to cheat a little bit. We simply don't delete the old pair from the queue. As a result a vertex can appear multiple times with different distance in the queue at the same time. Among these pairs we are only interested in the pairs where the first element is equal to the corresponding value in <span class="math inline"><em>d</em>[]</span>, all the other other pairs are old. Therefore we need to make a small modification: at the beginning of each iteration, after extracting the next pair, we check if it an important pair or if it is already an old and handled pair. This check is important, otherwise the complexity can increase up to <span class="math inline"><em>O</em>(<em>n</em><em>m</em>)</span>.</p>
+<p>By default a <code>priority_queue</code> sorts elements in descending order. To make it sort the elements in ascending order, we can either store the negated distances in it, or pass it a different sorting function. We will do the second option.</p>
+<p>```cpp dijkstra_sparse_pq const int INF = 1000000000; vector<vector<pair<int, int>&gt;&gt; adj;</p>
+<p>void dijkstra(int s, vector<int> &amp; d, vector<int> &amp; p) { int n = adj.size(); d.assign(n, INF); p.assign(n, -1);</p>
+<pre><code>d[s] = 0;
+using pii = pair&lt;int, int&gt;;
+priority_queue&lt;pii, vector&lt;pii&gt;, greater&lt;pii&gt;&gt; q;
+q.push({0, s});
+while (!q.empty()) {
+    int v = q.top().second;
+    int d_v = q.top().first;
+    q.pop();
+    if (d_v != d[v])
+        continue;
+
+    for (auto edge : adj[v]) {
+        int to = edge.first;
+        int len = edge.second;
+        
+        if (d[v] + len &lt; d[to]) {
+            d[to] = d[v] + len;
+            p[to] = v;
+            q.push({d[to], to});
+        }
+    }
+}</code></pre>
+<p>} ```</p>
+<p>In practice the <code>priority_queue</code> version is a little bit faster than the version with <code>set</code>.</p>
+<h3 id="getting-rid-of-pairs">Getting rid of pairs</h3>
+<p>You can improve the performance a little bit more if you don't store pairs in the containers, but only the vertex indices. In this case we must overload the comparison operator: it must compare two vertices using the distances stored in <span class="math inline"><em>d</em>[]</span>.</p>
+<p>As a result of the relaxation, the distance of some vertices will change. However the data structure will not resort itself automatically. If fact changing distances of vertices in the queue, might destroy the data structure. As before, we need to remove the vertex before we relax it, and then insert it again afterwards.</p>
+<p>Since we only can remove from <code>set</code>, this optimization is only applicable for the <code>set</code> method, and doesn't work with <code>priority_queue</code> implementation. In practice this significantly increases the performance, especially when larger data types are used to store distances, like <code>long long</code> or <code>double</code>.</p>
+</body>
+</html>

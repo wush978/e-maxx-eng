@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Generating all K-combinations -->
+<h1 id="generating-all-k-combinations">Generating all <span class="math inline"><em>K</em></span>-combinations</h1>
+<p>In this article we will discuss the problem of generating all <span class="math inline"><em>K</em></span>-combinations. Given the natural numbers <span class="math inline"><em>N</em></span> and <span class="math inline"><em>K</em></span>, and considering a set of numbers from <span class="math inline">1</span> to <span class="math inline"><em>N</em></span>. The task is to derive all <strong>subsets of size <span class="math inline"><em>K</em></span></strong>.</p>
+<h2 id="generate-next-lexicographical-k-combination">Generate next lexicographical <span class="math inline"><em>K</em></span>-combination</h2>
+<p>First we will generate them in lexicographical order. The algorithm for this is simple. The first combination will be <span class="math inline">1, 2, ..., <em>K</em></span>. Now let's see how to find the combination that immediately follows this, lexicographically. To do so, we consider our current combination, and find the rightmost element that has not yet reached its highest possible value. Once finding this element, we increment it by <span class="math inline">1</span>, and assign the lowest valid value to all subsequent elements.</p>
+<p><code>cpp next_combination bool next_combination(vector&lt;int&gt;&amp; a, int n) {     int k = (int)a.size();     for (int i = k - 1; i &gt;= 0; i--) {         if (a[i] &lt; n - k + i + 1) {             a[i]++;             for (int j = i + 1; j &lt; k; j++)                 a[j] = a[j - 1] + 1;             return true;         }     }     return false; }</code></p>
+<h2 id="generate-all-k-combinations-such-that-adjacent-combinations-differ-by-one-element">Generate all <span class="math inline"><em>K</em></span>-combinations such that adjacent combinations differ by one element</h2>
+<p>This time we want to generate all <span class="math inline"><em>K</em></span>-combinations in such an order, that adjacent combinations differ exactly by one element.</p>
+<p>This can be solved using the <a href="./algebra/gray-code.html">Gray Code</a>: If we assign a bitmask to each subset, then by generating and iterating over these bitmasks with Gray codes, we can obtain our answer.</p>
+<p>The task of generating <span class="math inline"><em>K</em></span>-combinations can also be solved using Gray Codes in a different way: Generate Gray Codes for the numbers from <span class="math inline">0</span> to <span class="math inline">2<sup><em>N</em></sup> − 1</span> and leave only those codes containing <span class="math inline"><em>K</em></span> <span class="math inline">1</span>s. The surprising fact is that in the resulting sequence of <span class="math inline"><em>K</em></span> set bits, any two neighboring masks (including the first and last mask - neighboring in a cyclic sense) - will differ exactly by two bits, which is our objective (remove a number, add a number).</p>
+<p>Let us prove this:</p>
+<p>For the proof, we recall the fact that the sequence <span class="math inline"><em>G</em>(<em>N</em>)</span> (representing the <span class="math inline"><em>N</em></span><sup>th</sup> Gray Code) can be obtained as follows:</p>
+<p><br /><span class="math display"><em>G</em>(<em>N</em>)=0<em>G</em>(<em>N</em> − 1)∪1<em>G</em>(<em>N</em> − 1)<sup>R</sup></span><br /></p>
+<p>That is, consider the Gray Code sequence for <span class="math inline"><em>N</em> − 1</span>, and prefix <span class="math inline">0</span> before every term. And consider the reversed Gray Code sequence for <span class="math inline"><em>N</em> − 1</span> and prefix a <span class="math inline">1</span> before every mask, and concatenate these two sequences.</p>
+<p>Now we may produce our proof.</p>
+<p>First, we prove that the first and last masks differ exactly in two bits. To do this, it is sufficient to note that the first mask of the sequence <span class="math inline"><em>G</em>(<em>N</em>)</span>, will be of the form <span class="math inline"><em>N</em> − <em>K</em></span> <span class="math inline">0</span>s, followed by <span class="math inline"><em>K</em></span> <span class="math inline">1</span>s. As the first bit is set as <span class="math inline">0</span>, after which <span class="math inline">(<em>N</em> − <em>K</em> − 1)</span> <span class="math inline">0</span>s follow, after which <span class="math inline"><em>K</em></span> set bits follow and the last mask will be of the form <span class="math inline">1</span>, then <span class="math inline">(<em>N</em> − <em>K</em>)</span> <span class="math inline">0</span>s, then <span class="math inline"><em>K</em> − 1</span> <span class="math inline">1</span>s. Applying the principle of mathematical induction, and using the formula for <span class="math inline"><em>G</em>(<em>N</em>)</span>, concludes the proof.</p>
+<p>Now our task is to show that any two adjacent codes also differ exactly in two bits, we can do this by considering our recursive equation for the generation of Gray Codes. Let us assume the content of the two halves formed by <span class="math inline"><em>G</em>(<em>N</em> − 1)</span> is true. Now we need to prove that the new consecutive pair formed at the junction (by the concatenation of these two halves) is also valid, i.e. they differ by exactly two bits.</p>
+<p>This can be done, as we know the last mask of the first half and the first mask of the second half. The last mask of the first half would be <span class="math inline">1</span>, then <span class="math inline">(<em>N</em> − <em>K</em> − 1)</span> <span class="math inline">0</span>s, then <span class="math inline"><em>K</em> − 1</span> <span class="math inline">1</span>s. And the first mask of the second half would be <span class="math inline">0</span>, then <span class="math inline">(<em>N</em> − <em>K</em> − 2)</span> <span class="math inline">0</span>s would follow, and then <span class="math inline"><em>K</em></span> <span class="math inline">1</span>s. Thus, comparing the two masks, we find exactly two bits that differ.</p>
+<p>The following is a naive implementation working by generating all <span class="math inline">2<sup><em>n</em></sup></span> possible subsets, and finding subsets of size <span class="math inline"><em>K</em></span>.</p>
+<p>```cpp generate_all_combinations_naive int gray_code (int n) { return n ^ (n &gt;&gt; 1); }</p>
+<p>int count_bits (int n) { int res = 0; for (; n; n &gt;&gt;= 1) res += n &amp; 1; return res; }</p>
+<p>void all_combinations (int n, int k) { for (int i = 0; i &lt; (1 &lt;&lt; n); i++) { int cur = gray_code (i); if (count_bits(cur) == k) { for (int j = 0; j &lt; n; j++) { if (cur &amp; (1 &lt;&lt; j)) cout &lt;&lt; j + 1; } cout &lt;&lt; &quot;&quot;; } } } ```</p>
+<p>It's worth mentioning that a more efficient implementation exists that only resorts to building valid combinations and thus works in <span class="math inline">$O\left(N \cdot \binom{N}{K}\right)$</span> however it is recursive in nature and for smaller values of <span class="math inline"><em>N</em></span> it probably has a larger constant than the previous solution.</p>
+<p>The implementation is derived from the formula:</p>
+<p><br /><span class="math display"><em>G</em>(<em>N</em>, <em>K</em>)=0<em>G</em>(<em>N</em> − 1, <em>K</em>)∪1<em>G</em>(<em>N</em> − 1, <em>K</em> − 1)<sup>R</sup></span><br /></p>
+<p>This formula is obtained by modifying the general equation to determine the Gray code, and works by selecting the subsequence from appropriate elements.</p>
+<p>Its implementation is as follows:</p>
+<p>```cpp generate_all_combinations_fast vector<int> ans;</p>
+<p>void gen(int n, int k, int idx, bool rev) { if (k &gt; n || k &lt; 0) return;</p>
+<pre><code>if (!n) {
+    for (int i = 0; i &lt; idx; ++i) {
+        if (ans[i])
+            cout &lt;&lt; i + 1;
+    }
+    cout &lt;&lt; &quot;\n&quot;;
+    return;
+}
+
+ans[idx] = rev;
+gen(n - 1, k - rev, idx + 1, false);
+ans[idx] = !rev;
+gen(n - 1, k - !rev, idx + 1, true);</code></pre>
+<p>}</p>
+<p>void all_combinations(int n, int k) { ans.resize(n); gen(n, k, 0, false); } ```</p>
+</body>
+</html>

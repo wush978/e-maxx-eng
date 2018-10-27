@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Ternary Search and its Applications -->
+<h1 id="ternary-search">Ternary Search</h1>
+<p>We are given a function <span class="math inline"><em>f</em>(<em>x</em>)</span> which is unimodal on an interval <span class="math inline">[<em>l</em>; <em>r</em>]</span>. By unimodal function, we mean one of two behaviors of the function:</p>
+<ol style="list-style-type: decimal">
+<li><p>The function strictly increases first, reaches a maximum (at one point or at a segment), and then strictly decreases.</p></li>
+<li><p>The function strictly decreases first, reaches a minimum, and then strictly increases.</p></li>
+</ol>
+<p>In this article we will assume the first scenario, and the second is be completely symmetrical to it.</p>
+<p>The task is to find the maximum of function <span class="math inline"><em>f</em>(<em>x</em>)</span> on the interval <span class="math inline">[<em>l</em>; <em>r</em>]</span>.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>Consider any 2 points <span class="math inline"><em>m</em><sub>1</sub></span>, and <span class="math inline"><em>m</em><sub>2</sub></span> in this interval: <span class="math inline"><em>l</em> &lt; <em>m</em><sub>1</sub> &lt; <em>m</em><sub>2</sub> &lt; <em>r</em></span>. We evaluate the function at <span class="math inline"><em>m</em><sub>1</sub></span> and <span class="math inline"><em>m</em><sub>2</sub></span>, i.e. find the values of <span class="math inline"><em>f</em>(<em>m</em><sub>1</sub>)</span> and <span class="math inline"><em>f</em>(<em>m</em><sub>2</sub>)</span>. Now, we get one of three options:</p>
+<ul>
+<li><p><span class="math inline"><em>f</em>(<em>m</em><sub>1</sub>)&lt;<em>f</em>(<em>m</em><sub>2</sub>)</span></p>
+<p>The desired maximum can not be located on the left side of <span class="math inline"><em>m</em><sub>1</sub></span>, i.e. on the interval <span class="math inline">[<em>l</em>; <em>m</em><sub>1</sub>]</span>, since either both points <span class="math inline"><em>m</em><sub>1</sub></span> and <span class="math inline"><em>m</em><sub>2</sub></span> or just <span class="math inline"><em>m</em><sub>1</sub></span> belong to the area where the function increases. In either case, this means that we have to search for the maximum in the segment <span class="math inline">[<em>m</em><sub>1</sub>, <em>r</em>]</span>.</p></li>
+<li><p><span class="math inline"><em>f</em>(<em>m</em><sub>1</sub>)&gt;<em>f</em>(<em>m</em><sub>2</sub>)</span></p>
+<p>This situation is symmetrical to the previous one: the maximum can not be located on the right side of <span class="math inline"><em>m</em><sub>2</sub></span>, i.e. on the interval <span class="math inline">[<em>m</em><sub>2</sub>; <em>r</em>]</span>, and the search space is reduced to the segment <span class="math inline">[<em>l</em>; <em>m</em><sub>2</sub>]</span>.</p></li>
+<li><p><span class="math inline"><em>f</em>(<em>m</em><sub>1</sub>)=<em>f</em>(<em>m</em><sub>2</sub>)</span></p>
+<p>We can see that either both of these points belong to the area where the value of the function is maximized, or <span class="math inline"><em>m</em><sub>1</sub></span> is in the area of increasing values and <span class="math inline"><em>m</em><sub>2</sub></span> is in the area of descending values (here we used the strictness of function increasing/decreasing). Thus, the search space is reduced to <span class="math inline">[<em>m</em><sub>1</sub>; <em>m</em><sub>2</sub>]</span>. To simplify the code, this case can be combined with any of the previous cases.</p></li>
+</ul>
+<p>Thus, based on the comparison of the values in the two inner points, we can replace the current interval <span class="math inline">[<em>l</em>; <em>r</em>]</span> with a new, shorter interval <span class="math inline">[<em>l</em><sup>′</sup>; <em>r</em><sup>′</sup>]</span>. Repeatedly applying the described procedure to the interval, we can get arbitrarily short interval. Eventually its length will be less than a certain pre-defined constant (accuracy), and the process can be stopped. This is a numerical method, so we can assume that after that the function reaches its maximum at all points of the last interval <span class="math inline">[<em>l</em>; <em>r</em>]</span>. Without loss of generality, we can take <span class="math inline"><em>f</em>(<em>l</em>)</span> as the return value.</p>
+<p>We didn't impose any restrictions on the choice of points <span class="math inline"><em>m</em><sub>1</sub></span> and <span class="math inline"><em>m</em><sub>2</sub></span>. This choice will define the convergence rate and the accuracy of the implementation. The most common way is to choose the points so that they divide the interval <span class="math inline">[<em>l</em>; <em>r</em>]</span> into three equal parts. Thus, we have</p>
+<p><br /><span class="math display">$$m_1 = l + \frac{(r - l)}{3}$$</span><br /></p>
+<p><br /><span class="math display">$$m_2 = r - \frac{(r - l)}{3}$$</span><br /></p>
+<p>If <span class="math inline"><em>m</em><sub>1</sub></span> and <span class="math inline"><em>m</em><sub>2</sub></span> are chosen to be closer to each other, the convergence rate will increase slightly.</p>
+<h3 id="run-time-analysis">Run time analysis</h3>
+<p><br /><span class="math display"><em>T</em>(<em>n</em>)=<em>T</em>(2<em>n</em>/3)+1 = <em>Θ</em>(log<em>n</em>)</span><br /></p>
+<p>It can be visualized as follows: every time after evaluating the function at points <span class="math inline"><em>m</em><sub>1</sub></span> and <span class="math inline"><em>m</em><sub>2</sub></span>, we are essentially ignoring about one third of the interval, either the left or right one. Thus the size of the search space is <span class="math inline">2<em>n</em>/3</span> of the original one.</p>
+<p>Applying <a href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)">Master's Theorem</a>, we get the desired complexity estimate.</p>
+<h3 id="the-case-of-the-integer-arguments">The case of the integer arguments</h3>
+<p>If <span class="math inline"><em>f</em>(<em>x</em>)</span> takes integer parameter, the interval <span class="math inline">[<em>l</em>; <em>r</em>]</span> becomes discrete. Since we did not impose any restrictions on the choice of points <span class="math inline"><em>m</em><sub>1</sub></span> and <span class="math inline"><em>m</em><sub>2</sub></span>, the correctness of the algorithm is not affected. <span class="math inline"><em>m</em><sub>1</sub></span> and <span class="math inline"><em>m</em><sub>2</sub></span> can still be chosen to divide <span class="math inline">[<em>l</em>; <em>r</em>]</span> into 3 approximately equal parts.</p>
+<p>The difference occurs in the stopping criterion of the algorithm. Ternary search will have to stop when <span class="math inline">(<em>r</em> − <em>l</em>)&lt;3</span>, because in that case we can no longer select <span class="math inline"><em>m</em><sub>1</sub></span> and <span class="math inline"><em>m</em><sub>2</sub></span> to be different from each other as well as from <span class="math inline"><em>l</em></span> and <span class="math inline"><em>r</em></span>, and this can cause infinite iterating. Once <span class="math inline">(<em>r</em> − <em>l</em>)&lt;3</span>, the remaining pool of candidate points <span class="math inline">(<em>l</em>, <em>l</em> + 1, …, <em>r</em>)</span> needs to be checked to find the point which produces the maximum value <span class="math inline"><em>f</em>(<em>x</em>)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">double</span> ternary_search(<span class="dt">double</span> l, <span class="dt">double</span> r) {
+    <span class="dt">double</span> eps = <span class="fl">1e-9</span>;              <span class="co">//set the error limit here</span>
+    <span class="kw">while</span> (r - l &gt; eps) {
+        <span class="dt">double</span> m1 = l + (r - l) / <span class="dv">3</span>;
+        <span class="dt">double</span> m2 = r - (r - l) / <span class="dv">3</span>;
+        <span class="dt">double</span> f1 = f(m1);      <span class="co">//evaluates the function at m1</span>
+        <span class="dt">double</span> f2 = f(m2);      <span class="co">//evaluates the function at m2</span>
+        <span class="kw">if</span> (f1 &lt; f2)
+            l = m1;
+        <span class="kw">else</span>
+            r = m2;
+    }
+    <span class="kw">return</span> f(l);                    <span class="co">//return the maximum of f(x) in [l, r]</span>
+}</code></pre></div>
+<p>Here <code>eps</code> is in fact the absolute error (not taking into account errors due to the inaccurate calculation of the function).</p>
+<p>Instead of the criterion <code>r - l &gt; eps</code>, we can select a constant number of iterations as a stopping criterion. The number of iterations should be chosen to ensure the required accuracy. Typically, in most programming challenges the error limit is <span class="math inline">10<sup>−6</sup></span> and thus 200 - 300 iterations are sufficient. Also, the number of iterations doesn't depend on the values of <span class="math inline"><em>l</em></span> and <span class="math inline"><em>r</em></span>, so the number of iterations sets required relative error.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://www.codechef.com/problems/AMCS03">Codechef - Race time</a></li>
+<li><a href="https://www.hackerearth.com/september-circuits/algorithm/rescuer-1/">Hackerearth - Rescuer</a></li>
+<li><a href="http://www.spoj.com/problems/KOPC12A/">Spoj - Building Construction</a></li>
+<li><a href="http://codeforces.com/problemset/problem/578/C">Codeforces - Weakness and Poorness</a></li>
+<li><a href="http://lightoj.com/volume_showproblem.php?problem=1146">LOJ - Closest Distance</a></li>
+<li><a href="http://codeforces.com/gym/101309">GYM - Dome of Circus (D)</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=4898">UVA - Galactic Taxes</a></li>
+<li><a href="http://codeforces.com/gym/100829">GYM - Chasing the Cheetahs (A)</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3349">UVA - 12197 - Trick or Treat</a></li>
+<li><a href="http://www.spoj.com/problems/KOPC12A/">SPOJ - Building Construction</a></li>
+</ul>
+</body>
+</html>

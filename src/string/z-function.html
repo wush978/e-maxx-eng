@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Z-function and its calculation-->
+<h1 id="z-function-and-its-calculation">Z-function and its calculation</h1>
+<p>Suppose we are given a string <span class="math inline"><em>s</em></span> of length <span class="math inline"><em>n</em></span>. The <strong>Z-function</strong> for this string is an array of length <span class="math inline"><em>n</em></span> where the <span class="math inline"><em>i</em></span>-th element is equal to the greatest number of characters starting from the position <span class="math inline"><em>i</em></span> that coincide with the first characters of <span class="math inline"><em>s</em></span>.</p>
+<p>In other words, <span class="math inline"><em>z</em>[<em>i</em>]</span> is the length of the longest common prefix between <span class="math inline"><em>s</em></span> and the suffix of <span class="math inline"><em>s</em></span> starting at <span class="math inline"><em>i</em></span>.</p>
+<p><strong>Note.</strong> In this article, to avoid ambiguity, we assume <span class="math inline">0</span>-based indexes; that is: the first character of <span class="math inline"><em>s</em></span> has index <span class="math inline">0</span> and the last one has index <span class="math inline"><em>n</em> − 1</span>.</p>
+<p>The first element of Z-function, <span class="math inline"><em>z</em>[0]</span>, is generally not well defined. In this article we will assume it is zero (although it doesn't change anything in the algorithm implementation).</p>
+<p>This article presents an algorithm for calculating the Z-function in <span class="math inline"><em>O</em>(<em>n</em>)</span> time, as well as various of its applications.</p>
+<h2 id="examples">Examples</h2>
+<p>For example, here are the values of the Z-function computed for different strings:</p>
+<ul>
+<li>&quot;aaaaa&quot; - <span class="math inline">[0, 4, 3, 2, 1]</span></li>
+<li>&quot;aaabaab&quot; - <span class="math inline">[0, 2, 1, 0, 2, 1, 0]</span></li>
+<li>&quot;abacaba&quot; - <span class="math inline">[0, 0, 1, 0, 3, 0, 1]</span></li>
+</ul>
+<h2 id="trivial-algorithm">Trivial algorithm</h2>
+<p>Formal definition can be represented in the following elementary <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> implementation.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;<span class="dt">int</span>&gt; z_function_trivial(string s) {
+    <span class="dt">int</span> n = (<span class="dt">int</span>) s.length();
+    vector&lt;<span class="dt">int</span>&gt; z(n);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt; n; ++i)
+        <span class="kw">while</span> (i + z[i] &lt; n &amp;&amp; s[z[i]] == s[i + z[i]])
+            ++z[i];
+    <span class="kw">return</span> z;
+}</code></pre></div>
+<p>We just iterate through every position <span class="math inline"><em>i</em></span> and update <span class="math inline"><em>z</em>[<em>i</em>]</span> for each one of them, starting from <span class="math inline"><em>z</em>[<em>i</em>]=0</span> and incrementing it as long as we don't find a mismatch (and as long as we don't reach the end of the line).</p>
+<p>Of course, this is not an efficient implementation. We will now show the construction of an efficient implementation.</p>
+<h2 id="efficient-algorithm-to-compute-the-z-function">Efficient algorithm to compute the Z-function</h2>
+<p>To obtain an efficient algorithm we will compute the values of <span class="math inline"><em>z</em>[<em>i</em>]</span> in turn from <span class="math inline"><em>i</em> = 1</span> to <span class="math inline"><em>n</em> − 1</span> but at the same time, when computing a new value, we'll try to make the best use possible of the previously computed values.</p>
+<p>For the sake of brevity, let's call <strong>segment matches</strong> those substrings that coincide with a prefix of <span class="math inline"><em>s</em></span>. For example, the value of the desired Z-function <span class="math inline"><em>z</em>[<em>i</em>]</span> is the length of the segment match starting at position <span class="math inline"><em>i</em></span> (and that ends at position <span class="math inline"><em>i</em> + <em>z</em>[<em>i</em>]−1</span>).</p>
+<p>To do this, we will keep <strong>the <span class="math inline">[<em>l</em>; <em>r</em>]</span> indices of the rightmost segment match</strong>. That is, among all detected segments we will keep the one that ends rightmost. In a way, the index <span class="math inline"><em>r</em></span> can be seen as the &quot;boundary&quot; to which our string <span class="math inline"><em>s</em></span> has been scanned by the algorithm; everything beyond that point is not yet known.</p>
+<p>Then, if the current index (for which we have to compute the next value of the Z-function) is <span class="math inline"><em>i</em></span>, we have one of two options:</p>
+<ul>
+<li><p><span class="math inline"><em>i</em> &gt; <em>r</em></span> -- the current position is <strong>outside</strong> of what we have already processed.</p>
+<p>We will then compute <span class="math inline"><em>z</em>[<em>i</em>]</span> with the <strong>trivial algorithm</strong> (that is, just comparing values one by one). Note that in the end, if <span class="math inline"><em>z</em>[<em>i</em>]&gt;0</span>, we'll have to update the indices of the rightmost segment, because it's guaranteed that the new <span class="math inline"><em>r</em> = <em>i</em> + <em>z</em>[<em>i</em>]−1</span> is better than the previous <span class="math inline"><em>r</em></span>.</p></li>
+<li><p><span class="math inline"><em>i</em> ≤ <em>r</em></span> -- the current position is inside the current segment match <span class="math inline">[<em>l</em>; <em>r</em>]</span>.</p>
+<p>Then we can use the already calculated Z-values to &quot;initialize&quot; the value of <span class="math inline"><em>z</em>[<em>i</em>]</span> to something (it sure is better than &quot;starting from zero&quot;), maybe even some big number.</p>
+<p>For this, we observe that the substrings <span class="math inline"><em>s</em>[<em>l</em>…<em>r</em>]</span> and <span class="math inline"><em>s</em>[0…<em>r</em> − <em>l</em>]</span> <strong>match</strong>. This means that as an initial approximation for <span class="math inline"><em>z</em>[<em>i</em>]</span> we can take the value already computed for the corresponding segment <span class="math inline"><em>s</em>[0…<em>r</em> − <em>l</em>]</span>, and that is <span class="math inline"><em>z</em>[<em>i</em> − <em>l</em>]</span>.</p>
+<p>However, the value <span class="math inline"><em>z</em>[<em>i</em> − <em>l</em>]</span> could be too large: when applied to position <span class="math inline"><em>i</em></span> it could exceed the index <span class="math inline"><em>r</em></span>. This is not allowed because we know nothing about the characters to the right of <span class="math inline"><em>r</em></span>: they may differ from those required.</p>
+<p>Here is <strong>an example</strong> of a similar scenario:</p>
+<p><br /><span class="math display">$$ s = &quot;aaaabaa&quot; $$</span><br /></p>
+<p>When we get to the last position (<span class="math inline"><em>i</em> = 6</span>), the current match segment will be <span class="math inline">[5; 6]</span>. Position <span class="math inline">6</span> will then match position <span class="math inline">6 − 5 = 1</span>, for which the value of the Z-function is <span class="math inline"><em>z</em>[1]=3</span>. Obviously, we cannot initialize <span class="math inline"><em>z</em>[6]</span> to <span class="math inline">3</span>, it would be completely incorrect. The maximum value we could initialize it to is <span class="math inline">1</span> -- because it's the largest value that doesn't bring us beyond the index <span class="math inline"><em>r</em></span> of the match segment <span class="math inline">[<em>l</em>; <em>r</em>]</span>.</p>
+<p>Thus, as an <strong>initial approximation</strong> for <span class="math inline"><em>z</em>[<em>i</em>]</span> we can safely take:</p>
+<p><br /><span class="math display"><em>z</em><sub>0</sub>[<em>i</em>]=min(<em>r</em> − <em>i</em> + 1,  <em>z</em>[<em>i</em> − <em>l</em>])</span><br /></p>
+<p>After having <span class="math inline"><em>z</em>[<em>i</em>]</span> initialized to <span class="math inline"><em>z</em><sub>0</sub>[<em>i</em>]</span>, we try to increment <span class="math inline"><em>z</em>[<em>i</em>]</span> by running the <strong>trivial algorithm</strong> -- because in general, after the border <span class="math inline"><em>r</em></span>, we cannot know if the segment will continue to match or not.</p></li>
+</ul>
+<p>Thus, the whole algorithm is split in two cases, which differ only in <strong>the initial value</strong> of <span class="math inline"><em>z</em>[<em>i</em>]</span>: in the first case it's assumed to be zero, in the second case it is determined by the previously computed values (using the above formula). After that, both branches of this algorithm can be reduced to the implementation of <strong>the trivial algorithm</strong>, which starts immediately after we specify the initial value.</p>
+<p>The algorithm turns out to be very simple. Despite the fact that on each iteration the trivial algorithm is run, we have made significant progress, having an algorithm that runs in linear time. Later on we will prove that the running time is linear.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Implementation turns out to be rather laconic:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;<span class="dt">int</span>&gt; z_function(string s) {
+    <span class="dt">int</span> n = (<span class="dt">int</span>) s.length();
+    vector&lt;<span class="dt">int</span>&gt; z(n);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>, l = <span class="dv">0</span>, r = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">if</span> (i &lt;= r)
+            z[i] = min (r - i + <span class="dv">1</span>, z[i - l]);
+        <span class="kw">while</span> (i + z[i] &lt; n &amp;&amp; s[z[i]] == s[i + z[i]])
+            ++z[i];
+        <span class="kw">if</span> (i + z[i] - <span class="dv">1</span> &gt; r)
+            l = i, r = i + z[i] - <span class="dv">1</span>;
+    }
+    <span class="kw">return</span> z;
+}</code></pre></div>
+<h3 id="comments-on-this-implementation">Comments on this implementation</h3>
+<p>The whole solution is given as a function which returns an array of length <span class="math inline"><em>n</em></span> -- the Z-function of <span class="math inline"><em>s</em></span>.</p>
+<p>Array <span class="math inline"><em>z</em></span> is initially filled with zeros. The current rightmost match segment is assumed to be <span class="math inline">[0; 0]</span> (that is, a deliberately small segment which doesn't contain any <span class="math inline"><em>i</em></span>).</p>
+<p>Inside the loop for <span class="math inline"><em>i</em> = 1…<em>n</em> − 1</span> we first determine the initial value <span class="math inline"><em>z</em>[<em>i</em>]</span> -- it will either remain zero or be computed using the above formula.</p>
+<p>Thereafter, the trivial algorithm attempts to increase the value of <span class="math inline"><em>z</em>[<em>i</em>]</span> as much as possible.</p>
+<p>In the end, if it's required (that is, if <span class="math inline"><em>i</em> + <em>z</em>[<em>i</em>]−1 &gt; <em>r</em></span>), we update the rightmost match segment <span class="math inline">[<em>l</em>; <em>r</em>]</span>.</p>
+<h2 id="asymptotic-behavior-of-the-algorithm">Asymptotic behavior of the algorithm</h2>
+<p>We will prove that the above algorithm has a running time that is linear in the length of the string -- thus, it's <span class="math inline"><em>O</em>(<em>n</em>)</span>.</p>
+<p>The proof is very simple.</p>
+<p>We are interested in the nested <code>while</code> loop, since everything else is just a bunch of constant operations which sums up to <span class="math inline"><em>O</em>(<em>n</em>)</span>.</p>
+<p>We will show that <strong>each iteration</strong> of the <code>while</code> loop will increase the right border <span class="math inline"><em>r</em></span> of the match segment.</p>
+<p>To do that, we will consider both branches of the algorithm:</p>
+<ul>
+<li><p><span class="math inline"><em>i</em> &gt; <em>r</em></span></p>
+<p>In this case, either the <code>while</code> loop won't make any iteration (if <span class="math inline"><em>s</em>[0]≠<em>s</em>[<em>i</em>]</span>), or it will take a few iterations, starting at position <span class="math inline"><em>i</em></span>, each time moving one character to the right. After that, the right border <span class="math inline"><em>r</em></span> will necessarily be updated.</p>
+<p>So we have found that, when <span class="math inline"><em>i</em> &gt; <em>r</em></span>, each iteration of the <code>while</code> loop increases the value of the new <span class="math inline"><em>r</em></span> index.</p></li>
+<li><p><span class="math inline"><em>i</em> ≤ <em>r</em></span></p>
+<p>In this case, we initialize <span class="math inline"><em>z</em>[<em>i</em>]</span> to a certain value <span class="math inline"><em>z</em><sub>0</sub></span> given by the above formula. Let's compare this initial value <span class="math inline"><em>z</em><sub>0</sub></span> to the value <span class="math inline"><em>r</em> − <em>i</em> + 1</span>. We will have three cases:</p>
+<ul>
+<li><p><span class="math inline"><em>z</em><sub>0</sub> &lt; <em>r</em> − <em>i</em> + 1</span></p>
+<p>We prove that in this case no iteration of the <code>while</code> loop will take place.</p>
+<p>It's easy to prove, for example, by contradiction: if the <code>while</code> loop made at least one iteration, it would mean that initial approximation <span class="math inline"><em>z</em>[<em>i</em>]=<em>z</em><sub>0</sub></span> was inaccurate (less than the match's actual length). But since <span class="math inline"><em>s</em>[<em>l</em>…<em>r</em>]</span> and <span class="math inline"><em>s</em>[0…<em>r</em> − <em>l</em>]</span> are the same, this would imply that <span class="math inline"><em>z</em>[<em>i</em> − <em>l</em>]</span> holds the wrong value (less than it should be).</p>
+<p>Thus, since <span class="math inline"><em>z</em>[<em>i</em> − <em>l</em>]</span> is correct and it is less than <span class="math inline"><em>r</em> − <em>i</em> + 1</span>, it follows that this value coincides with the required value <span class="math inline"><em>z</em>[<em>i</em>]</span>.</p></li>
+<li><p><span class="math inline"><em>z</em><sub>0</sub> = <em>r</em> − <em>i</em> + 1</span></p>
+<p>In this case, the <code>while</code> loop can make a few iterations, but each of them will lead to an increase in the value of the <span class="math inline"><em>r</em></span> index because we will start comparing from <span class="math inline"><em>s</em>[<em>r</em> + 1]</span>, which will climb beyond the <span class="math inline">[<em>l</em>; <em>r</em>]</span> interval.</p></li>
+<li><p><span class="math inline"><em>z</em><sub>0</sub> &gt; <em>r</em> − <em>i</em> + 1</span></p>
+<p>This option is impossible, by definition of <span class="math inline"><em>z</em><sub>0</sub></span>.</p></li>
+</ul></li>
+</ul>
+<p>So, we have proved that each iteration of the inner loop make the <span class="math inline"><em>r</em></span> pointer advance to the right. Since <span class="math inline"><em>r</em></span> can't be more than <span class="math inline"><em>n</em> − 1</span>, this means that the inner loop won't make more than <span class="math inline"><em>n</em> − 1</span> iterations.</p>
+<p>As the rest of the algorithm obviously works in <span class="math inline"><em>O</em>(<em>n</em>)</span>, we have proved that the whole algorithm for computing Z-functions runs in linear time.</p>
+<h2 id="applications">Applications</h2>
+<p>We will now consider some uses of Z-functions for specific tasks.</p>
+<p>These applications will be largely similar to applications of <a href="./string/prefix-function.html">prefix function</a>.</p>
+<h3 id="search-the-substring">Search the substring</h3>
+<p>To avoid confusion, we call <span class="math inline"><em>t</em></span> the <strong>string of text</strong>, and <span class="math inline"><em>p</em></span> the <strong>pattern</strong>. The problem is: find all occurrences of the pattern <span class="math inline"><em>p</em></span> inside the text <span class="math inline"><em>t</em></span>.</p>
+<p>To solve this problem, we create a new string <span class="math inline"><em>s</em> = <em>p</em> + ⋄ + <em>t</em></span>, that is, we apply string concatenation to <span class="math inline"><em>p</em></span> and <span class="math inline"><em>t</em></span> but we also put a separator character <span class="math inline">⋄</span> in the middle (we'll choose <span class="math inline">⋄</span> so that it will certainly not be present anywhere in the strings <span class="math inline"><em>p</em></span> or <span class="math inline"><em>t</em></span>).</p>
+<p>Compute the Z-function for <span class="math inline"><em>s</em></span>. Then, for any <span class="math inline"><em>i</em></span> in the interval <span class="math inline">[0;  length(<em>t</em>)−1]</span>, we will consider the corresponding value <span class="math inline"><em>k</em> = <em>z</em>[<em>i</em> + length(<em>p</em>)+1]</span>. If <span class="math inline"><em>k</em></span> is equal to <span class="math inline">length(<em>p</em>)</span> then we know there is one occurrence of <span class="math inline"><em>p</em></span> in the <span class="math inline"><em>i</em></span>-th position of <span class="math inline"><em>t</em></span>, otherwise there is no occurrence of <span class="math inline"><em>p</em></span> in the <span class="math inline"><em>i</em></span>-th position of <span class="math inline"><em>t</em></span>.</p>
+<p>The running time (and memory consumption) is <span class="math inline"><em>O</em>(length(<em>t</em>)+length(<em>p</em>))</span>.</p>
+<h3 id="number-of-distinct-substrings-in-a-string">Number of distinct substrings in a string</h3>
+<p>Given a string <span class="math inline"><em>s</em></span> of length <span class="math inline"><em>n</em></span>, count the number of distinct substrings of <span class="math inline"><em>s</em></span>.</p>
+<p>We'll solve this problem iteratively. That is: knowing the current number of different substrings, recalculate this amount after adding to the end of <span class="math inline"><em>s</em></span> one character.</p>
+<p>So, let <span class="math inline"><em>k</em></span> be the current number of distinct substrings of <span class="math inline"><em>s</em></span>. We append a new character <span class="math inline"><em>c</em></span> to <span class="math inline"><em>s</em></span>. Obviously, there can be some new substrings ending in this new character <span class="math inline"><em>c</em></span> (namely, all those strings that end with this symbol and that we haven't encountered yet).</p>
+<p>Take a string <span class="math inline"><em>t</em> = <em>s</em> + <em>c</em></span> and invert it (write its characters in reverse order). Our task is now to count how many prefixes of <span class="math inline"><em>t</em></span> are not found anywhere else in <span class="math inline"><em>t</em></span>. Let's compute the Z-function of <span class="math inline"><em>t</em></span> and find its maximum value <span class="math inline"><em>z</em><sub><em>m</em><em>a</em><em>x</em></sub></span>. Obviously, <span class="math inline"><em>t</em></span>'s prefix of length <span class="math inline"><em>z</em><sub><em>m</em><em>a</em><em>x</em></sub></span> occurs also somewhere in the middle of <span class="math inline"><em>t</em></span>. Clearly, shorter prefixes also occur.</p>
+<p>So, we have found that the number of new substrings that appear when symbol <span class="math inline"><em>c</em></span> is appended to <span class="math inline"><em>s</em></span> is equal to <span class="math inline">length(<em>t</em>)−<em>z</em><sub><em>m</em><em>a</em><em>x</em></sub></span>.</p>
+<p>Consequently, the running time of this solution is <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> for a string of length <span class="math inline"><em>n</em></span>.</p>
+<p>It's worth noting that in exactly the same way we can recalculate, still in <span class="math inline"><em>O</em>(<em>n</em>)</span> time, the number of distinct substrings when appending a character in the beginning of the string, as well as when removing it (from the end or the beginning).</p>
+<h3 id="string-compression">String compression</h3>
+<p>Given a string <span class="math inline"><em>s</em></span> of length <span class="math inline"><em>n</em></span>. Find its shortest &quot;compressed&quot; representation, that is: find a string <span class="math inline"><em>t</em></span> of shortest length such that <span class="math inline"><em>s</em></span> can be represented as a concatenation of one or more copies of <span class="math inline"><em>t</em></span>.</p>
+<p>A solution is: compute the Z-function of <span class="math inline"><em>s</em></span>, loop through all <span class="math inline"><em>i</em></span> such that <span class="math inline"><em>i</em></span> divides <span class="math inline"><em>n</em></span>. Stop at the first <span class="math inline"><em>i</em></span> such that <span class="math inline"><em>i</em> + <em>z</em>[<em>i</em>]=<em>n</em></span>. Then, the string <span class="math inline"><em>s</em></span> can be compressed to the length <span class="math inline"><em>i</em></span>.</p>
+<p>The proof for this fact is the same as the solution which uses the <a href="./string/prefix-function.html">prefix function</a>.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://codeforces.com/problemset/problem/126/B">Codeforces - Password [Difficulty: Easy]</a></li>
+<li><a href="http://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=396">UVA # 455 &quot;Periodic Strings&quot; [Difficulty: Medium]</a></li>
+<li><a href="http://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1963">UVA # 11022 &quot;String Factoring&quot; [Difficulty: Medium]</a></li>
+<li><a href="http://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=2470">UVa 11475 - Extend to Palindrome</a></li>
+<li><a href="https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=588&amp;page=show_problem&amp;problem=4450">LA 6439 - Pasti Pas!</a></li>
+<li><a href="https://www.codechef.com/problems/CHSTR">Codechef - Chef and Strings</a></li>
+<li><a href="http://codeforces.com/problemset/problem/432/D">Codeforces - Prefixes and Suffixes</a></li>
+</ul>
+</body>
+</html>

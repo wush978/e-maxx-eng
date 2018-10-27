@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Lattice points inside non-lattice polygon -->
+<h1 id="lattice-points-inside-non-lattice-polygon">Lattice points inside non-lattice polygon</h1>
+<p>For lattice polygons there is Pick's formula to enumerate the lattice points inside the polygon. What about polygons with arbitrary vertices?</p>
+<p>Let's process each of the polygon's edges individually, and after that we may sum up the amounts of lattice points under each edge considering its orientations to choose a sign (like in calculating the area of a polygon using trapezoids).</p>
+<p>First of all we should note that if current edge has endpoints in <span class="math inline"><em>A</em> = (<em>x</em><sub>1</sub>; <em>y</em><sub>1</sub>)</span> and <span class="math inline"><em>B</em> = (<em>x</em><sub>2</sub>; <em>y</em><sub>2</sub>)</span> then it can be represented as a linear function:</p>
+<p><br /><span class="math display">$$y=y_1+(y_2-y_1) \cdot \dfrac{x-x_1}{x_2-x_1}=\left(\dfrac{y_2-y_1}{x_2-x_1}\right)\cdot x + \left(\dfrac{y_1x_2-x_1y_2}{x_2-x_1}\right)$$</span><br /></p>
+<p><br /><span class="math display">$$y = k \cdot x + b,~k = \dfrac{y_2-y_1}{x_2-x_1},~b = \dfrac{y_1x_2-x_1y_2}{x_2-x_1}$$</span><br /></p>
+<p>Now we will perform a substitution <span class="math inline"><em>x</em> = <em>x</em>′+⌈<em>x</em><sub>1</sub>⌉</span> so that <span class="math inline"><em>b</em>′=<em>b</em> + <em>k</em> ⋅ ⌈<em>x</em><sub>1</sub>⌉</span>. This allows us to work with <span class="math inline"><em>x</em><sub>1</sub>′=0</span> and <span class="math inline"><em>x</em><sub>2</sub>′=<em>x</em><sub>2</sub> − ⌈<em>x</em><sub>1</sub>⌉</span>. Let's denote <span class="math inline"><em>n</em> = ⌊<em>x</em><sub>2</sub>′⌋</span>.</p>
+<p>We will not sum up points at <span class="math inline"><em>x</em> = <em>n</em></span> and on <span class="math inline"><em>y</em> = 0</span> for the integrity of the algorithm. They may be added manually afterwards. Thus we have to sum up <span class="math inline">$\sum\limits_{x'=0}^{n - 1} \lfloor k' \cdot x' + b'\rfloor$</span>. We also assume that <span class="math inline"><em>k</em>′≥0</span> and <span class="math inline"><em>b</em>′≥0</span>. Otherwise one should substitute <span class="math inline"><em>x</em>′= − <em>t</em></span> and add <span class="math inline">⌈|<em>b</em>′|⌉</span> to <span class="math inline"><em>b</em>′</span>.</p>
+<p>Let's discuss how we can evaluate a sum <span class="math inline">$\sum\limits_{x=0}^{n - 1} \lfloor k \cdot x + b\rfloor$</span>. We have two cases:</p>
+<ul>
+<li><span class="math inline"><em>k</em> ≥ 1</span> or <span class="math inline"><em>b</em> ≥ 1</span>. Then we should start with summing up points below <span class="math inline"><em>y</em> = ⌊<em>k</em>⌋⋅<em>x</em> + ⌊<em>b</em>⌋</span>. Their amount equals to <br /><span class="math display">$$\sum\limits_{x=0}^{n - 1} \lfloor k \rfloor \cdot x + \lfloor b \rfloor=\dfrac{(\lfloor k \rfloor(n-1)+2\lfloor b \rfloor) n}{2}.$$</span><br /> Now we are interested only in points <span class="math inline">(<em>x</em>; <em>y</em>)</span> such that <span class="math inline">⌊<em>k</em>⌋⋅<em>x</em> + ⌊<em>b</em>⌋&lt;<em>y</em> ≤ <em>k</em> ⋅ <em>x</em> + <em>b</em></span>. This amount is the same as the number of points such that <span class="math inline">0 &lt; <em>y</em> ≤ (<em>k</em> − ⌊<em>k</em>⌋) ⋅ <em>x</em> + (<em>b</em> − ⌊<em>b</em>⌋)</span>. So we reduced our problem to <span class="math inline"><em>k</em>′=<em>k</em> − ⌊<em>k</em>⌋</span>, <span class="math inline"><em>b</em>′=<em>b</em> − ⌊<em>b</em>⌋</span> and both <span class="math inline"><em>k</em>′</span> and <span class="math inline"><em>b</em>′</span> less than <span class="math inline">1</span> now. Here is a picture, we just summed up blue points and subtracted the blue linear function from the black one to reduce problem to smaller values for <span class="math inline"><em>k</em></span> and <span class="math inline"><em>b</em></span>:
+<center>
+<img src="&amp;imgroot&amp;/lattice.png" alt="Subtracting floored linear function" />
+</center></li>
+<li><span class="math inline"><em>k</em> &lt; 1</span> and <span class="math inline"><em>b</em> &lt; 1</span>. If <span class="math inline">⌊<em>k</em> ⋅ <em>n</em> + <em>b</em>⌋</span> equals <span class="math inline">0</span>, we can safely return <span class="math inline">0</span>. If this is not the case, we can say that there are no lattice points such that <span class="math inline"><em>x</em> &lt; 0</span> and <span class="math inline">0 &lt; <em>y</em> ≤ <em>k</em> ⋅ <em>x</em> + <em>b</em></span>. That means that we will have the same answer if we consider new reference system in which <span class="math inline"><em>O</em>′=(<em>n</em>; ⌊<em>k</em> ⋅ <em>n</em> + <em>b</em>⌋)</span>, axis <span class="math inline"><em>x</em>′</span> is directed down and axis <span class="math inline"><em>y</em>′</span> is directed to the left. For this reference system we are interested in lattice points on the set <br /><span class="math display">$$\left\\{(x;y)~\bigg|~0 \leq x &lt; \lfloor k \cdot n + b\rfloor,~ 0 &lt; y \leq \dfrac{x+(k\cdot n+b)-\lfloor k\cdot n + b \rfloor}{k}\right\\}$$</span><br /> which returns us back to the case <span class="math inline"><em>k</em> &gt; 1</span>. You can see new reference point <span class="math inline"><em>O</em>′</span> and axes <span class="math inline"><em>X</em>′</span> and <span class="math inline"><em>Y</em>′</span> in the picture below:
+<center>
+<img src="&amp;imgroot&amp;/mirror.png" alt="New reference and axes" />
+</center>
+As you see, in new reference system linear function will have coefficient <span class="math inline">$\tfrac 1 k$</span> and its zero will be in the point <span class="math inline">⌊<em>k</em> ⋅ <em>n</em> + <em>b</em>⌋−(<em>k</em> ⋅ <em>n</em> + <em>b</em>)</span> which makes formula above correct.</li>
+</ul>
+<h2 id="complexity-analysis">Complexity analysis</h2>
+<p>We have to count at most <span class="math inline">$\dfrac{(k(n-1)+2b)n}{2}$</span> points. Among them we will count <span class="math inline">$\dfrac{\lfloor k \rfloor (n-1)+2\lfloor b \rfloor}{2}$</span> on the very first step. We may consider that <span class="math inline"><em>b</em></span> is negligibly small because we can start with making it less than <span class="math inline">1</span>. In that case we cay say that we count about <span class="math inline">$\dfrac{\lfloor k \rfloor}{k} \geq \dfrac 1 2$</span> of all points. Thus we will finish in <span class="math inline"><em>O</em>(log<em>n</em>)</span> steps.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Here is simple function which calculates number of integer points <span class="math inline">(<em>x</em>; <em>y</em>)</span> such for <span class="math inline">0 ≤ <em>x</em> &lt; <em>n</em></span> and <span class="math inline">0 &lt; <em>y</em> ≤ ⌊<em>k</em><em>x</em> + <em>b</em>⌋</span>:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> count_lattices(Fraction k, Fraction b, <span class="dt">long</span> <span class="dt">long</span> n) {
+    <span class="kw">auto</span> fk = k.floor();
+    <span class="kw">auto</span> fb = b.floor();
+    <span class="kw">auto</span> cnt = <span class="dv">0LL</span>;
+    <span class="kw">if</span> (k &gt;= <span class="dv">1</span> || b &gt;= <span class="dv">1</span>) {
+        cnt += (fk * (n - <span class="dv">1</span>) + <span class="dv">2</span> * fb) * n / <span class="dv">2</span>;
+        k -= fk;
+        b -= fb;
+    }
+    <span class="kw">auto</span> t = k * n + b;
+    <span class="kw">auto</span> ft = t.floor();
+    <span class="kw">if</span> (ft &gt;= <span class="dv">1</span>) {
+        cnt += count_lattices(<span class="dv">1</span> / k, (t - t.floor()) / k, t.floor());
+    }
+    <span class="kw">return</span> cnt;
+}</code></pre></div>
+<p>Here <code>Fraction</code> is some class handling rational numbers. On practice it seems that if all denominators and numerators are at most <span class="math inline"><em>C</em></span> by absolute value then in the recursive calls they will be at most <span class="math inline"><em>C</em><sup>2</sup></span> if you keep dividing numerators and denominators by their greatest common divisor. Given this assumption we can say that one may use doubles and require accuracy of <span class="math inline"><em>ε</em><sup>2</sup></span> where <span class="math inline"><em>ε</em></span> is accuracy with which <span class="math inline"><em>k</em></span> and <span class="math inline"><em>b</em></span> are given. That means that in floor one should consider numbers as integer if they differs at most by <span class="math inline"><em>ε</em><sup>2</sup></span> from an integer.</p>
+</body>
+</html>

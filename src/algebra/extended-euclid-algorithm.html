@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Extended Euclidean Algorithm  -->
+<h1 id="extended-euclidean-algorithm">Extended Euclidean Algorithm</h1>
+<p>While the <a href="../algebra/euclid-algorithm.html">Euclidean algorithm</a> calculates only the greatest common divisor (GCD) of two integers <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>, the extended version also finds a way to represent GCD in terms of <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>, i.e. coefficients <span class="math inline"><em>x</em></span> and <span class="math inline"><em>y</em></span> for which:</p>
+<p><br /><span class="math display"><em>a</em> ⋅ <em>x</em> + <em>b</em> ⋅ <em>y</em> = gcd(<em>a</em>, <em>b</em>)</span><br /></p>
+<h2 id="algorithm">Algorithm</h2>
+<p>The changes to the original algorithm are very simple. All we need to do is to figure out how the coefficients <span class="math inline"><em>x</em></span> and <span class="math inline"><em>y</em></span> change during the transition from <span class="math inline">(<em>a</em>, <em>b</em>)</span> to <span class="math inline">$(b \bmod a, a)$</span>.</p>
+<p>Let us assume we found the coefficients <span class="math inline">(<em>x</em><sub>1</sub>, <em>y</em><sub>1</sub>)</span> for <span class="math inline">$(b \bmod a, a)$</span>:</p>
+<p><br /><span class="math display">$$ (b \bmod a) \cdot x_1 + a \cdot y_1 = g$$</span><br /></p>
+<p>and we want to find the pair <span class="math inline">(<em>x</em>, <em>y</em>)</span> for <span class="math inline">(<em>a</em>, <em>b</em>)</span>:</p>
+<p><br /><span class="math display"><em>a</em> ⋅ <em>x</em> + <em>b</em> ⋅ <em>y</em> = <em>g</em></span><br /></p>
+<p>We can represent <span class="math inline">$b \bmod a$</span> is:</p>
+<p><br /><span class="math display">$$ b \bmod a = b - \left\lfloor \frac{b}{a} \right\rfloor \cdot a$$</span><br /></p>
+<p>Substituting this expression in the coefficient equation of <span class="math inline">(<em>x</em><sub>1</sub>, <em>y</em><sub>1</sub>)</span> gives:</p>
+<p><br /><span class="math display">$$ g = (b \bmod a) \cdot x_1 + a \cdot y_1 = \left( b - \left\lfloor \frac{b}{a} \right\rfloor \cdot a \right) \cdot x_1 + a \cdot y_1$$</span><br /></p>
+<p>and after rearranging the terms:</p>
+<p><br /><span class="math display">$$g = b \cdot x_1 + a \cdot \left( y_1 - \left\lfloor \frac{b}{a} \right\rfloor \cdot x_1 \right)$$</span><br /></p>
+<p>We found the values of <span class="math inline"><em>x</em></span> and <span class="math inline"><em>y</em></span>:</p>
+<p><br /><span class="math display">$$\begin{cases}
+x = y_1 - \left\lfloor \frac{b}{a} \right\rfloor \cdot x_1 \cr
+y = x_1
+\end{cases} $$</span><br /></p>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> gcd(<span class="dt">int</span> a, <span class="dt">int</span> b, <span class="dt">int</span> &amp; x, <span class="dt">int</span> &amp; y) {
+    <span class="kw">if</span> (a == <span class="dv">0</span>) {
+        x = <span class="dv">0</span>;
+        y = <span class="dv">1</span>;
+        <span class="kw">return</span> b;
+    }
+    <span class="dt">int</span> x1, y1;
+    <span class="dt">int</span> d = gcd(b % a, a, x1, y1);
+    x = y1 - (b / a) * x1;
+    y = x1;
+    <span class="kw">return</span> d;
+}</code></pre></div>
+<p>The recursive function above returns the GCD and the values of coefficients to <code>x</code> and <code>y</code> (which are passed by reference to the function).</p>
+<p>Base case for the recursion is <span class="math inline"><em>a</em> = 0</span>, when the GCD equals <span class="math inline"><em>b</em></span>, so the coefficients <span class="math inline"><em>x</em></span> and <span class="math inline"><em>y</em></span> are <span class="math inline">0</span> and <span class="math inline">1</span>, respectively. In all other cases the above formulas are used to re-calculate the coefficients on each iteration.</p>
+<p>This implementation of extended Euclidean algorithm produces correct results for negative integers as well.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1045">10104 - Euclid Problem</a></li>
+<li><a href="http://codeforces.com/gym/100963">GYM - (J) Once Upon A Time</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=4628">UVA - 12775 - Gift Dilemma</a></li>
+</ul>
+</body>
+</html>

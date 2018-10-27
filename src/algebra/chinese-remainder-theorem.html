@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Chinese Remainder Theorem -->
+<h1 id="chinese-remainder-theorem">Chinese Remainder Theorem</h1>
+<p>The Chinese Remainder Theorem (which will be referred to as CRT in the rest of this article) was discovered by Chinese mathematician Sun Zi.</p>
+<h2 id="formulation">Formulation</h2>
+<p>Let <span class="math inline"><em>p</em> = <em>p</em><sub>1</sub><em>p</em><sub>2</sub>⋯<em>p</em><sub><em>k</em></sub></span>, where <span class="math inline"><em>p</em><sub><em>i</em></sub></span> are pairwise relatively prime. In addition to <span class="math inline"><em>p</em><sub><em>i</em></sub></span>, we are also given a set of congruence equations <br /><span class="math display">$$\begin{align}
+    a &amp;\equiv a_1 \pmod{p_1} \\\\
+    a &amp;\equiv a_2 \pmod{p_2} \\\\
+      &amp;\ldots \\\\
+    a &amp;\equiv a_k \pmod{p_k}
+\end{align}$$</span><br /> where <span class="math inline"><em>a</em><sub><em>i</em></sub></span> are some given constants. The original form of CRT then states that the given set of congruence equations always has <em>one and exactly one</em> solution modulo <span class="math inline"><em>p</em></span>.</p>
+<h3 id="corollary">Corollary</h3>
+<p>A consequence of the CRT is that the equation <br /><span class="math display">$$
+    x \equiv a \pmod{p}
+$$</span><br /> is equivalent to the system of equations <br /><span class="math display">$$\begin{align}
+    x &amp;\equiv a \pmod{p_1} \\\\
+      &amp;\ldots \\\\
+    x &amp;\equiv a \pmod{p_k}
+\end{align}$$</span><br /> (As above, assume that <span class="math inline"><em>p</em> = <em>p</em><sub>1</sub><em>p</em><sub>2</sub>⋯<em>p</em><sub><em>k</em></sub></span> and <span class="math inline"><em>p</em><sub><em>i</em></sub></span> are pairwise relatively prime).</p>
+<h2 id="garners-algorithm">Garner's Algorithm</h2>
+<p>Another consequence of the CRT is that we can represent big numbers using an array of small integers. For example, let <span class="math inline"><em>p</em></span> be the product of the first <span class="math inline">1000</span> primes. From calculations we can see that <span class="math inline"><em>p</em></span> has around <span class="math inline">3000</span> digits.</p>
+<p>Any number <span class="math inline"><em>a</em></span> less than <span class="math inline"><em>p</em></span> can be represented as an array <span class="math inline"><em>a</em><sub>1</sub>, …, <em>a</em><sub><em>k</em></sub></span>, where <span class="math inline">$a_i \equiv a \pmod{p_i}$</span>. But to do this we obviously need to know how to get back the number <span class="math inline"><em>a</em></span> from its representation. In this section, we discuss Garner's Algorithm, which can be used for this purpose. We seek a representation on the form <br /><span class="math display"><em>a</em> = <em>x</em><sub>1</sub> + <em>x</em><sub>2</sub><em>p</em><sub>1</sub> + <em>x</em><sub>3</sub><em>p</em><sub>1</sub><em>p</em><sub>2</sub> + … + <em>x</em><sub><em>k</em></sub><em>p</em><sub>1</sub>…<em>p</em><sub><em>k</em> − 1</sub></span><br /> which is called the mixed radix representation of <span class="math inline"><em>a</em></span>. Garner's algorithm computes the coefficients <span class="math inline"><em>x</em><sub>1</sub>, …, <em>x</em><sub><em>k</em></sub></span>.</p>
+<p>Let <span class="math inline"><em>r</em><sub><em>i</em><em>j</em></sub></span> denote the inverse of <span class="math inline"><em>p</em><sub><em>i</em></sub></span> modulo <span class="math inline"><em>p</em><sub><em>j</em></sub></span> <br /><span class="math display">$$
+    r_{ij} = (p_i)^{-1} \pmod{p_j}
+$$</span><br /> which can be found using the algorithm described in <a href="./algebra/module-inverse.html">Modular Inverse</a>. Substituting <span class="math inline"><em>a</em></span> from the mixed radix representation into the first congruence equation we obtain <br /><span class="math display">$$
+    a_1 \equiv x_1 \pmod{p_1}.
+$$</span><br /> Substituting into the second equation yields <br /><span class="math display">$$
+    a_2 \equiv x_1 + x_2 p_1 \pmod{p_2}.
+$$</span><br /> which can be rewritten by subtracting <span class="math inline"><em>x</em><sub>1</sub></span> and dividing by <span class="math inline"><em>p</em><sub>1</sub></span> to get <br /><span class="math display">$$\begin{array}{rclr}
+    a_2 - x_1 &amp;\equiv&amp; x_2 p_1 &amp;\pmod{p_2} \\\\
+    (a_2 - x_1) r_{12} &amp;\equiv&amp; x_2 &amp;\pmod{p_2} \\\\
+    x_2 &amp;\equiv&amp; (a_2 - x_1) r_{12} &amp;\pmod{p_2}
+\end{array}$$</span><br /> Similarly we get that <br /><span class="math display">$$
+    x_3 \equiv ((a_3 - x_1) r_{13} - x_2) r_{23} \pmod{p_3}.
+$$</span><br /></p>
+<p>Now, we can clearly see an emerging pattern, which can be expressed by the following code:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; k; ++i) {
+    x[i] = a[i];
+    <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; i; ++j) {
+        x[i] = r[j][i] * (x[i] - x[j]);
+
+        x[i] = x[i] % p[i];
+        <span class="kw">if</span> (x[i] &lt; <span class="dv">0</span>)
+            x[i] += p[i];
+    }
+}</code></pre></div>
+<p>So we learned how to calculate coefficients <span class="math inline"><em>x</em><sub><em>i</em></sub></span> in <span class="math inline"><em>O</em>(<em>k</em><sup>2</sup>)</span> time. The number <span class="math inline"><em>a</em></span> can now be calculated using the previously mentioned formula</p>
+<p><br /><span class="math display"><em>a</em> = <em>x</em><sub>1</sub> + <em>x</em><sub>2</sub><em>p</em><sub>1</sub> + <em>x</em><sub>3</sub><em>p</em><sub>1</sub><em>p</em><sub>2</sub> + … + <em>x</em><sub><em>k</em></sub><em>p</em><sub>1</sub>…<em>p</em><sub><em>k</em> − 1</sub></span><br /></p>
+<p>It is worth noting that in practice, we almost always need to compute the answer using Big Integers, but the coefficients <span class="math inline"><em>x</em><sub><em>i</em></sub></span> can usually be calculated using built-in types, and therefore Garner's algorithm is very efficient.</p>
+<h2 id="implementation-of-garners-algorithm">Implementation of Garner's Algorithm</h2>
+<p>It is convenient to implement this algorithm using Java, because it has built-in support for large numbers through the <code>BigInteger</code> class.</p>
+<p>Here we show an implementation that can store big numbers in the form of a set of congruence equations. It supports addition, subtraction and multiplication. And with Garner's algorithm we can convert the set of equations into the unique integer. In this code, we take 100 prime numbers greater than <span class="math inline">10<sup>9</sup></span>, which allows numbers as large as <span class="math inline">10<sup>900</sup></span>.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java"><span class="dt">final</span> <span class="dt">int</span> SZ = <span class="dv">100</span>;
+<span class="dt">int</span> pr[] = <span class="kw">new</span> <span class="dt">int</span>[SZ];
+<span class="dt">int</span> r[][] = <span class="kw">new</span> <span class="dt">int</span>[SZ][SZ];
+
+<span class="dt">void</span> <span class="fu">init</span>() {
+    <span class="kw">for</span> (<span class="dt">int</span> x = <span class="dv">1000</span> * <span class="dv">1000</span> * <span class="dv">1000</span>, i = <span class="dv">0</span>; i &lt; SZ; ++x)
+        <span class="kw">if</span> (BigInteger.<span class="fu">valueOf</span>(x).<span class="fu">isProbablePrime</span>(<span class="dv">100</span>))
+            pr[i++] = x;
+
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; SZ; ++i)
+        <span class="kw">for</span> (<span class="dt">int</span> j = i + <span class="dv">1</span>; j &lt; SZ; ++j)
+            r[i][j] =
+                BigInteger.<span class="fu">valueOf</span>(pr[i]).<span class="fu">modInverse</span>(BigInteger.<span class="fu">valueOf</span>(pr[j])).<span class="fu">intValue</span>();
+}
+
+<span class="kw">class</span> Number {
+    <span class="dt">int</span> a[] = <span class="kw">new</span> <span class="dt">int</span>[SZ];
+
+    <span class="kw">public</span> Number() {
+    }
+
+    <span class="kw">public</span> Number(<span class="dt">int</span> n) {
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; SZ; ++i)
+            a[i] = n % pr[i];
+    }
+
+    <span class="kw">public</span> Number(BigInteger n) {
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; SZ; ++i)
+            a[i] = n.<span class="fu">mod</span>(BigInteger.<span class="fu">valueOf</span>(pr[i])).<span class="fu">intValue</span>();
+    }
+
+    <span class="kw">public</span> Number <span class="fu">add</span>(Number n) {
+        Number result = <span class="kw">new</span> Number();
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; SZ; ++i)
+            result.<span class="fu">a</span>[i] = (a[i] + n.<span class="fu">a</span>[i]) % pr[i];
+        <span class="kw">return</span> result;
+    }
+
+    <span class="kw">public</span> Number <span class="fu">subtract</span>(Number n) {
+        Number result = <span class="kw">new</span> Number();
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; SZ; ++i)
+            result.<span class="fu">a</span>[i] = (a[i] - n.<span class="fu">a</span>[i] + pr[i]) % pr[i];
+        <span class="kw">return</span> result;
+    }
+
+    <span class="kw">public</span> Number <span class="fu">multiply</span>(Number n) {
+        Number result = <span class="kw">new</span> Number();
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; SZ; ++i)
+            result.<span class="fu">a</span>[i] = (<span class="dt">int</span>)((a[i] * 1l * n.<span class="fu">a</span>[i]) % pr[i]);
+        <span class="kw">return</span> result;
+    }
+
+    <span class="kw">public</span> BigInteger <span class="fu">bigIntegerValue</span>(<span class="dt">boolean</span> can_be_negative) {
+        BigInteger result = BigInteger.<span class="fu">ZERO</span>, mult = BigInteger.<span class="fu">ONE</span>;
+        <span class="dt">int</span> x[] = <span class="kw">new</span> <span class="dt">int</span>[SZ];
+        <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; SZ; ++i) {
+            x[i] = a[i];
+            <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; i; ++j) {
+                <span class="dt">long</span> cur = (x[i] - x[j]) * 1l * r[j][i];
+                x[i] = (<span class="dt">int</span>)((cur % pr[i] + pr[i]) % pr[i]);
+            }
+            result = result.<span class="fu">add</span>(mult.<span class="fu">multiply</span>(BigInteger.<span class="fu">valueOf</span>(x[i])));
+            mult = mult.<span class="fu">multiply</span>(BigInteger.<span class="fu">valueOf</span>(pr[i]));
+        }
+
+        <span class="kw">if</span> (can_be_negative)
+            <span class="kw">if</span> (result.<span class="fu">compareTo</span>(mult.<span class="fu">shiftRight</span>(<span class="dv">1</span>)) &gt;= <span class="dv">0</span>)
+                result = result.<span class="fu">subtract</span>(mult);
+
+        <span class="kw">return</span> result;
+    }
+}</code></pre></div>
+<h3 id="note-on-negative-numbers">Note on negative numbers</h3>
+<ul>
+<li><p>Let <span class="math inline"><em>p</em></span> be the product of all primes.</p></li>
+<li><p>Modular scheme itself does not allow representing negative numbers. However, it can be seen that if we know that the absolute values our numbers are smaller than <span class="math inline"><em>p</em>/2</span>, then we know that it must be negative when the resulting number is greater than <span class="math inline"><em>p</em>/2</span>. The flag <code>can_be_negative</code> in this code allows converting it to negative in this case.</p></li>
+</ul>
+<h2 id="practice-problems">Practice Problems:</h2>
+<ul>
+<li><a href="https://www.hackerrank.com/contests/w22/challenges/number-of-sequences">Hackerrank - Number of sequences</a></li>
+<li><a href="http://codeforces.com/problemset/problem/687/B">Codeforces - Remainders Game</a></li>
+</ul>
+</body>
+</html>

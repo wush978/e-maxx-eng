@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Convex hull trick and Li Chao tree -->
+<h1 id="convex-hull-trick-and-li-chao-tree">Convex hull trick and Li Chao tree</h1>
+<p>Consider the following problem. There are <span class="math inline"><em>n</em></span> cities. You want to travel from city <span class="math inline">1</span> to city <span class="math inline"><em>n</em></span> by car. To do this you have to buy some gasoline. It is known that a liter of gasoline costs <span class="math inline"><em>c</em><em>o</em><em>s</em><em>t</em><sub><em>k</em></sub></span> in the <span class="math inline"><em>k</em><sup><em>t</em><em>h</em></sup></span> city. Initially your fuel tank is empty and you spend one liter of gasoline per kilometer. Cities are located on the same line in ascending order with <span class="math inline"><em>k</em><sup><em>t</em><em>h</em></sup></span> city having coordinate <span class="math inline"><em>x</em><sub><em>k</em></sub></span>. Also you have to pay <span class="math inline"><em>t</em><em>o</em><em>l</em><em>l</em><sub><em>k</em></sub></span> to enter <span class="math inline"><em>k</em><sup><em>t</em><em>h</em></sup></span> city. Your task is to make the trip with minimum possible cost. It's obvious that the solution can be calculated via dynamic programming:</p>
+<p><br /><span class="math display">$$dp_i = toll_i+\min\limits_{j&lt;i}(cost_j \cdot (x_i - x_j)+dp_j)$$</span><br /></p>
+<p>Naive approach will give you <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> complexity which can be improved to <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> or <span class="math inline"><em>O</em>(<em>n</em>log[<em>C</em><em>ε</em><sup>−1</sup>])</span> where <span class="math inline"><em>C</em></span> is largest possible <span class="math inline">|<em>x</em><sub><em>i</em></sub>|</span> and <span class="math inline"><em>ε</em></span> is precision with which <span class="math inline"><em>x</em><sub><em>i</em></sub></span> is considered (<span class="math inline"><em>ε</em> = 1</span> for integers which is usually the case). To do this one should note that the problem can be reduced to adding linear functions <span class="math inline"><em>k</em> ⋅ <em>x</em> + <em>b</em></span> to the set and finding minimum value of the functions in some particular point <span class="math inline"><em>x</em></span>. There are two main approaches one can use here.</p>
+<h2 id="convex-hull-trick">Convex hull trick</h2>
+<p>Idea of this approach is to maintain a lower convex hull of linear functions. Actually it would be a bit more convenient to consider them not as linear functions but as points <span class="math inline">(<em>k</em>; <em>b</em>)</span> on the plane such that we will have to find the point which has the least dot product with a given point <span class="math inline">(<em>x</em>; 1)</span>, that is, for this point <span class="math inline"><em>k</em><em>x</em> + <em>b</em></span> is minimized which is the same as initial problem. Such minimum will necessarily be on lower convex envelope of these points as can be seen below:</p>
+<center>
+<img src="&amp;imgroot&amp;/convex_hull_trick.png" alt="lower convex hull" />
+</center>
+<p>One have to keep points in convex hull alongside with normal vectors of edges of convex hull. When you have <span class="math inline">(<em>x</em>; 1)</span> query you'll have to find normal vector closest to it in terms of angles between them, then optimum linear function will correspond to one of its endpoints. To see that one should note that points having same dot product with <span class="math inline">(<em>x</em>; 1)</span> lie on same line which is orthogonal to <span class="math inline">(<em>x</em>; 1)</span> so optimum linear function will be the one in which tangent to convex hull which is collinear with normal to <span class="math inline">(<em>x</em>; 1)</span> touches the hull. This point can be found as one such that normals of edges lying to the left and to the right of it are headed in different sides of <span class="math inline">(<em>x</em>; 1)</span>.</p>
+<p>This approach is useful when queries of adding linear functions are monotone in terms of <span class="math inline"><em>k</em></span> or if we work offline, i.e. we may firstly add all linear functions and answer queries afterwards. So we cannot solve the cities/gasoline problems using this way. That would require handling online queries. When it comes to deal with online queries however, things will go tough and one will have to use some kind of set data structure to implement a proper convex hull. Online approach will however not be considered in this article due to its hardness and because second approach (which is Li Chao tree) allows to solve the problem way simpler. Worth mentioning that one can still use this approach in online without complications by square-root-decomposition. That is, rebuild convex hull from scratch each <span class="math inline">$\sqrt n$</span> new lines.</p>
+<p>To implement this approach one should begin with some wrap for points class, here we suggest to use C++ complex number type.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">typedef</span> <span class="dt">int</span> ftype;
+<span class="kw">typedef</span> complex&lt;ftype&gt; point;
+<span class="ot">#define x real</span>
+<span class="ot">#define y imag</span>
+ 
+ftype dot(point a, point b) {
+    <span class="kw">return</span> (conj(a) * b).x();
+}
+ 
+ftype cross(point a, point b) {
+    <span class="kw">return</span> (conj(a) * b).y();
+}</code></pre></div>
+<p>Here we will assume that when linear functions are added, their <span class="math inline"><em>k</em></span> only increases and we want to find minimum values. We will keep points in vector <span class="math inline"><em>h</em><em>u</em><em>l</em><em>l</em></span> and normal vectors in vector <span class="math inline"><em>v</em><em>e</em><em>c</em><em>s</em></span>. When we add a new point, we have to look at the angle formed between last edge in convex hull and vector from last point in convex hull to new point. This angle have to be directed counter-clockwise, that is the dot product of the last normal vector in the hull (directed inside hull) and the vector from the last point to the new one has to be non-negative. As long as this isn't true, we should erase the last point in the convex hull alongside with the corresponding edge.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;point&gt; hull, vecs;
+ 
+<span class="dt">void</span> add_line(ftype k, ftype b) {
+    point nw = {k, b};
+    <span class="kw">while</span>(!vecs.empty() &amp;&amp; dot(vecs.back(), nw - hull.back()) &lt; <span class="dv">0</span>) {
+        hull.pop_back();
+        vecs.pop_back();
+    }
+    <span class="kw">if</span>(!hull.empty()) {
+        vecs.push_back(<span class="er">1i</span> * (nw - hull.back()));
+    }
+    hull.push_back(nw);
+}
+ </code></pre></div>
+<p>Now to get the minimum value in some point we will find the first normal vector in the convex hull that is directed counter-clockwise from <span class="math inline">(<em>x</em>; 1)</span>. The left endpoint of such edge will be the answer. To check if vector <span class="math inline"><em>a</em></span> is not directed counter-clockwise of vector <span class="math inline"><em>b</em></span>, we should check if their cross product <span class="math inline">[<em>a</em>, <em>b</em>]</span> is positive.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> get(ftype x) {
+    point query = {x, <span class="dv">1</span>};
+    <span class="kw">auto</span> it = lower_bound(vecs.begin(), vecs.end(), query, [](point a, point b) {
+        <span class="kw">return</span> cross(a, b) &gt; <span class="dv">0</span>;
+    });
+    <span class="kw">return</span> dot(query, hull[it - vecs.begin()]);
+}</code></pre></div>
+<h2 id="li-chao-tree">Li Chao tree</h2>
+<p>Assume you're given a set of functions such that each two can intersect at most once. Let's keep in each vertex of a segment tree some function in such way, that if we go from root to the leaf it will be guaranteed that one of the functions we met on the path will be the one giving the minimum value in that leaf. Let's see how to construct it.</p>
+<p>Assume we're in some vertex corresponding to half-segment <span class="math inline">[<em>l</em>; <em>r</em>)</span> and the function <span class="math inline"><em>f</em><sub><em>o</em><em>l</em><em>d</em></sub></span> is kept there and we add the function <span class="math inline"><em>f</em><sub><em>n</em><em>e</em><em>w</em></sub></span>. Then the intersection point will be either in <span class="math inline">[<em>l</em>; <em>m</em>)</span> or in <span class="math inline">[<em>m</em>; <em>r</em>)</span> where <span class="math inline">$m=\left\lfloor\tfrac{l+r}{2}\right\rfloor$</span>. We can efficiently find that out by comparing the values of the functions in points <span class="math inline"><em>l</em></span> and <span class="math inline"><em>m</em></span>. If the dominating function changes, then it is in <span class="math inline">[<em>l</em>; <em>m</em>)</span> otherwise it is in <span class="math inline">[<em>m</em>; <em>r</em>)</span>. Now for the half of the segment with no intersection we will pick the lower function and write it in the current vertex. You can see that it will always be the one which is lower in point <span class="math inline"><em>m</em></span>. After that we recursively go to the other half of the segment with the function which was the upper one. As you can see this will keep correctness on the first half of segment and in the other one correctness will be maintained during the recursive call. Thus we can add functions and check the minimum value in the point in <span class="math inline"><em>O</em>(log[<em>C</em><em>ε</em><sup>−1</sup>])</span>.</p>
+<p>Here is the illustration of what is going on in the vertex when we add new function:</p>
+<center>
+<img src="&amp;imgroot&amp;/li_chao_vertex.png" alt="Li Chao Tree vertex" />
+</center>
+<p>Let's go to implementation now. Once again we will use complex numbers to keep linear functions.</p>
+<p>```cpp lichaotree_line_definition typedef int ftype; typedef complex<ftype> point; #define x real #define y imag</p>
+<p>ftype dot(point a, point b) { return (conj(a) * b).x(); }</p>
+<p>ftype f(point a, ftype x) { return dot(a, {x, 1}); } ``` We will keep functions in the array <span class="math inline"><em>l</em><em>i</em><em>n</em><em>e</em></span> and use binary indexing of the segment tree. If you want to use it on large numbers or doubles, you should use a dynamic segment tree. The segment tree should be initialized with default values, e.g. with lines <span class="math inline">0<em>x</em> + ∞</span>.</p>
+<p>```cpp lichaotree_addline const int maxn = 2e5;</p>
+<p>point line[4 * maxn];</p>
+<p>void add_line(point nw, int v = 1, int l = 0, int r = maxn) { int m = (l + r) / 2; bool lef = f(nw, l) &lt; f(line[v], l); bool mid = f(nw, m) &lt; f(line[v], m); if(mid) { swap(line[v], nw); } if(r - l == 1) { return; } else if(lef != mid) { add_line(nw, 2 * v, l, m); } else { add_line(nw, 2 * v + 1, m, r); } } <code>Now to get the minimum in some point $x$ we simply choose the minimum value along the path to the point.</code>cpp lichaotree_getminimum int get(int x, int v = 1, int l = 0, int r = maxn) { int m = (l + r) / 2; if(r - l == 1) { return f(line[v], x); } else if(x &lt; m) { return min(f(line[v], x), get(x, 2 * v, l, m)); } else { return min(f(line[v], x), get(x, 2 * v + 1, m, r)); } } ```</p>
+<h2 id="problems">Problems</h2>
+<ul>
+<li><a href="https://csacademy.com/contest/archive/task/squared-ends">CS Academy - Squared Ends</a></li>
+<li><a href="http://codeforces.com/contest/932/problem/F">Codeforces - Escape Through Leaf</a></li>
+<li><a href="https://www.codechef.com/NOV17/problems/POLY">CodeChef - Polynomials</a></li>
+</ul>
+</body>
+</html>

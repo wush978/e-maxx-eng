@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Finding repetitions -->
+<h1 id="finding-repetitions">Finding repetitions</h1>
+<p>Given a string <span class="math inline"><em>s</em></span> of length <span class="math inline"><em>n</em></span>.</p>
+<p>A <strong>repetition</strong> is two occurrences of a string in a row. In other words a repetition can be described by a pair of indices <span class="math inline"><em>i</em> &lt; <em>j</em></span> such that the substring <span class="math inline"><em>s</em>[<em>i</em>…<em>j</em>]</span> consists of two identical strings written after each other.</p>
+<p>The challenge is to <strong>find all repetitions</strong> in a given string <span class="math inline"><em>s</em></span>. Or a simplified task: find <strong>any</strong> repetition or find the <strong>longest</strong> repetition.</p>
+<p>The algorithm described here was published in 1982 by Main and Lorentz.</p>
+<h2 id="example">Example</h2>
+<p>Consider the repetitions in the following example string: <br /><span class="math display"><em>a</em><em>c</em><em>a</em><em>b</em><em>a</em><em>b</em><em>a</em><em>e</em><em>e</em></span><br /> The string contains the following three repetitions:</p>
+<ul>
+<li><span class="math inline"><em>s</em>[2…5]=<em>a</em><em>b</em><em>a</em><em>b</em></span></li>
+<li><span class="math inline"><em>s</em>[3…6]=<em>b</em><em>a</em><em>b</em><em>a</em></span></li>
+<li><span class="math inline"><em>s</em>[7…7]=<em>e</em><em>e</em></span></li>
+</ul>
+<p>Another example: <br /><span class="math display"><em>a</em><em>b</em><em>a</em><em>a</em><em>b</em><em>a</em></span><br /> Here there are only two repetitions</p>
+<ul>
+<li><span class="math inline"><em>s</em>[0…5]=<em>a</em><em>b</em><em>a</em><em>a</em><em>b</em><em>a</em></span></li>
+<li><span class="math inline"><em>s</em>[2…3]=<em>a</em><em>a</em></span></li>
+</ul>
+<h2 id="number-of-repetitions">Number of repetitions</h2>
+<p>In general there can be up to <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> repetitions in a string of length <span class="math inline"><em>n</em></span>. An obvious example is a string consisting of <span class="math inline"><em>n</em></span> times the same letter, in this case any substring of even length is a repetition. In general any periodic string with a short period will contain a lot of repetitions.</p>
+<p>On the other hand this fact does not prevent computing the number of repetitions in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time, because the algorithm can give the repetitions in compressed form, in groups of several pieces at once.</p>
+<p>There is even the concept, that describes groups of periodic substrings with tuples of size four. It has been proven that we the number of such groups is at most linear with respect to the string length.</p>
+<p>Also, here are some more interesting results related to the number of repetitions:</p>
+<ul>
+<li>The number of primitive repetitions (those whose halves are not repetitions) is at most <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>.</li>
+<li>If we encode repetitions with tuples of numbers (called Crochemore triples) <span class="math inline">(<em>i</em>,  <em>p</em>,  <em>r</em>)</span> (where <span class="math inline"><em>i</em></span> is the position of the beginning, <span class="math inline"><em>p</em></span> the length of the repeating substring, and <span class="math inline"><em>r</em></span> the number of repetitions), then all repetitions can be described with <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> such triples.</li>
+<li>Fibonacci strings, defined as <br /><span class="math display">$$\begin{align}
+  t_0 &amp;= a, \\\\
+  t_1 &amp;= b, \\\\
+  t_i &amp;= t_{i-1} + t_{i-2},
+  \end{align}$$</span><br /> are &quot;strongly&quot; periodic. The number of repetitions in the Fibonacci string <span class="math inline"><em>f</em><sub><em>i</em></sub></span>, even in the compressed with Crochemore triples, is <span class="math inline"><em>O</em>(<em>f</em><sub><em>n</em></sub>log<em>f</em><sub><em>n</em></sub>)</span>. The number of primitive repetitions is also <span class="math inline"><em>O</em>(<em>f</em><sub><em>n</em></sub>log<em>f</em><sub><em>n</em></sub>)</span>.</li>
+</ul>
+<h2 id="main-lorentz-algorithm">Main-Lorentz algorithm</h2>
+<p>The idea behind the Main-Lorentz algorithm is <strong>divide-and-conquer</strong>.</p>
+<p>It splits the initial string into halves, and computes the number of repetitions that lie completely in each halve by two recursive calls. Then comes the difficult part. The algorithm finds all repetitions starting in the first half and ending in the second half (which we will call <strong>crossing repetitions</strong>). This is the essential part of the Main-Lorentz algorithm, and we will discuss it in detail here.</p>
+<p>The complexity of divide-and-conquer algorithms is well researched. The master theorem says, that we will end up with an <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> algorithm, if we can compute the crossing repetitions in <span class="math inline"><em>O</em>(<em>n</em>)</span> time.</p>
+<h3 id="search-for-crossing-repetitions">Search for crossing repetitions</h3>
+<p>So we want to find all such repetitions that start in the first half of the string, lets call it <span class="math inline"><em>u</em></span>, and end in the second half, lets call it <span class="math inline"><em>v</em></span>: <br /><span class="math display"><em>s</em> = <em>u</em> + <em>v</em></span><br /> Their lengths are approximately equal to the length of <span class="math inline"><em>s</em></span> divided by two.</p>
+<p>Consider an arbitrary repetition and look at the middle character (more precisely the first character of the second half of the repetition). I.e. if the repetition is a substring <span class="math inline"><em>s</em>[<em>i</em>…<em>j</em>]</span>, then the middle character is <span class="math inline">(<em>i</em> + <em>j</em> + 1)/2</span>.</p>
+<p>We call a repetition <strong>left</strong> or <strong>right</strong> depending on which string this character is located - in the string <span class="math inline"><em>u</em></span> or in the string <span class="math inline"><em>v</em></span>. In other words a string is called left, if the majority of it lies in <span class="math inline"><em>u</em></span>, otherwise we call it right.</p>
+<p>We will now discuss how to find <strong>all left repetitions</strong>. Finding all right repetitions can be done in the same way.</p>
+<p>Let us denote the length of the left repetition by <span class="math inline">2<em>l</em></span> (i.e. each half of the repetition has length <span class="math inline"><em>l</em></span>). Consider the first character of the repetition falling into the string <span class="math inline"><em>v</em></span> (it is at position <span class="math inline">|<em>u</em>|</span> in the string <span class="math inline"><em>s</em></span>). It coincides with the character <span class="math inline"><em>l</em></span> positions before it, let's denote this position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span>.</p>
+<p>We will fixate this position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span>, and <strong>look for all repetitions at this position</strong> <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span>.</p>
+<p>For example: <br /><span class="math display">$$c ~ \underset{cntr}{a} ~ c ~ | ~ a ~ d ~ a$$</span><br /> The vertical lines divides the two halves. Here we fixated the position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em> = 1</span>, and at this position we find the repetition <span class="math inline"><em>c</em><em>a</em><em>c</em><em>a</em></span>.</p>
+<p>It is clear, that if we fixate the position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span>, we simultaneously fixate the length of the possible repetitions: <span class="math inline"><em>l</em> = |<em>u</em>|−<em>c</em><em>n</em><em>t</em><em>r</em></span>. Once we know how to find these repetitions, we will iterate over all possible values for <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span> from <span class="math inline">0</span> to <span class="math inline">|<em>u</em>|−1</span>, and find all left crossover repetitions of length <span class="math inline"><em>l</em> = |<em>u</em>|, |<em>u</em>|−1,  …,1</span>.</p>
+<h3 id="criterion-for-left-crossing-repetitions">Criterion for left crossing repetitions</h3>
+<p>Now, how can we find all such repetitions for a fixated <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span>? Keep in mind that there still can be multiple such repetitions.</p>
+<p>Let's again look at a visualization, this time for the repetition <span class="math inline"><em>a</em><em>b</em><em>c</em><em>a</em><em>b</em><em>c</em></span>: <br /><span class="math display">$$\overbrace{a}^{l_1} ~ \overbrace{\underset{cntr}{b} ~ c}^{l_2} ~ \overbrace{a}^{l_1} ~ | ~ \overbrace{b ~ c}^{l_2}$$</span><br /> Here we denoted the lengths of the two pieces of the repetition with <span class="math inline"><em>l</em><sub>1</sub></span> and <span class="math inline"><em>l</em><sub>2</sub></span>: <span class="math inline"><em>l</em><sub>1</sub></span> is the length of the repetition up to the position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em> − 1</span>, and <span class="math inline"><em>l</em><sub>2</sub></span> is the length of the repetition from <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span> to the end of the half of the repetition. We have <span class="math inline">2<em>l</em> = <em>l</em><sub>1</sub> + <em>l</em><sub>2</sub> + <em>l</em><sub>1</sub> + <em>l</em><sub>2</sub></span> as the total length of the repetition.</p>
+<p>Let us generate <strong>necessary and sufficient</strong> conditions for such a repetition at position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span> of length <span class="math inline">2<em>l</em> = 2(<em>l</em><sub>1</sub> + <em>l</em><sub>2</sub>)=2(|<em>u</em>|−<em>c</em><em>n</em><em>t</em><em>r</em>)</span>:</p>
+<ul>
+<li>Let <span class="math inline"><em>k</em><sub>1</sub></span> be the largest number such that the first <span class="math inline"><em>k</em><sub>1</sub></span> characters before the position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span> coincide with the last <span class="math inline"><em>k</em><sub>1</sub></span> characters in the string <span class="math inline"><em>u</em></span>: <br /><span class="math display"><em>u</em>[<em>c</em><em>n</em><em>t</em><em>r</em> − <em>k</em><sub>1</sub>…<em>c</em><em>n</em><em>t</em><em>r</em> − 1]=<em>u</em>[|<em>u</em>|−<em>k</em><sub>1</sub>…|<em>u</em>|−1]</span><br /></li>
+<li>Let <span class="math inline"><em>k</em><sub>2</sub></span> be the largest number such that the <span class="math inline"><em>k</em><sub>2</sub></span> characters starting at position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span> coincide with the first <span class="math inline"><em>k</em><sub>2</sub></span> characters in the string <span class="math inline"><em>v</em></span>: <br /><span class="math display"><em>u</em>[<em>c</em><em>n</em><em>t</em><em>r</em>…<em>c</em><em>n</em><em>t</em><em>r</em> + <em>k</em><sub>2</sub> − 1]=<em>v</em>[0…<em>k</em><sub>2</sub> − 1]</span><br /></li>
+<li>Then we have a repetition exactly for any pair <span class="math inline">(<em>l</em><sub>1</sub>,  <em>l</em><sub>2</sub>)</span> with <br /><span class="math display">$$\begin{align}
+  l_1 &amp;\le k_1, \\\\
+  l_2 &amp;\le k_2. \\\\
+  \end{align}$$</span><br /></li>
+</ul>
+<p>To summarize:</p>
+<ul>
+<li>We fixate a specific position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span>.</li>
+<li>All repetition which we will find now have length <span class="math inline">2<em>l</em> = 2(|<em>u</em>|−<em>c</em><em>n</em><em>t</em><em>r</em>)</span>. There might be multiple such repetitions, they depend on the lengths <span class="math inline"><em>l</em><sub>1</sub></span> and <span class="math inline"><em>l</em><sub>2</sub> = <em>l</em> − <em>l</em><sub>1</sub></span>.</li>
+<li>We find <span class="math inline"><em>k</em><sub>1</sub></span> and <span class="math inline"><em>k</em><sub>2</sub></span> as described above.</li>
+<li>Then all suitable repetitions are the ones for which the lengths of the pieces <span class="math inline"><em>l</em><sub>1</sub></span> and <span class="math inline"><em>l</em><sub>2</sub></span> satisfy the conditions: <br /><span class="math display">$$\begin{align}
+  l_1 + l_2 &amp;= l = |u| - cntr \\\\
+  l_1 &amp;\le k_1, \\\\
+  l_2 &amp;\le k_2. \\\\
+  \end{align}$$</span><br /></li>
+</ul>
+<p>Therefore the only remaining part is how we can compute the values <span class="math inline"><em>k</em><sub>1</sub></span> and <span class="math inline"><em>k</em><sub>2</sub></span> quickly for every position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span>. Luckily we can compute them in <span class="math inline"><em>O</em>(1)</span> using the <a href="./string/z-function.html">Z-function</a>:</p>
+<ul>
+<li>To can find the value <span class="math inline"><em>k</em><sub>1</sub></span> for each position by calculating the Z-function for the string <span class="math inline">$\overline{u}$</span> (i.e. the reversed string <span class="math inline"><em>u</em></span>). Then the value <span class="math inline"><em>k</em><sub>1</sub></span> for a particular <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span> will be equal to the corresponding value of the array of the Z-function.</li>
+<li>To precompute all values <span class="math inline"><em>k</em><sub>2</sub></span>, we calculate the Z-function for the string <span class="math inline">$v + \\# + u$</span> (i.e. the string <span class="math inline"><em>u</em></span> concatenated with the separator character <span class="math inline">$\\#$</span> and the string <span class="math inline"><em>v</em></span>). Again we just need to look up the corresponding value in the Z-function to get the <span class="math inline"><em>k</em><sub>2</sub></span> value.</li>
+</ul>
+<p>So this is enough to find all left crossing repetitions.</p>
+<h3 id="right-crossing-repetitions">Right crossing repetitions</h3>
+<p>For computing the right crossing repetitions we act similarly: we define the center <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span> as the character corresponding to the last character in the string <span class="math inline"><em>u</em></span>.</p>
+<p>Then the length <span class="math inline"><em>k</em><sub>1</sub></span> will be defined as the largest number of characters before the position <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span> (inclusive) that coincide with the last characters of the string <span class="math inline"><em>u</em></span>. And the length <span class="math inline"><em>k</em><sub>2</sub></span> will be defined as the largest number of characters starting at <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em> + 1</span> that coincide with the characters of the string <span class="math inline"><em>v</em></span>.</p>
+<p>Thus we can find the values <span class="math inline"><em>k</em><sub>1</sub></span> and <span class="math inline"><em>k</em><sub>2</sub></span> by computing the Z-function for the strings <span class="math inline">$\overline{u} + \\# + \overline{v}$</span> and <span class="math inline"><em>v</em></span>.</p>
+<p>After that we can find the repetitions by looking at all positions <span class="math inline"><em>c</em><em>n</em><em>t</em><em>r</em></span>, and use the same criterion as we had for left crossing repetitions.</p>
+<h3 id="implementation">Implementation</h3>
+<p>The implementation of the Main-Lorentz algorithm finds all repetitions in form of peculiar tuples of size four: <span class="math inline">(<em>c</em><em>n</em><em>t</em><em>r</em>,  <em>l</em>,  <em>k</em><sub>1</sub>,  <em>k</em><sub>2</sub>)</span> in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time. If you only want to find the number of repetitions in a string, or only want to find the longest repetition in a string, this information is enough and the runtime will still be <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>.</p>
+<p>Notice that if you want to expand these tuples to get the starting and end position of each repetition, then the runtime will be the runtime will be <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> (remember that there can be <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> repetitions). In this implementation we will do so, and store all found repetition in a vector of pairs of start and end indices.</p>
+<p>```cpp main_lorentz vector<int> z_function(string const&amp; s) { int n = s.size(); vector<int> z(n); for (int i = 1, l = 0, r = 0; i &lt; n; i++) { if (i &lt;= r) z[i] = min(r-i+1, z[i-l]); while (i + z[i] &lt; n &amp;&amp; s[z[i]] == s[i+z[i]]) z[i]++; if (i + z[i] - 1 &gt; r) { l = i; r = i + z[i] - 1; } } return z; }</p>
+<p>int get_z(vector<int> const&amp; z, int i) { if (0 &lt;= i &amp;&amp; i &lt; (int)z.size()) return z[i]; else return 0; }</p>
+<p>vector<pair<int, int>&gt; repetitions;</p>
+<p>void convert_to_repetitions(int shift, bool left, int cntr, int l, int k1, int k2) { for (int l1 = max(1, l - k2); l1 &lt;= min(l, k1); l1++) { if (left &amp;&amp; l1 == l) break; int l2 = l - l1; int pos = shift + (left ? cntr - l1 : cntr - l - l1 + 1); repetitions.emplace_back(pos, pos + 2*l - 1); } }</p>
+<p>void find_repetitions(string s, int shift = 0) { int n = s.size(); if (n == 1) return;</p>
+<pre><code>int nu = n / 2;
+int nv = n - nu;
+string u = s.substr(0, nu);
+string v = s.substr(nu);
+string ru(u.rbegin(), u.rend());
+string rv(v.rbegin(), v.rend());
+
+find_repetitions(u, shift);
+find_repetitions(v, shift + nu);
+
+vector&lt;int&gt; z1 = z_function(ru);
+vector&lt;int&gt; z2 = z_function(v + &#39;#&#39; + u);
+vector&lt;int&gt; z3 = z_function(ru + &#39;#&#39; + rv);
+vector&lt;int&gt; z4 = z_function(v);
+
+for (int cntr = 0; cntr &lt; n; cntr++) {
+    int l, k1, k2;
+    if (cntr &lt; nu) {
+        l = nu - cntr;
+        k1 = get_z(z1, nu - cntr);
+        k2 = get_z(z2, nv + 1 + cntr);
+    } else {
+        l = cntr - nu + 1;
+        k1 = get_z(z3, nu + 1 + nv - 1 - (cntr - nu));
+        k2 = get_z(z4, (cntr - nu) + 1);
+    }
+    if (k1 + k2 &gt;= l)
+        convert_to_repetitions(shift, cntr &lt; nu, cntr, l, k1, k2);
+}</code></pre>
+<p>} ```</p>
+</body>
+</html>

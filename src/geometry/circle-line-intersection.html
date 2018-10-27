@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Circle-Line Intersection -->
+<h1 id="circle-line-intersection">Circle-Line Intersection</h1>
+<p>Given the coordinates of the center of a circle and it's radius, and the equation of a line, you're required to find the points of intersection.</p>
+<h2 id="solution">Solution</h2>
+<p>Instead of solving the system of two equations, we will approach the problem geometrically. This way we get a more accurate solution from the point of view of numerical stability.</p>
+<p>We assume without loss of generality that the circle is centered at the origin. If it's not, we translate it there and correct the <span class="math inline"><em>C</em></span> constant in the line equation. So we have a circle centered at <span class="math inline">(0, 0)</span> of radius <span class="math inline"><em>r</em></span> and a line with equation <span class="math inline"><em>A</em><em>x</em> + <em>B</em><em>y</em> + <em>C</em> = 0</span>.</p>
+<p>Let's start by find the point on the line which is closest to the origin <span class="math inline">(<em>x</em><sub>0</sub>, <em>y</em><sub>0</sub>)</span>. First, it has to be at a distance</p>
+<p><br /><span class="math display">$$ d_0 = \frac{|C|}{\sqrt{A^2+B^2}} $$</span><br /></p>
+<p>Second, since the vector <span class="math inline">(<em>A</em>, <em>B</em>)</span> is perpendicular to the line, the coordinates of the point must be proportional to the coordinates of this vector. Since we know the distance of the point to the origin, we just need to scale the vector <span class="math inline">(<em>A</em>, <em>B</em>)</span> to this length, and we'll get:</p>
+<p><br /><span class="math display">$$ x_0 = - \frac{AC}{A^2 + B^2} $$</span><br /> <br /><span class="math display">$$ y_0 = - \frac{BC}{A^2 + B^2} $$</span><br /></p>
+<p>The minus signs are not obvious, but they can be easily verified by substituting <span class="math inline"><em>x</em><sub>0</sub></span> and <span class="math inline"><em>y</em><sub>0</sub></span> in the equation of the line.</p>
+<p>At this stage we can determine the number of intersection points, and even find the solution when there is one or zero points. Indeed, if the distance from <span class="math inline">(<em>x</em><sub>0</sub>, <em>y</em><sub>0</sub>)</span> to the origin <span class="math inline"><em>d</em><sub>0</sub></span> is greater than the radius <span class="math inline"><em>r</em></span>, the answer is <strong>zero points</strong>. If <span class="math inline"><em>d</em><sub>0</sub> = <em>r</em></span>, the answer is <strong>one point</strong> <span class="math inline">(<em>x</em><sub>0</sub>, <em>y</em><sub>0</sub>)</span>. If <span class="math inline"><em>d</em><sub>0</sub> &lt; <em>r</em></span>, there are two points of intersection, and now we have to find their coordinates.</p>
+<p>So, we know that the point <span class="math inline">(<em>x</em><sub>0</sub>, <em>y</em><sub>0</sub>)</span> is inside the circle. The two points of intersection, <span class="math inline">(<em>a</em><sub><em>x</em></sub>, <em>a</em><sub><em>y</em></sub>)</span> and <span class="math inline">(<em>b</em><sub><em>x</em></sub>, <em>b</em><sub><em>y</em></sub>)</span>, must belong to the line <span class="math inline"><em>A</em><em>x</em> + <em>B</em><em>y</em> + <em>C</em> = 0</span> and must be at the same distance <span class="math inline"><em>d</em></span> from <span class="math inline">(<em>x</em><sub>0</sub>, <em>y</em><sub>0</sub>)</span>, and this distance is easy to find:</p>
+<p><br /><span class="math display">$$ d = \sqrt{r^2 - \frac{C^2}{A^2 + B^2}} $$</span><br /></p>
+<p>Note that the vector <span class="math inline">( − <em>B</em>, <em>A</em>)</span> is collinear to the line, and thus we can find the points in question by adding and subtracting vector <span class="math inline">( − <em>B</em>, <em>A</em>)</span>, scaled to the length <span class="math inline"><em>d</em></span>, to the point <span class="math inline">(<em>x</em><sub>0</sub>, <em>y</em><sub>0</sub>)</span>.</p>
+<p>Finally, the equations of the two points of intersection are:</p>
+<p><br /><span class="math display">$$ m = \sqrt{\frac{d^2}{A^2 + B^2}} $$</span><br /> <br /><span class="math display"><em>a</em><sub><em>x</em></sub> = <em>x</em><sub>0</sub> + <em>B</em> ⋅ <em>m</em>, <em>a</em><sub><em>y</em></sub> = <em>y</em><sub>0</sub> − <em>A</em> ⋅ <em>m</em></span><br /> <br /><span class="math display"><em>b</em><sub><em>x</em></sub> = <em>x</em><sub>0</sub> − <em>B</em> ⋅ <em>m</em>, <em>b</em><sub><em>y</em></sub> = <em>y</em><sub>0</sub> + <em>A</em> ⋅ <em>m</em></span><br /></p>
+<p>Had we solved the original system of equations using algebraic methods, we would likely get an answer in a different form with a larger error. The geometric method described here is more graphic and more accurate.</p>
+<h2 id="implementation">Implementation</h2>
+<p>As indicated at the outset, we assume that the circle is centered at the origin, and therefore the input to the program is the radius <span class="math inline"><em>r</em></span> of the circle and the parameters <span class="math inline"><em>A</em></span>, <span class="math inline"><em>B</em></span> and <span class="math inline"><em>C</em></span> of the equation of the line.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">double</span> r, a, b, c; <span class="co">// given as input</span>
+<span class="dt">double</span> x0 = -a*c/(a*a+b*b), y0 = -b*c/(a*a+b*b);
+<span class="kw">if</span> (c*c &gt; r*r*(a*a+b*b)+EPS)
+    puts (<span class="st">&quot;no points&quot;</span>);
+<span class="kw">else</span> <span class="kw">if</span> (abs (c*c - r*r*(a*a+b*b)) &lt; EPS) {
+    puts (<span class="st">&quot;1 point&quot;</span>);
+    cout &lt;&lt; x0 &lt;&lt; <span class="st">&#39; &#39;</span> &lt;&lt; y0 &lt;&lt; <span class="st">&#39;</span><span class="ch">\n</span><span class="st">&#39;</span>;
+}
+<span class="kw">else</span> {
+    <span class="dt">double</span> d = r*r - c*c/(a*a+b*b);
+    <span class="dt">double</span> mult = sqrt (d / (a*a+b*b));
+    <span class="dt">double</span> ax, ay, bx, by;
+    ax = x0 + b * mult;
+    bx = x0 - b * mult;
+    ay = y0 - a * mult;
+    by = y0 + a * mult;
+    puts (<span class="st">&quot;2 points&quot;</span>);
+    cout &lt;&lt; ax &lt;&lt; <span class="st">&#39; &#39;</span> &lt;&lt; ay &lt;&lt; <span class="st">&#39;</span><span class="ch">\n</span><span class="st">&#39;</span> &lt;&lt; bx &lt;&lt; <span class="st">&#39; &#39;</span> &lt;&lt; by &lt;&lt; <span class="st">&#39;</span><span class="ch">\n</span><span class="st">&#39;</span>;
+}</code></pre></div>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://www.codechef.com/problems/ANDOOR">CODECHEF: ANDOOR</a></li>
+</ul>
+</body>
+</html>

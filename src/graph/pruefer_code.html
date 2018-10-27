@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Prüfer code -->
+<h1 id="prüfer-code">Prüfer code</h1>
+<p>In this article we will look at the so-called <strong>Prüfer code</strong> (or Prüfer sequence), which is a way of encoding a labeled tree into a sequence of numbers in a unique way.</p>
+<p>With the help of the Prüfer code we will prove <strong>Cayley's formula</strong> (which specified the number of spanning trees in a complete graph). Also we show the solution to the problem of counting the number of ways of adding edges to a graph to make it connected.</p>
+<p><strong>Note</strong>, we will not consider trees consisting of a single vertex - this is a special case in which multiple statements clash.</p>
+<h2 id="prüfer-code-1">Prüfer code</h2>
+<p>The Prüfer code is a way of encoding a labeled tree with <span class="math inline"><em>n</em></span> vertices using a sequence of <span class="math inline"><em>n</em> − 2</span> integers in the interval <span class="math inline">[0; <em>n</em> − 1]</span>. This encoding also acts as a <strong>bijection</strong> between all spanning trees of a complete graph and the numerical sequences.</p>
+<p>Although using the Prüfer code for storing and operating on tree is impractical due the specification of the representation, the Prüfer codes are used frequently: mostly in solving combinatorial problems.</p>
+<p>The inventor - Heinz Prüfer - proposed this code in 1918 as a proof for Cayley's formula.</p>
+<h3 id="building-the-prüfer-code-for-a-given-tree">Building the Prüfer code for a given tree</h3>
+<p>The Prüfer code is constructed as follows. We will repeat the following procedure <span class="math inline"><em>n</em> − 2</span> times: we select the leaf of the tree with the smallest number, remove it from the tree, and write down the number of the vertex that was connected to it. After <span class="math inline"><em>n</em> − 2</span> iterations there will only remain <span class="math inline">2</span> vertices, and the algorithm ends.</p>
+<p>Thus the Prüfer code for a given tree is a sequence of <span class="math inline"><em>n</em> − 2</span> numbers, where each number is the number of the connected vertex, i.e. this number is in the interval <span class="math inline">[0, <em>n</em> − 1]</span>.</p>
+<p>The algorithm for computing the Prüfer code can be implemented easily with <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time complexity, simply by using a data structure to extract the minimum (for instance <code>set</code> or <code>priority_queue</code> in C++), which contains a list of all the current leafs.</p>
+<p>```cpp pruefer_code_slow vector<vector<int>&gt; adj;</p>
+<p>vector<int> pruefer_code() { int n = adj.size(); set<int> leafs; vector<int> degree(n); vector<bool> killed(n, false); for (int i = 0; i &lt; n; i++) { degree[i] = adj[i].size(); if (degree[i] == 1) leafs.insert(i); }</p>
+<pre><code>vector&lt;int&gt; code(n - 2);
+for (int i = 0; i &lt; n - 2; i++) {
+    int leaf = *leafs.begin();
+    leafs.erase(leafs.begin());
+    killed[leaf] = true;
+
+    int v;
+    for (int u : adj[leaf]) {
+        if (!killed[u])
+            v = u;
+    }
+
+    code[i] = v;
+    if (--degree[v] == 1)
+        leafs.insert(v);
+}
+
+return code;</code></pre>
+<p>} ```</p>
+<p>However the construction can also be implemented in linear time. Such an approach is described in the next section.</p>
+<h3 id="building-the-prüfer-code-for-a-given-tree-in-linear-time">Building the Prüfer code for a given tree in linear time</h3>
+<p>The essence of the algorithm is to use a <strong>moving pointer</strong>, which will always point to the current leaf vertex that we want to remove.</p>
+<p>At first glance this seems impossible, because during the process of constructing the Prüfer code the leaf number can increase and decrease. However after a closer look, this is actually not true. The number of leafs will not increase. Either the number decreases by one (we remove one leaf vertex and don't gain a new one), or it stay the same (we remove one leaf vertex and gain another one). In the first case there is no other way than searching for the next smallest leaf vertex. In the second case, however, we can decide in <span class="math inline"><em>O</em>(1)</span> time, if we can continue using the vertex that became a new leaf vertex, or if we have to search for the next smallest leaf vertex. And in quite a lot of times we can continue with the new leaf vertex.</p>
+<p>To do this we will use a variable <span class="math inline">ptr</span>, which will indicate that in the set of vertices between <span class="math inline">0</span> and <span class="math inline">ptr</span> is at most one leaf vertex, namely the current one. All other vertices in that range are either already removed from the tree, or have still more than one adjacent vertices. At the same time we say, that we haven't removed any leaf vertices bigger than <span class="math inline">ptr</span> yet.</p>
+<p>This variable is already very helpful in the first case. After removing the current leaf node, we know that there cannot be a leaf node between <span class="math inline">0</span> and <span class="math inline">ptr</span>, therefore we can start the search for the next one directly at <span class="math inline">ptr + 1</span>, and we don't have to start the search back at vertex <span class="math inline">0</span>. And in the second case, we can further distinguish two cases: Either the newly gained leaf vertex is smaller than <span class="math inline">ptr</span>, then this must be the next leaf vertex, since we know that there are no other vertices smaller than <span class="math inline">ptr</span>. Or the newly gained leaf vertex is bigger. But then we also know that it has to be bigger than <span class="math inline">ptr</span>, and can start the search again at <span class="math inline">ptr + 1</span>.</p>
+<p>Even though we might have to perform multiple linear searches for the next leaf vertex, the pointer <span class="math inline">ptr</span> only increases and therefore the time complexity in total is <span class="math inline"><em>O</em>(<em>n</em>)</span>.</p>
+<p>```cpp pruefer_code_fast vector<vector<int>&gt; adj; vector<int> parent;</p>
+<p>void dfs(int v) { for (int u : adj[v]) { if (u != parent[v]) { parent[u] = v; dfs(u); } } }</p>
+<p>vector<int> pruefer_code() { int n = adj.size(); parent.resize(n); parent[n-1] = -1; dfs(n-1);</p>
+<pre><code>int ptr = -1;
+vector&lt;int&gt; degree(n);
+for (int i = 0; i &lt; n; i++) {
+    degree[i] = adj[i].size();
+    if (degree[i] == 1 &amp;&amp; ptr == -1)
+        ptr = i;
+}
+
+vector&lt;int&gt; code(n - 2);
+int leaf = ptr;
+for (int i = 0; i &lt; n - 2; i++) {
+    int next = parent[leaf];
+    code[i] = next;
+    if (--degree[next] == 1 &amp;&amp; next &lt; ptr) {
+        leaf = next;
+    } else {
+        ptr++;
+        while (degree[ptr] != 1)
+            ptr++;
+        leaf = ptr;
+    }
+}
+
+return code;</code></pre>
+<p>} ```</p>
+<p>In the code we first find for each its ancestor <code>parent[i]</code>, i.e. the ancestor that this vertex will have once we remove it from the tree. We can find this ancestor by rooting the tree at the vertex <span class="math inline"><em>n</em> − 1</span>. This is possible because the vertex <span class="math inline"><em>n</em> − 1</span> will never be removed from the tree. We also compute the degree for each vertex. <code>ptr</code> is the pointer that indicates the minimum size of the remaining leaf vertices (except the current one <code>leaf</code>). We will either assign the current leaf vertex with <code>next</code>, if this one is also a leaf vertex and it is smaller than <code>ptr</code>, or we start a linear search for the smallest leaf vertex by increasing the pointer.</p>
+<p>It can be easily seen, that this code has the complexity <span class="math inline"><em>O</em>(<em>n</em>)</span>.</p>
+<h3 id="some-properties-of-the-prüfer-code">Some properties of the Prüfer code</h3>
+<ul>
+<li>After constructing the Prüfer code two vertices will remain. One of them is the highest vertex <span class="math inline"><em>n</em> − 1</span>, but nothing else can be said about the other one.</li>
+<li>Each vertex appears in the Prüfer code exactly a fixed number of times - its degree minus one. This can be easily checked, since the degree will get smaller every time we record its label in the code, and we remove it once the degree is <span class="math inline">1</span>. For the two remaining vertices this fact is also true.</li>
+</ul>
+<h3 id="restoring-the-tree-using-the-prüfer-code">Restoring the tree using the Prüfer code</h3>
+<p>To restore the tree it suffice to only focus on the property discussed in the last section. We already know the degree of all the vertices in the desired tree. Therefore we can find all leaf vertices, and also the first leaf that was removed in the first step (it has to be the smallest leaf). This leaf vertex was connected to the vertex corresponding to the number in the first cell of the Prüfer code.</p>
+<p>Thus we found the first edge removed by when then the Prüfer code was generated. We can add this edge to the answer and reduce the degrees at both ends of the edge.</p>
+<p>We will repeat this operation until we have used all numbers of the Prüfer code: we look for the minimum vertex with degree equal to <span class="math inline">1</span>, connect it with the next vertex from the Prüfer code, and reduce the degree.</p>
+<p>In the end we only have two vertices left with degree equal to <span class="math inline">1</span>. These are the vertices that didn't got removed by the Prüfer code process. We connect them to get the last edge of the tree. One of them will always be the vertex <span class="math inline"><em>n</em> − 1</span>.</p>
+<p>This algorithm can be <strong>implemented</strong> easily in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>: we use a data structure that supports extracting the minimum (for example <code>set&lt;&gt;</code> or <code>priority_queue&lt;&gt;</code> in C++) to store all the leaf vertices.</p>
+<p>The following implementation returns the list of edges corresponding to the tree.</p>
+<p>```cpp pruefer_decode_slow vector<pair<int, int>&gt; pruefer_decode(vector<int> const&amp; code) { int n = code.size() + 2; vector<int> degree(n, 1); for (int i : code) degree[i]++;</p>
+<pre><code>set&lt;int&gt; leaves;
+for (int i = 0; i &lt; n; i++) {
+    if (degree[i] == 1)
+        leaves.insert(i);
+}
+
+vector&lt;pair&lt;int, int&gt;&gt; edges;
+for (int v : code) {
+    int leaf = *leaves.begin();
+    leaves.erase(leaves.begin());
+
+    edges.emplace_back(leaf, v);
+    if (--degree[v] == 1)
+        leaves.insert(v);
+}
+edges.emplace_back(*leaves.begin(), n-1);
+return edges;</code></pre>
+<p>} ```</p>
+<h3 id="restoring-the-tree-using-the-prüfer-code-in-linear-time">Restoring the tree using the Prüfer code in linear time</h3>
+<p>To obtain the tree in linear time we can apply the same technique used to obtain the Prüfer code in linear time.</p>
+<p>We don't need a data structure to extract the minimum. Instead we can notice that, after processing the current edge, only one vertex becomes a leaf. Therefore we can either continue with this vertex, or we find a smaller one with a linear search by moving a pointer.</p>
+<p>```cpp pruefer_decode_fast vector<pair<int, int>&gt; pruefer_decode(vector<int> const&amp; code) { int n = code.size() + 2; vector<int> degree(n, 1); for (int i : code) degree[i]++;</p>
+<pre><code>int ptr = 0;
+while (degree[ptr] != 1)
+    ptr++;
+int leaf = ptr;
+
+vector&lt;pair&lt;int, int&gt;&gt; edges;
+for (int v : code) {
+    edges.emplace_back(leaf, v);
+    if (--degree[v] == 1 &amp;&amp; v &lt; ptr) {
+        leaf = v;
+    } else {
+        ptr++;
+        while (degree[ptr] != 1)
+            ptr++;
+        leaf = ptr;
+    }
+}
+edges.emplace_back(leaf, n-1);
+return edges;</code></pre>
+<p>} ```</p>
+<h3 id="bijection-between-trees-and-prüfer-codes">Bijection between trees and Prüfer codes</h3>
+<p>For each tree there exists a Prüfer code corresponding to it. And for each Prüfer code we can restore the original tree.</p>
+<p>It follows that also every Prüfer code (i.e. a sequence of <span class="math inline"><em>n</em> − 2</span> numbers in the range <span class="math inline">[0; <em>n</em> − 1]</span>) corresponds to a tree.</p>
+<p>Therefore all trees and all Prüfer codes form a bijection (a <strong>one-to-one correspondence</strong>).</p>
+<h2 id="cayleys-formula">Cayley's formula</h2>
+<p>Cayley's formula states that the <strong>number of spanning trees in a complete labeled graph</strong> with <span class="math inline"><em>n</em></span> vertices is equal to: <br /><span class="math display"><em>n</em><sup><em>n</em> − 2</sup></span><br /> There are multiple proofs for this formula. Using the Prüfer code concept this statement comes without any surprise.</p>
+<p>In fact any Prüfer code with <span class="math inline"><em>n</em> − 2</span> numbers from the interval <span class="math inline">[0; <em>n</em> − 1]</span> corresponds to some tree with <span class="math inline"><em>n</em></span> vertices. So we have <span class="math inline"><em>n</em><sup><em>n</em> − 2</sup></span> different such Prüfer codes. Since each such tree is a spanning tree of a complete graph with <span class="math inline"><em>n</em></span> vertices, the number of such spanning trees is also <span class="math inline"><em>n</em><sup><em>n</em> − 2</sup></span>.</p>
+<h2 id="number-of-ways-to-make-a-graph-connected">Number of ways to make a graph connected</h2>
+<p>The concept of Prüfer codes are even more powerful. It allows to create a lot more general formulas than Cayley's formula.</p>
+<p>In this problem we are given a graph with <span class="math inline"><em>n</em></span> vertices and <span class="math inline"><em>m</em></span> edges. The graph currently has <span class="math inline"><em>k</em></span> components. We want to compute the number of ways of adding <span class="math inline"><em>k</em> − 1</span> edges so that the graph becomes connected (obviously <span class="math inline"><em>k</em> − 1</span> is the minimum number necessary to make the graph connected).</p>
+<p>Let us derive a formula for solving this problem.</p>
+<p>We use <span class="math inline"><em>s</em><sub>1</sub>, …, <em>s</em><sub><em>k</em></sub></span> for the sizes of the connected components in the graph. We cannot add edges within a connected component. Therefore it turns out that this problem is very similar to the search for the number of spanning trees of a complete graph with <span class="math inline"><em>k</em></span> vertices. The only difference is that each vertex has actually the size <span class="math inline"><em>s</em><sub><em>i</em></sub></span>: each edge connecting the vertex <span class="math inline"><em>i</em></span>, actually multiplies the answer by <span class="math inline"><em>s</em><sub><em>i</em></sub></span>.</p>
+<p>Thus in order to calculate the number of possible ways it is important to count how often each of the <span class="math inline"><em>k</em></span> vertices is used in the connecting tree. To obtain a formula for the problem it is necessary to sum the answer over all possible degrees.</p>
+<p>Let <span class="math inline"><em>d</em><sub>1</sub>, …, <em>d</em><sub><em>k</em></sub></span> be the degrees of the vertices in the tree after connecting the vertices. The sum of the degrees is twice the number of edges: <br /><span class="math display">$$\sum_{i=1}^k d_i = 2k - 2$$</span><br /> If the vertex <span class="math inline"><em>i</em></span> has degree <span class="math inline"><em>d</em><sub><em>i</em></sub></span>, then it appears <span class="math inline"><em>d</em><sub><em>i</em></sub> − 1</span> times in the Prüfer code. The Prüfer code for a tree with <span class="math inline"><em>k</em></span> vertices has length <span class="math inline"><em>k</em> − 2</span>. So the number of ways to choose a code with <span class="math inline"><em>k</em> − 2</span> numbers where the number <span class="math inline"><em>i</em></span> appears exactly <span class="math inline"><em>d</em><sub><em>i</em></sub> − 1</span> times is equal to the <strong>multinomial coefficient</strong> <br /><span class="math display">$$\binom{k-2}{d_1-1, d_2-1, \dots, d_k-1} = \frac{(k-2)!}{(d_1-1)! (d_2-1)! \cdots (d_k-1)!}.$$</span><br /> The fact that each edge adjacent to the vertex <span class="math inline"><em>i</em></span> multiplies the answer by <span class="math inline"><em>s</em><sub><em>i</em></sub></span> we receive the answer, assuming that the degrees of the vertices are <span class="math inline"><em>d</em><sub>1</sub>, …, <em>d</em><sub><em>k</em></sub></span>: <br /><span class="math display">$$s_1^{d_1} \cdot s_2^{d_2} \cdots s_k^{d_k} \cdot \binom{k-2}{d_1-1, d_2-1, \dots, d_k-1}$$</span><br /> To get the final answer we need to sum this for all possible ways to choose the degrees: <br /><span class="math display">$$\sum_{\substack{d_i \ge 1 \\\\ \sum_{i=1}^k d_i = 2k -2}} s_1^{d_1} \cdot s_2^{d_2} \cdots s_k^{d_k} \cdot \binom{k-2}{d_1-1, d_2-1, \dots, d_k-1}$$</span><br /></p>
+<p>Currently this looks like a really horrible answer, however we can use the <strong>multinomial theorem</strong>, which says: <br /><span class="math display">$$(x_1 + \dots + x_m)^p = \sum_{\substack{c_i \ge 0 \\\\ \sum_{i=1}^m c_i = p}} x_1^{c_1} \cdot x_2^{c_2} \cdots x_m^{c_m} \cdot \binom{p}{c_1, c_2, \dots c_m}$$</span><br /> This look already pretty similar. To use it we only need to substitute with <span class="math inline"><em>e</em><sub><em>i</em></sub> = <em>d</em><sub><em>i</em></sub> − 1</span>: <br /><span class="math display">$$\sum_{\substack{e_i \ge 0 \\\\ \sum_{i=1}^k e_i = k - 2}} s_1^{e_1+1} \cdot s_2^{e_2+1} \cdots s_k^{e_k+1} \cdot \binom{k-2}{e_1, e_2, \dots, e_k}$$</span><br /> After applying the multinomial theorem we get the <strong>answer to the problem</strong>: <br /><span class="math display"><em>s</em><sub>1</sub> ⋅ <em>s</em><sub>2</sub>⋯<em>s</em><sub><em>k</em></sub> ⋅ (<em>s</em><sub>1</sub> + <em>s</em><sub>2</sub> + … + <em>s</em><sub><em>k</em></sub>)<sup><em>k</em> − 2</sup> = <em>s</em><sub>1</sub> ⋅ <em>s</em><sub>2</sub>⋯<em>s</em><sub><em>k</em></sub> ⋅ <em>n</em><sup><em>k</em> − 2</sup></span><br /> By accident this formula also holds for <span class="math inline"><em>k</em> = 1</span>.</p>
+<h2 id="practice-problems">Practice problems</h2>
+<ul>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=20&amp;page=show_problem&amp;problem=1784">UVA #10843 - Anne's game</a></li>
+<li><a href="http://acm.timus.ru/problem.aspx?space=1&amp;num=1069">Timus #1069 - Prufer Code</a></li>
+<li><a href="http://codeforces.com/contest/156/problem/D">Codeforces - Clues</a></li>
+<li><a href="https://community.topcoder.com/stat?c=problem_statement&amp;pm=10774&amp;rd=14146">Topcoder - TheCitiesAndRoadsDivTwo</a></li>
+</ul>
+</body>
+</html>

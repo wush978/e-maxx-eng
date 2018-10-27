@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Sqrt Decomposition -->
+<h1 id="sqrt-decomposition">Sqrt Decomposition</h1>
+<p>Sqrt Decomposition is a method (or a data structure) that allows you to perform some common operations (finding sum of the elements of the sub-array, finding the minimal/maximal element, etc.) in <span class="math inline">$O(\sqrt n)$</span> operations, which is much faster than <span class="math inline"><em>O</em>(<em>n</em>)</span> for the trivial algorithm.</p>
+<p>First we describe the data structure for one of the simplest applications of this idea, then show how to generalize it to solve some other problems, and finally look at a slightly different use of this idea: splitting the input requests into sqrt blocks.</p>
+<h2 id="sqrt-decomposition-based-data-structure">Sqrt-decomposition based data structure</h2>
+<p>Given an array <span class="math inline"><em>a</em>[0…<em>n</em> − 1]</span>, implement a data structure that allows to find the sum of the elements <span class="math inline"><em>a</em>[<em>l</em>…<em>r</em>]</span> for arbitrary <span class="math inline"><em>l</em></span> and <span class="math inline"><em>r</em></span> in <span class="math inline">$O(\sqrt n)$</span> operations.</p>
+<h3 id="description">Description</h3>
+<p>The basic idea of sqrt decomposition is preprocessing. We'll divide the array <span class="math inline"><em>a</em></span> into blocks of length approximately <span class="math inline">$\sqrt n$</span>, and for each block <span class="math inline"><em>i</em></span> we'll precalculate the sum of elements in it <span class="math inline"><em>b</em>[<em>i</em>]</span>.</p>
+<p>We can assume that both the size of the block and the number of blocks are equal to <span class="math inline">$\sqrt n$</span> rounded up:</p>
+<p><br /><span class="math display">$$ s = \lceil \sqrt n \rceil $$</span><br /></p>
+<p>Then the array <span class="math inline"><em>a</em></span> is divided into blocks in the following way:</p>
+<p><br /><span class="math display">$$ \underbrace{a[0], a[1], \dots, a[s-1]}\_{\text{b[0]}}, \underbrace{a[s], \dots, a[2s-1]}\_{\text{b[1]}}, \dots, \underbrace{a[(s-1) \cdot s], \dots, a[n]}\_{\text{b[s-1]}} $$</span><br /></p>
+<p>The last block may have fewer elements than the others (if <span class="math inline"><em>n</em></span> not a multiple of <span class="math inline"><em>s</em></span>), it is not important to the discussion (as it can be handled easily). Thus, for each block <span class="math inline"><em>k</em></span>, we know the sum of elements on it <span class="math inline"><em>b</em>[<em>k</em>]</span>:</p>
+<p><br /><span class="math display">$$ b[k] = \sum\limits_{i=k\cdot s}^{\min {(n-1,(k+1)\cdot s - 1})} a[i] $$</span><br /></p>
+<p>So, we have calculated the values of <span class="math inline"><em>b</em>[<em>k</em>]</span> (this required <span class="math inline"><em>O</em>(<em>n</em>)</span> operations). How can they help us to answer each query <span class="math inline">[<em>l</em>; <em>r</em>]</span> ? Notice that if the interval <span class="math inline">[<em>l</em>; <em>r</em>]</span> is long enough, it will contain several whole blocks, and for those blocks we can find the sum of elements in them in a single operation. As a result, the interval <span class="math inline">[<em>l</em>; <em>r</em>]</span> will contain parts of only two blocks, and we'll have to calculate the sum of elements in these parts trivially.</p>
+<p>Thus, in order to calculate the sum of elements on the interval <span class="math inline">[<em>l</em>; <em>r</em>]</span> we only need to sum the elements of the two &quot;tails&quot;: <span class="math inline">[<em>l</em>…(<em>k</em> + 1)⋅<em>s</em> − 1]</span> and <span class="math inline">[<em>p</em> ⋅ <em>s</em>…<em>r</em>]</span> , and sum the values <span class="math inline"><em>b</em>[<em>i</em>]</span> in all the blocks from <span class="math inline"><em>k</em> + 1</span> to <span class="math inline"><em>p</em> − 1</span>:</p>
+<p><br /><span class="math display">∑_<em>i</em> = <em>l</em><sup><em>r</em></sup><em>a</em>[<em>i</em>]=∑_<em>i</em> = <em>l</em><sup>(<em>k</em> + 1)⋅<em>s</em> − 1</sup><em>a</em>[<em>i</em>]+∑_<em>i</em> = <em>k</em> + 1<sup><em>p</em> − 1</sup><em>b</em>[<em>i</em>]+∑_<em>i</em> = <em>p</em> ⋅ <em>s</em><sup><em>r</em></sup><em>a</em>[<em>i</em>]</span><br /></p>
+<p><em>Note: When <span class="math inline"><em>k</em> = <em>p</em></span>, i.e. <span class="math inline"><em>l</em></span> and <span class="math inline"><em>r</em></span> belong to the same block, the formula can't be applied, and the sum should be calculated trivially.</em></p>
+<p>This approach allows us to significantly reduce the number of operations. Indeed, the size of each &quot;tail&quot; does not exceed the block length <span class="math inline"><em>s</em></span>, and the number of blocks in the sum does not exceed <span class="math inline"><em>s</em></span>. Since we have chosen <span class="math inline">$s \approx \sqrt n$</span>, the total number of operations required to find the sum of elements on the interval <span class="math inline">[<em>l</em>; <em>r</em>]</span> is <span class="math inline">$O(\sqrt n)$</span>.</p>
+<h3 id="implementation">Implementation</h3>
+<p>Let's start with the simplest implementation:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="co">// input data</span>
+<span class="dt">int</span> n;
+vector&lt;<span class="dt">int</span>&gt; a (n);
+
+<span class="co">// preprocessing</span>
+<span class="dt">int</span> len = (<span class="dt">int</span>) sqrt (n + <span class="fl">.0</span>) + <span class="dv">1</span>; <span class="co">// size of the block and the number of blocks</span>
+vector&lt;<span class="dt">int</span>&gt; b (len);
+<span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;n; ++i)
+    b[i / len] += a[i];
+
+<span class="co">// answering the queries</span>
+<span class="kw">for</span> (;;) {
+    <span class="dt">int</span> l, r;
+  <span class="co">// read input data for the next query</span>
+    <span class="dt">int</span> sum = <span class="dv">0</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> i=l; i&lt;=r; )
+        <span class="kw">if</span> (i % len == <span class="dv">0</span> &amp;&amp; i + len - <span class="dv">1</span> &lt;= r) {
+            <span class="co">// if the whole block starting at i belongs to [l; r]</span>
+            sum += b[i / len];
+            i += len;
+        }
+        <span class="kw">else</span> {
+            sum += a[i];
+            ++i;
+        }
+}</code></pre></div>
+<p>This implementation has unreasonably many division operations (which are much slower than other arithmetical operations). Instead, we can calculate the indices of the blocks <span class="math inline"><em>c</em><sub><em>l</em></sub></span> and <span class="math inline"><em>c</em><sub><em>r</em></sub></span> which contain indices <span class="math inline"><em>l</em></span> and <span class="math inline"><em>r</em></span>, and loop through blocks <span class="math inline"><em>c</em><sub><em>l</em></sub> + 1…<em>c</em><sub><em>r</em></sub> − 1</span> with separate processing of the &quot;tails&quot; in blocks <span class="math inline"><em>c</em><sub><em>l</em></sub></span> and <span class="math inline"><em>c</em><sub><em>r</em></sub></span>. This approach corresponds to the last formula in the description, and makes the case <span class="math inline"><em>c</em><sub><em>l</em></sub> = <em>c</em><sub><em>r</em></sub></span> a special case.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> sum = <span class="dv">0</span>;
+<span class="dt">int</span> c_l = l / len,   c_r = r / len;
+<span class="kw">if</span> (c_l == c_r)
+    <span class="kw">for</span> (<span class="dt">int</span> i=l; i&lt;=r; ++i)
+        sum += a[i];
+<span class="kw">else</span> {
+    <span class="kw">for</span> (<span class="dt">int</span> i=l, end=(c_l<span class="dv">+1</span>)*len<span class="dv">-1</span>; i&lt;=end; ++i)
+        sum += a[i];
+    <span class="kw">for</span> (<span class="dt">int</span> i=c_l<span class="dv">+1</span>; i&lt;=c_r<span class="dv">-1</span>; ++i)
+        sum += b[i];
+    <span class="kw">for</span> (<span class="dt">int</span> i=c_r*len; i&lt;=r; ++i)
+        sum += a[i];
+}</code></pre></div>
+<h2 id="other-problems">Other problems</h2>
+<p>So far we were discussing the problem of finding the sum of elements of a continuous subarray. This problem can be extended to allow to <strong>update individual array elements</strong>. If an element <span class="math inline"><em>a</em>[<em>i</em>]</span> changes, it's sufficient to update the value of <span class="math inline"><em>b</em>[<em>k</em>]</span> for the block to which this element belongs (<span class="math inline"><em>k</em> = <em>i</em>/<em>s</em></span>) in one operation:</p>
+<p><br /><span class="math display"><em>b</em>[<em>k</em>]+ = <em>a</em><sub><em>n</em><em>e</em><em>w</em></sub>[<em>i</em>]−<em>a</em><sub><em>o</em><em>l</em><em>d</em></sub>[<em>i</em>]</span><br /></p>
+<p>On the other hand, the task of finding the sum of elements can be replaced with the task of finding minimal/maximal element of a subarray. If this problem has to address individual elements' updates as well, updating the value of <span class="math inline"><em>b</em>[<em>k</em>]</span> is also possible, but it will require iterating through all values of block <span class="math inline"><em>k</em></span> in <span class="math inline">$O(s) = O(\sqrt{n})$</span> operations.</p>
+<p>Sqrt decomposition can be applied in a similar way to a whole class of other problems: finding the number of zero elements, finding the first non-zero element, counting elements which satisfy a certain property etc.</p>
+<p>Another class of problems appears when we need to <strong>update array elements on intervals</strong>: increment existing elements or replace them with a given value.</p>
+<p>For example, let's say we can do two types of operations on an array: add a given value <span class="math inline"><em>δ</em></span> to all array elements on interval <span class="math inline">[<em>l</em>; <em>r</em>]</span> or query the value of element <span class="math inline"><em>a</em>[<em>i</em>]</span>. Let's store the value which has to be added to all elements of block <span class="math inline"><em>k</em></span> in <span class="math inline"><em>b</em>[<em>k</em>]</span> (initially all <span class="math inline"><em>b</em>[<em>k</em>]=0</span>). During each &quot;add&quot; operation we need to add <span class="math inline"><em>δ</em></span> to <span class="math inline"><em>b</em>[<em>k</em>]</span> for all blocks which belong to interval <span class="math inline">[<em>l</em>; <em>r</em>]</span> and to add <span class="math inline"><em>δ</em></span> to <span class="math inline"><em>a</em>[<em>i</em>]</span> for all elements which belong to the &quot;tails&quot; of the interval. The answer a query <span class="math inline"><em>i</em></span> is simply <span class="math inline"><em>a</em>[<em>i</em>]+<em>b</em>[<em>i</em>/<em>s</em>]</span>. This way &quot;add&quot; operation has <span class="math inline">$O(\sqrt{n})$</span> complexity, and answering a query has <span class="math inline"><em>O</em>(1)</span> complexity.</p>
+<p>Finally, those two classes of problems can be combined if the task requires doing <strong>both</strong> element updates on an interval and queries on an interval. Both operations can be done with <span class="math inline">$O(\sqrt{n})$</span> complexity. This will require two block arrays <span class="math inline"><em>b</em></span> and <span class="math inline"><em>c</em></span>: one to keep track of element updates and another to keep track of answers to the query.</p>
+<p>There exist other problems which can be solved using sqrt decomposition, for example, a problem about maintaining a set of numbers which would allow adding/deleting numbers, checking whether a number belongs to the set and finding <span class="math inline"><em>k</em></span>-th largest number. To solve it one has to store numbers in increasing order, split into several blocks with <span class="math inline">$\sqrt{n}$</span> numbers in each. Every time a number is added/deleted, the blocks have to be rebalanced by moving numbers between beginnings and ends of adjacent blocks.</p>
+<h2 id="mos-algorithm">Mo's algorithm</h2>
+<p>A similar idea, based on sqrt decomposition, can be used to answer range queries (<span class="math inline"><em>Q</em></span>) offline in <span class="math inline">$O((N+Q)\sqrt{N})$</span>. This might sound like a lot worse than the methods in the previous section, since this is a slightly worse complexity than we had earlier and cannot update values between two queries. But in a lot of situations this method has advantages. During a normal sqrt decomposition, we have to precompute the answers for each block, and merge them during answering queries. In some problems this merging step can be quite problematic. E.g. when each queries asks to find the <strong>mode</strong> of its range (the number that appears the most often). For this each block would have to store the count of each number in it in some sort of data structure, and we cannot longer perform the merge step fast enough any more. <strong>Mo's algorithm</strong> uses a completely different approach, that can answer these kind of queries fast, because it only keeps track of one data structure, and the only operations with it are easy and fast.</p>
+<p>The idea is to answer the queries in a special order based on the indices. We will first answer all queries which have the left index in block 0, then answer all queries which have left index in block 1 and so on. And also we will have to answer the queries of a block is a special order, namely sorted by the right index of the queries.</p>
+<p>As already said we will use a single data structure. This data structure will store information about the range. At the beginning this range will be empty. When we want to answer the next query (in the special order), we simply extend or reduce the range, by adding/removing elements on both sides of the current range, until we transformed it into the query range. This way, we only need to add or remove a single element once at a time, which should be pretty easy operations in out data structure.</p>
+<p>Since we change the order of answering the queries, this is only possible when we are allowed to answer the queries in offline mode.</p>
+<h3 id="implementation-1">Implementation</h3>
+<p>In Mo's algorithm we use two functions for adding an index and for removing an index from the range which we are currently maintaining.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">void</span> remove(idx);  <span class="co">// TODO: remove value at idx from data structure</span>
+<span class="dt">void</span> add(idx);     <span class="co">// TODO: add value at idx from data structure</span>
+<span class="dt">int</span> get_answer();  <span class="co">// TODO: extract the current answer of the data structure</span>
+
+<span class="dt">int</span> block_size;
+
+<span class="kw">struct</span> Query {
+    <span class="dt">int</span> l, r, idx;
+    <span class="dt">bool</span> <span class="kw">operator</span>&lt;(Query other) <span class="dt">const</span>
+    {
+        <span class="kw">return</span> make_pair(l / block_size, r) &lt;
+               make_pair(other.l / block_size, other.r);
+    }
+};
+
+vector&lt;<span class="dt">int</span>&gt; mo_s_algorithm(vector&lt;Query&gt; queries) {
+    vector&lt;<span class="dt">int</span>&gt; answers(queries.size());
+    sort(queries.begin(), queries.end());
+
+    <span class="co">// TODO: initialize data structure</span>
+
+    <span class="dt">int</span> cur_l = <span class="dv">0</span>;
+    <span class="dt">int</span> cur_r = <span class="dv">-1</span>;
+    <span class="co">// invariant: data structure will always reflect the range [cur_l, cur_r]</span>
+    <span class="kw">for</span> (Query q : queries) {
+        <span class="kw">while</span> (cur_l &gt; q.l) {
+            cur_l--;
+            add(cur_l);
+        }
+        <span class="kw">while</span> (cur_r &lt; q.r) {
+            cur_r++;
+            add(cur_r);
+        }
+        <span class="kw">while</span> (cur_l &lt; q.l) {
+            remove(cur_l);
+            cur_l++;
+        }
+        <span class="kw">while</span> (cur_r &gt; q.r) {
+            remove(cur_r);
+            cur_r--;
+        }
+        answers[q.idx] = get_answer();
+    }
+    <span class="kw">return</span> answers;
+}</code></pre></div>
+<p>Based on the problem we can can use a different data structure and modify the <code>add</code>/<code>remove</code>/<code>get_answer</code> functions accordingly. For example if we are asked to find range sum queries then we use a simple integer as data structure, which is <span class="math inline">0</span> at the beginning. The <code>add</code> function will simply add the value of the position and subsequently update the answer variable. On the other hand <code>remove</code> function will subtract the value at position and subsequently update the answer variable. And <code>get_answer</code> just returns the integer.</p>
+<p>For answering mode-queries, we can use a binary search tree (e.g. <code>map&lt;int, int&gt;</code>) for storing how often each number appears in the current range, and a second binary search tree (e.g. <code>set&lt;pair&lt;int, int&gt;&gt;</code>) for keeping counts of the numbers (e.g. as count-number pairs) in order. The <code>add</code> method removes the current number from the second BST, increases the count in the first one, and inserts the number back into the second one. <code>remove</code> does the same thing, it only decreases the count. And <code>get_answer</code> just looks at second tree and returns the best value in <span class="math inline"><em>O</em>(1)</span>.</p>
+<h3 id="complexity">Complexity</h3>
+<p>Sorting all queries will take <span class="math inline"><em>O</em>(<em>Q</em>log<em>Q</em>)</span>.</p>
+<p>How about the other operations? How many times will the <code>add</code> and <code>remove</code> be called?</p>
+<p>Let's say the block size is <span class="math inline"><em>S</em></span>.</p>
+<p>If we look only look at all queries that with the left index in the same block. The queries are sorted by the right index. Therefore we will call <code>add(cur_r)</code> and <code>remove(cur_r)</code> only <span class="math inline"><em>O</em>(<em>N</em>)</span> times for all these queries combined. This gives <span class="math inline">$O(\frac{N}{S} N)$</span> calls for all blocks.</p>
+<p>The value of <code>cur_l</code> can change by at most <span class="math inline"><em>O</em>(<em>S</em>)</span> during between two queries. Therefore we have an additional <span class="math inline"><em>O</em>(<em>S</em><em>Q</em>)</span> calls of <code>add(cur_l)</code> and <code>remove(cur_l)</code>.</p>
+<p>For <span class="math inline">$S \approx \sqrt{N}$</span> this gives <span class="math inline">$O((N + Q) \sqrt{N})$</span> operations in total. Thus the complexity is <span class="math inline">$O((N+Q)F\sqrt{N})$</span> where <span class="math inline"><em>O</em>(<em>F</em>)</span> is the complexity of <code>add</code> and <code>remove</code> function.</p>
+<h3 id="tips-for-improving-runtime">Tips for improving runtime</h3>
+<ul>
+<li>Block size of precisely <span class="math inline">$\sqrt{N}$</span> doesn't always offer the best runtime. For example, if <span class="math inline">$\sqrt{N}=750$</span> then it may happen that block size of <span class="math inline">700</span> or <span class="math inline">800</span> may run better.</li>
+<li>In odd blocks sort the right index in ascending order and in even blocks sort it in descending order. This will minimize the movement of right pointer, as the normal sorting will move the right pointer from the end back to the beginning at the start of every block. With the improved version this resetting is no more necessary.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">bool</span> cmp(pair&lt;<span class="dt">int</span>, <span class="dt">int</span>&gt; p, pair&lt;<span class="dt">int</span>, <span class="dt">int</span>&gt; q) {
+    <span class="kw">if</span> (p.first / BLOCK_SIZE != q.first / BLOCK_SIZE)
+        <span class="kw">return</span> p &lt; q;
+    <span class="kw">return</span> (p.first / BLOCK_SIZE &amp; <span class="dv">1</span>) ? (p.second &lt; q.second) : (p.second &gt; q.second);
+}</code></pre></div>
+<p>You can read about even faster sorting approach <a href="https://codeforces.com/blog/entry/61203">here</a>.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3154">UVA - 12003 - Array Transformer</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3141">UVA - 11990 Dynamic Inversion</a></li>
+<li><a href="http://www.spoj.com/problems/GIVEAWAY/">SPOJ - Give Away</a></li>
+<li><a href="http://codeforces.com/contest/786/problem/C">Codeforces - Till I Collapse</a></li>
+<li><a href="http://codeforces.com/contest/840/problem/D">Codeforces - Destiny</a></li>
+<li><a href="http://codeforces.com/contest/13/problem/E">Codeforces - Holes</a></li>
+<li><a href="https://codeforces.com/problemset/problem/617/E">Codeforces - XOR and Favorite Number</a></li>
+<li><a href="http://codeforces.com/problemset/problem/86/D">Codeforces - Powerful array</a></li>
+<li><a href="https://www.spoj.com/problems/DQUERY">SPOJ - DQUERY</a></li>
+</ul>
+</body>
+</html>

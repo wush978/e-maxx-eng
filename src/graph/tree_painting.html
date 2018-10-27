@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Paint the edges of the tree -->
+<h1 id="paint-the-edges-of-the-tree">Paint the edges of the tree</h1>
+<p>This is a fairly common task. Given a tree <span class="math inline"><em>G</em></span> with <span class="math inline"><em>N</em></span> vertices. There are two types of queries: the first one is to paint an edge, the second one is to query the number of colored edges between two vertices.</p>
+<p>Here we will describe a fairly simple solution (using a <a href="./data_structures/segment_tree.html">segment tree</a>) that will answer each query in <span class="math inline"><em>O</em>(log<em>N</em>)</span> time. The preprocessing step will take <span class="math inline"><em>O</em>(<em>N</em>)</span> time.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>First, we need to find the <a href="./graph/lca.html">LCA</a> to reduce each query of the second kind <span class="math inline">(<em>i</em>, <em>j</em>)</span> into two queries <span class="math inline">(<em>l</em>, <em>i</em>)</span> and <span class="math inline">(<em>l</em>, <em>j</em>)</span>, where <span class="math inline"><em>l</em></span> is the LCA of <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>. The answer of the query <span class="math inline">(<em>i</em>, <em>j</em>)</span> will be the sum of both subqueries. Both these queries have a special structure, the first vertex is an ancestor of the second one. For the rest of the article we will only talk about these special kind of queries.</p>
+<p>We will start by describing the <strong>preprocessing</strong> step. Run a depth-first search from the root of the tree and record the Euler tour of this depth-first search (each vertex is added to the list when the search visits it first and every time we return from one of its children). The same technique can be used in the LCA preprocessing.</p>
+<p>This list will contain each edge (in the sense that if <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> are the ends of the edge, then there will be a place in the list where <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> are neighbors in the list), and it appear exactly two times: in the forward direction (from <span class="math inline"><em>i</em></span> to <span class="math inline"><em>j</em></span>, where vertex <span class="math inline"><em>i</em></span> is closer to the root than vertex <span class="math inline"><em>j</em></span>) and in the opposite direction (from <span class="math inline"><em>j</em></span> to <span class="math inline"><em>i</em></span>).</p>
+<p>We will build two lists for these edges. The first one will store the color of all edges in the forward direction, and the second one the color of all edges in the opposite direction. We will use <span class="math inline">1</span> if the edge is colored, and <span class="math inline">0</span> otherwise. Over these two lists we will build each a segment tree (for sum with a single modification), let's call them <span class="math inline"><em>T</em>1</span> and <span class="math inline"><em>T</em>2</span>.</p>
+<p>Let us answer a query of the form <span class="math inline">(<em>i</em>, <em>j</em>)</span>, where <span class="math inline"><em>i</em></span> is the ancestor of <span class="math inline"><em>j</em></span>. We need to determine how many edges are painted on the path between <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span>. Let's find <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> in the Euler tour for the first time, let it be the positions <span class="math inline"><em>p</em></span> and <span class="math inline"><em>q</em></span> (this can be done in <span class="math inline"><em>O</em>(1)</span> if we calculate these positions in advance during preprocessing). Then the <strong>answer</strong> to the query is the sum <span class="math inline"><em>T</em>1[<em>p</em>..<em>q</em> − 1]</span> minus the sum <span class="math inline"><em>T</em>2[<em>p</em>..<em>q</em> − 1]</span>.</p>
+<p><strong>Why?</strong> Consider the segment <span class="math inline">[<em>p</em>; <em>q</em>]</span> in the Euler tour. It contains all edges of the path we need from <span class="math inline"><em>i</em></span> to <span class="math inline"><em>j</em></span> but also contains a set of edges that lie on other paths from <span class="math inline"><em>i</em></span>. However there is one big difference between the edges we need and the rest of the edges: the edges we need will be listed only once in the forward direction, and all the other edges appear twice: once in the forward and once in the opposite direction. Hence, the difference <span class="math inline"><em>T</em>1[<em>p</em>..<em>q</em> − 1]−<em>T</em>2[<em>p</em>..<em>q</em> − 1]</span> will give us the correct answer (minus one is necessary because otherwise, we will capture an extra edge going out from vertex <span class="math inline"><em>j</em></span>). The sum query in the segment tree is executed in <span class="math inline"><em>O</em>(log<em>N</em>)</span>.</p>
+<p>Answering the <strong>first type of query</strong> (painting an edge) is even easier - we just need to update <span class="math inline"><em>T</em>1</span> and <span class="math inline"><em>T</em>2</span>, namely to perform a single update of the element that corresponds to our edge (finding the edge in the list, again, is possible in <span class="math inline"><em>O</em>(1)</span>, if you perform this search during preprocessing). A single modification in the segment tree is performed in <span class="math inline"><em>O</em>(<em>l</em><em>o</em><em>g</em><em>N</em>)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Here is the full implementation of the solution, including LCA computation:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">int</span> INF = <span class="dv">1000</span> * <span class="dv">1000</span> * <span class="dv">1000</span>;
+
+<span class="kw">typedef</span> vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; graph;
+
+vector&lt;<span class="dt">int</span>&gt; dfs_list;
+vector&lt;<span class="dt">int</span>&gt; edges_list;
+vector&lt;<span class="dt">int</span>&gt; h;
+
+<span class="dt">void</span> dfs(<span class="dt">int</span> v, <span class="dt">const</span> graph&amp; g, <span class="dt">const</span> graph&amp; edge_ids, <span class="dt">int</span> cur_h = <span class="dv">1</span>) {
+    h[v] = cur_h;
+    dfs_list.push_back(v);
+    <span class="kw">for</span> (size_t i = <span class="dv">0</span>; i &lt; g[v].size(); ++i) {
+        <span class="kw">if</span> (h[g[v][i]] == <span class="dv">-1</span>) {
+            edges_list.push_back(edge_ids[v][i]);
+            dfs(g[v][i], g, edge_ids, cur_h + <span class="dv">1</span>);
+            edges_list.push_back(edge_ids[v][i]);
+            dfs_list.push_back(v);
+        }
+    }
+}
+
+vector&lt;<span class="dt">int</span>&gt; lca_tree;
+vector&lt;<span class="dt">int</span>&gt; first;
+
+<span class="dt">void</span> lca_tree_build(<span class="dt">int</span> i, <span class="dt">int</span> l, <span class="dt">int</span> r) {
+    <span class="kw">if</span> (l == r) {
+        lca_tree[i] = dfs_list[l];
+    } <span class="kw">else</span> {
+        <span class="dt">int</span> m = (l + r) &gt;&gt; <span class="dv">1</span>;
+        lca_tree_build(i + i, l, m);
+        lca_tree_build(i + i + <span class="dv">1</span>, m + <span class="dv">1</span>, r);
+        <span class="dt">int</span> lt = lca_tree[i + i], rt = lca_tree[i + i + <span class="dv">1</span>];
+        lca_tree[i] = h[lt] &lt; h[rt] ? lt : rt;
+    }
+}
+
+<span class="dt">void</span> lca_prepare(<span class="dt">int</span> n) {
+    lca_tree.assign(dfs_list.size() * <span class="dv">8</span>, <span class="dv">-1</span>);
+    lca_tree_build(<span class="dv">1</span>, <span class="dv">0</span>, (<span class="dt">int</span>)dfs_list.size() - <span class="dv">1</span>);
+
+    first.assign(n, <span class="dv">-1</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; (<span class="dt">int</span>)dfs_list.size(); ++i) {
+        <span class="dt">int</span> v = dfs_list[i];
+        <span class="kw">if</span> (first[v] == <span class="dv">-1</span>)
+            first[v] = i;
+    }
+}
+
+<span class="dt">int</span> lca_tree_query(<span class="dt">int</span> i, <span class="dt">int</span> tl, <span class="dt">int</span> <span class="fu">tr</span>, <span class="dt">int</span> l, <span class="dt">int</span> r) {
+    <span class="kw">if</span> (tl == l &amp;&amp; <span class="fu">tr</span> == r)
+        <span class="kw">return</span> lca_tree[i];
+    <span class="dt">int</span> m = (tl + <span class="fu">tr</span>) &gt;&gt; <span class="dv">1</span>;
+    <span class="kw">if</span> (r &lt;= m)
+        <span class="kw">return</span> lca_tree_query(i + i, tl, m, l, r);
+    <span class="kw">if</span> (l &gt; m)
+        <span class="kw">return</span> lca_tree_query(i + i + <span class="dv">1</span>, m + <span class="dv">1</span>, <span class="fu">tr</span>, l, r);
+    <span class="dt">int</span> lt = lca_tree_query(i + i, tl, m, l, m);
+    <span class="dt">int</span> rt = lca_tree_query(i + i + <span class="dv">1</span>, m + <span class="dv">1</span>, <span class="fu">tr</span>, m + <span class="dv">1</span>, r);
+    <span class="kw">return</span> h[lt] &lt; h[rt] ? lt : rt;
+}
+
+<span class="dt">int</span> lca(<span class="dt">int</span> a, <span class="dt">int</span> b) {
+    <span class="kw">if</span> (first[a] &gt; first[b])
+        swap(a, b);
+    <span class="kw">return</span> lca_tree_query(<span class="dv">1</span>, <span class="dv">0</span>, (<span class="dt">int</span>)dfs_list.size() - <span class="dv">1</span>, first[a], first[b]);
+}
+
+vector&lt;<span class="dt">int</span>&gt; first1, first2;
+vector&lt;<span class="dt">char</span>&gt; edge_used;
+vector&lt;<span class="dt">int</span>&gt; tree1, tree2;
+
+<span class="dt">void</span> query_prepare(<span class="dt">int</span> n) {
+    first1.resize(n - <span class="dv">1</span>, <span class="dv">-1</span>);
+    first2.resize(n - <span class="dv">1</span>, <span class="dv">-1</span>);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; (<span class="dt">int</span>)edges_list.size(); ++i) {
+        <span class="dt">int</span> j = edges_list[i];
+        <span class="kw">if</span> (first1[j] == <span class="dv">-1</span>)
+            first1[j] = i;
+        <span class="kw">else</span>
+            first2[j] = i;
+    }
+
+    edge_used.resize(n - <span class="dv">1</span>);
+    tree1.resize(edges_list.size() * <span class="dv">8</span>);
+    tree2.resize(edges_list.size() * <span class="dv">8</span>);
+}
+
+<span class="dt">void</span> sum_tree_update(vector&lt;<span class="dt">int</span>&gt;&amp; tree, <span class="dt">int</span> i, <span class="dt">int</span> l, <span class="dt">int</span> r, <span class="dt">int</span> j, <span class="dt">int</span> delta) {
+    tree[i] += delta;
+    <span class="kw">if</span> (l &lt; r) {
+        <span class="dt">int</span> m = (l + r) &gt;&gt; <span class="dv">1</span>;
+        <span class="kw">if</span> (j &lt;= m)
+            sum_tree_update(tree, i + i, l, m, j, delta);
+        <span class="kw">else</span>
+            sum_tree_update(tree, i + i + <span class="dv">1</span>, m + <span class="dv">1</span>, r, j, delta);
+    }
+}
+
+<span class="dt">int</span> sum_tree_query(<span class="dt">const</span> vector&lt;<span class="dt">int</span>&gt;&amp; tree, <span class="dt">int</span> i, <span class="dt">int</span> tl, <span class="dt">int</span> <span class="fu">tr</span>, <span class="dt">int</span> l, <span class="dt">int</span> r) {
+    <span class="kw">if</span> (l &gt; r || tl &gt; <span class="fu">tr</span>)
+        <span class="kw">return</span> <span class="dv">0</span>;
+    <span class="kw">if</span> (tl == l &amp;&amp; <span class="fu">tr</span> == r)
+        <span class="kw">return</span> tree[i];
+    <span class="dt">int</span> m = (tl + <span class="fu">tr</span>) &gt;&gt; <span class="dv">1</span>;
+    <span class="kw">if</span> (r &lt;= m)
+        <span class="kw">return</span> sum_tree_query(tree, i + i, tl, m, l, r);
+    <span class="kw">if</span> (l &gt; m)
+        <span class="kw">return</span> sum_tree_query(tree, i + i + <span class="dv">1</span>, m + <span class="dv">1</span>, <span class="fu">tr</span>, l, r);
+    <span class="kw">return</span> sum_tree_query(tree, i + i, tl, m, l, m) +
+           sum_tree_query(tree, i + i + <span class="dv">1</span>, m + <span class="dv">1</span>, <span class="fu">tr</span>, m + <span class="dv">1</span>, r);
+}
+
+<span class="dt">int</span> query(<span class="dt">int</span> v1, <span class="dt">int</span> v2) {
+    <span class="kw">return</span> sum_tree_query(tree1, <span class="dv">1</span>, <span class="dv">0</span>, (<span class="dt">int</span>)edges_list.size() - <span class="dv">1</span>, first[v1], first[v2] - <span class="dv">1</span>) -
+           sum_tree_query(tree2, <span class="dv">1</span>, <span class="dv">0</span>, (<span class="dt">int</span>)edges_list.size() - <span class="dv">1</span>, first[v1], first[v2] - <span class="dv">1</span>);
+}
+
+<span class="dt">int</span> main() {
+    <span class="co">// reading the graph</span>
+    <span class="dt">int</span> n;
+    scanf(<span class="st">&quot;</span><span class="ch">%d</span><span class="st">&quot;</span>, &amp;n);
+    graph g(n), edge_ids(n);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n - <span class="dv">1</span>; ++i) {
+        <span class="dt">int</span> v1, v2;
+        scanf(<span class="st">&quot;</span><span class="ch">%d%d</span><span class="st">&quot;</span>, &amp;v1, &amp;v2);
+        --v1, --v2;
+        g[v1].push_back(v2);
+        g[v2].push_back(v1);
+        edge_ids[v1].push_back(i);
+        edge_ids[v2].push_back(i);
+    }
+
+    h.assign(n, <span class="dv">-1</span>);
+    dfs(<span class="dv">0</span>, g, edge_ids);
+    lca_prepare(n);
+    query_prepare(n);
+
+    <span class="kw">for</span> (;;) {
+        <span class="kw">if</span> () {
+            <span class="co">// request for painting edge x;</span>
+            <span class="co">// if start = true, then the edge is painted, otherwise the painting</span>
+            <span class="co">// is removed</span>
+            edge_used[x] = start;
+            sum_tree_update(tree1, <span class="dv">1</span>, <span class="dv">0</span>, (<span class="dt">int</span>)edges_list.size() - <span class="dv">1</span>, first1[x],
+                            start ? <span class="dv">1</span> : <span class="dv">-1</span>);
+            sum_tree_update(tree2, <span class="dv">1</span>, <span class="dv">0</span>, (<span class="dt">int</span>)edges_list.size() - <span class="dv">1</span>, first2[x],
+                            start ? <span class="dv">1</span> : <span class="dv">-1</span>);
+        } <span class="kw">else</span> {
+            <span class="co">// query the number of colored edges on the path between v1 and v2</span>
+            <span class="dt">int</span> l = lca(v1, v2);
+            <span class="dt">int</span> result = query(l, v1) + query(l, v2);
+            <span class="co">// result - the answer to the request</span>
+        }
+    }
+}</code></pre></div>
+</body>
+</html>

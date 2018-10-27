@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Maximum flow - Dinic's algorithm -->
+<h1 id="maximum-flow---dinics-algorithm">Maximum flow - Dinic's algorithm</h1>
+<p>Dinic's algorithm solves the maximum flow problem in <span class="math inline"><em>O</em>(<em>V</em><sup>2</sup><em>E</em>)</span>. The maximum flow problem is defined in this article <a href="./graph/edmonds_karp.html">Maximum flow - Ford-Fulkerson and Edmonds-Karp</a>. This algorithm was discovered by Yefim Dinitz in 1970.</p>
+<h2 id="definitions">Definitions</h2>
+<p>A <strong>residual network</strong> <span class="math inline"><em>G</em><sup><em>R</em></sup></span> of network <span class="math inline"><em>G</em></span> is a network which contains two edges for each edge <span class="math inline">(<em>v</em>, <em>u</em>)∈<em>G</em></span>:<br></p>
+<ul>
+<li><span class="math inline">(<em>v</em>, <em>u</em>)</span> with capacity <span class="math inline"><em>c</em><sub><em>v</em><em>u</em></sub><sup><em>R</em></sup> = <em>c</em><sub><em>v</em><em>u</em></sub> − <em>f</em><sub><em>v</em><em>u</em></sub></span></li>
+<li><span class="math inline">(<em>u</em>, <em>v</em>)</span> with capacity <span class="math inline"><em>c</em><sub><em>u</em><em>v</em></sub><sup><em>R</em></sup> = <em>f</em><sub><em>v</em><em>u</em></sub></span></li>
+</ul>
+<p>A <strong>blocking flow</strong> of some network is such a flow that every path from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>t</em></span> contains at least one edge which is saturated by this flow. Note that a blocking flow is not necessarily maximal.</p>
+<p>A <strong>layered network</strong> of a network <span class="math inline"><em>G</em></span> is a network built in the following way. Firstly, for each vertex <span class="math inline"><em>v</em></span> we calculate <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em>[<em>v</em>]</span> - the shortest path (unweighted) from <span class="math inline"><em>s</em></span> to this vertex using only edges with positive capacity. Then we keep only those edges <span class="math inline">(<em>v</em>, <em>u</em>)</span> for which <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em>[<em>v</em>]+1 = <em>l</em><em>e</em><em>v</em><em>e</em><em>l</em>[<em>u</em>]</span>. Obviously, this network is acyclic.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>The algorithm consists of several phases. On each phase we construct the layered network of the residual network of <span class="math inline"><em>G</em></span>. Then we find an arbitrary blocking flow in the layered network and add it to the current flow.</p>
+<h2 id="proof-of-correctness">Proof of correctness</h2>
+<p>Let's show that if the algorithm terminates, it finds the maximum flow.</p>
+<p>If the algorithm terminated, it couldn't find a blocking flow in the layered network. It means that the layered network doesn't have any path from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>t</em></span>. It means that the residual network doesn't have any path from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>t</em></span>. It means that the flow is maximum.</p>
+<h2 id="number-of-phases">Number of phases</h2>
+<p>The algorithm terminates in less than <span class="math inline"><em>V</em></span> phases. To prove this, we must firstly prove two lemmas.</p>
+<p><strong>Lemma 1.</strong> The distances from <span class="math inline"><em>s</em></span> to each vertex don't decrease after each iteration, i. e. <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>v</em>]≥<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>v</em>]</span>.</p>
+<p><strong>Proof.</strong> Fix a phase <span class="math inline"><em>i</em></span> and a vertex <span class="math inline"><em>v</em></span>. Consider any shortest path <span class="math inline"><em>P</em></span> from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>v</em></span> in <span class="math inline"><em>G</em><sub><em>i</em> + 1</sub><sup><em>R</em></sup></span>. The length of <span class="math inline"><em>P</em></span> equals <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>v</em>]</span>. Note that <span class="math inline"><em>G</em><sub><em>i</em> + 1</sub><sup><em>R</em></sup></span> can only contain edges from <span class="math inline"><em>G</em><sub><em>i</em></sub><sup><em>R</em></sup></span> and back edges for edges from <span class="math inline"><em>G</em><sub><em>i</em></sub><sup><em>R</em></sup></span>. If <span class="math inline"><em>P</em></span> has no back edges for <span class="math inline"><em>G</em><sub><em>i</em></sub><sup><em>R</em></sup></span>, then <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>v</em>]≥<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>v</em>]</span> because <span class="math inline"><em>P</em></span> is also a path in <span class="math inline"><em>G</em><sub><em>i</em></sub><sup><em>R</em></sup></span>. Now, suppose that <span class="math inline"><em>P</em></span> has at least one back edge. Let the first such edge be <span class="math inline">(<em>u</em>, <em>w</em>)</span>.Then <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>u</em>]≥<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>u</em>]</span> (because of the first case). The edge <span class="math inline">(<em>u</em>, <em>w</em>)</span> doesn't belong to <span class="math inline"><em>G</em><sub><em>i</em></sub><sup><em>R</em></sup></span>, so the edge <span class="math inline">(<em>w</em>, <em>u</em>)</span> was affected by the blocking flow on the previous iteration. It means that <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>u</em>]=<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>w</em>]+1</span>. Also, <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>w</em>]=<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>u</em>]+1</span>. From these two equations and <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>u</em>]≥<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>u</em>]</span> we obtain <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>w</em>]≥<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>w</em>]+2</span>. Now we can use the same idea for the rest of the path.</p>
+<p><strong>Lemma 2.</strong> <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>t</em>]&gt;<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>t</em>]</span></p>
+<p><strong>Proof.</strong> From the previous lemma, <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>t</em>]≥<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>t</em>]</span>. Suppose that <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em> + 1</sub>[<em>t</em>]=<em>l</em><em>e</em><em>v</em><em>e</em><em>l</em><sub><em>i</em></sub>[<em>t</em>]</span>. Note that <span class="math inline"><em>G</em><sub><em>i</em> + 1</sub><sup><em>R</em></sup></span> can only contain edges from <span class="math inline"><em>G</em><sub><em>i</em></sub><sup><em>R</em></sup></span> and back edges for edges from <span class="math inline"><em>G</em><sub><em>i</em></sub><sup><em>R</em></sup></span>. It means that there is a shortest path in <span class="math inline"><em>G</em><sub><em>i</em></sub><sup><em>R</em></sup></span> which wasn't blocked by the blocking flow. It's a contradiction.</p>
+<p>From these two lemmas we conclude that there are less than <span class="math inline"><em>V</em></span> phases because <span class="math inline"><em>l</em><em>e</em><em>v</em><em>e</em><em>l</em>[<em>t</em>]</span> increases, but it can't be greater than <span class="math inline"><em>V</em> − 1</span>.</p>
+<h2 id="finding-blocking-flow">Finding blocking flow</h2>
+<p>In order to find the blocking flow on each iteration, we may simply try pushing flow with DFS from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>t</em></span> in the layered network while it can be pushed. In order to do it more quickly, we must remove the edges which can't be used to push anymore. To do this we can keep a pointer in each vertex which points to the next edge which can be used. Each pointer can be moved at most <span class="math inline"><em>E</em></span> times, so each phase works in <span class="math inline"><em>O</em>(<em>V</em><em>E</em>)</span>.</p>
+<h2 id="complexity">Complexity</h2>
+<p>There are less than <span class="math inline"><em>V</em></span> phases, so the total complexity is <span class="math inline"><em>O</em>(<em>V</em><sup>2</sup><em>E</em>)</span>.</p>
+<h2 id="unit-networks">Unit networks</h2>
+<p>A <strong>unit network</strong> is a network in which all the edges have unit capacity, and for any vertex except <span class="math inline"><em>s</em></span> and <span class="math inline"><em>t</em></span> either incoming or outgoing edge is unique. That's exactly the case with the network we build to solve the maximum matching problem with flows.</p>
+<p>On unit networks Dinic's algorithm works in <span class="math inline">$O(E\sqrt{V})$</span>. Let's prove this.</p>
+<p>Firstly, each phase now works in <span class="math inline"><em>O</em>(<em>E</em>)</span> because each edge will be considered at most once.</p>
+<p>Secondly, suppose there have already been <span class="math inline">$\sqrt{V}$</span> phases. Then all the augmenting paths with the length <span class="math inline">$\le\sqrt{V}$</span> have been found. Let <span class="math inline"><em>f</em></span> be the current flow, <span class="math inline"><em>f</em>′</span> be the maximum flow. Consider their difference <span class="math inline"><em>f</em>′−<em>f</em></span>. It is a flow in <span class="math inline"><em>G</em><sup><em>R</em></sup></span> of value <span class="math inline">|<em>f</em>′| − |<em>f</em>|</span> and on each edge it is either <span class="math inline">0</span> or <span class="math inline">1</span>. It can be decomposed into <span class="math inline">|<em>f</em>′| − |<em>f</em>|</span> paths from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>t</em></span> and possibly cycles. As the network is unit, they can't have common vertices, so the total number of vertices is <span class="math inline">$\ge (|f'| - |f|)\sqrt{V}$</span>, but it is also <span class="math inline">≤<em>V</em></span>, so in another <span class="math inline">$\sqrt{V}$</span> iterations we will definitely find the maximum flow.</p>
+<h2 id="implementation">Implementation</h2>
+<p>```cpp dinic struct FlowEdge { int v, u; long long cap, flow = 0; FlowEdge(int v, int u, long long cap) : v(v), u(u), cap(cap) {} };</p>
+<p>struct Dinic { const long long flow_inf = 1e18; vector<FlowEdge> edges; vector<vector<int>&gt; adj; int n, m = 0; int s, t; vector<int> level, ptr; queue<int> q;</p>
+<pre><code>Dinic(int n, int s, int t) : n(n), s(s), t(t) {
+    adj.resize(n);
+    level.resize(n);
+    ptr.resize(n);
+}
+
+void add_edge(int v, int u, long long cap) {
+    edges.push_back(FlowEdge(v, u, cap));
+    edges.push_back(FlowEdge(u, v, 0));
+    adj[v].push_back(m);
+    adj[u].push_back(m + 1);
+    m += 2;
+}
+
+bool bfs() {
+    while (!q.empty()) {
+        int v = q.front();
+        q.pop();
+        for (int id : adj[v]) {
+            if (edges[id].cap - edges[id].flow &lt; 1)
+                continue;
+            if (level[edges[id].u] != -1)
+                continue;
+            level[edges[id].u] = level[v] + 1;
+            q.push(edges[id].u);
+        }
+    }
+    return level[t] != -1;
+}
+
+long long dfs(int v, long long pushed) {
+    if (pushed == 0)
+        return 0;
+    if (v == t)
+        return pushed;
+    for (int&amp; cid = ptr[v]; cid &lt; (int)adj[v].size(); cid++) {
+        int id = adj[v][cid];
+        int u = edges[id].u;
+        if (level[v] + 1 != level[u] || edges[id].cap - edges[id].flow &lt; 1)
+            continue;
+        long long tr = dfs(u, min(pushed, edges[id].cap - edges[id].flow));
+        if (tr == 0)
+            continue;
+        edges[id].flow += tr;
+        edges[id ^ 1].flow -= tr;
+        return tr;
+    }
+    return 0;
+}
+
+long long flow() {
+    long long f = 0;
+    while (true) {
+        fill(level.begin(), level.end(), -1);
+        level[s] = 0;
+        q.push(s);
+        if (!bfs())
+            break;
+        fill(ptr.begin(), ptr.end(), 0);
+        while (long long pushed = dfs(s, flow_inf)) {
+            f += pushed;
+        }
+    }
+    return f;
+}</code></pre>
+<p>}; ```</p>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Pick's Theorem -->
+<h1 id="picks-theorem">Pick's Theorem</h1>
+<p>A polygon without self-intersections is called lattice if all its vertices have integer coordinates in some 2D grid. Pick's theorem provides a way to compute the area of this polygon through the number of vertices that are lying on the boundary and the number of vertices that lie strictly inside the polygon.</p>
+<h2 id="formula">Formula</h2>
+<p>Given a certain lattice polygon with non-zero area.</p>
+<p>We denote its area by <span class="math inline"><em>S</em></span>, the number of points with integer coordinates lying strictly inside the polygon by <span class="math inline"><em>I</em></span> and the number of points lying on polygon sides by <span class="math inline"><em>B</em></span>.</p>
+<p>Then, the <strong>Pick's formula</strong> states:</p>
+<p><br /><span class="math display">$$S=I+\frac{B}{2}-1$$</span><br /></p>
+<p>In particular, if the values of <span class="math inline"><em>I</em></span> and <span class="math inline"><em>B</em></span> for a polygon are given, the area can be calculated in <span class="math inline"><em>O</em>(1)</span> without even knowing the vertices.</p>
+<p>This formula was discovered and proven by Austrian mathematician Georg Alexander Pick in 1899.</p>
+<h2 id="proof">Proof</h2>
+<p>The proof is carried out in many stages: from simple polygons to arbitrary ones:</p>
+<ul>
+<li><p>A single square: <span class="math inline"><em>S</em> = 1, <em>I</em> = 0, <em>B</em> = 4</span>, which satisfies the formula.</p></li>
+<li><p>An arbitrary non-degenerate rectangle with sides parallel to coordinate axes: Assume <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> be the length of the sides of rectangle. Then, <span class="math inline"><em>S</em> = <em>a</em><em>b</em>, <em>I</em> = (<em>a</em> − 1)(<em>b</em> − 1),<em>B</em> = 2(<em>a</em> + <em>b</em>)</span>. On substituting, we see that formula is true.</p></li>
+<li><p>A right angle with legs parallel to the axes: To prove this, note that any such triangle can be obtained by cutting off a rectangle by a diagonal. Denoting the number of integral points lying on diagonal by <span class="math inline"><em>c</em></span>, it can be shown that Pick's formula holds for this triangle regardless of <span class="math inline"><em>c</em></span>.</p></li>
+<li><p>An arbitrary triangle: Note that any such triangle can be turned into a rectangle by attaching it to sides of right-angled triangles with legs parallel to the axes (you will not need more than 3 such triangles). From here, we can get correct formula for any triangle.</p></li>
+<li><p>An arbitrary polygon: To prove this, triangulate it, ie, divide into triangles with integral coordinates. Further, it is possible to prove that Pick's theorem retains its validity when a polygon is added to a triangle. Thus, we have proven Pick's formula for arbitrary polygon.</p></li>
+</ul>
+<h2 id="generalization-to-higher-dimensions">Generalization to higher dimensions</h2>
+<p>Unfortunately, this simple and beautiful formula cannot be generalized to higher dimensions.</p>
+<p>John Reeve demonstrated this by proposing a tetrahedron (<strong>Reeve tetrahedron</strong>) with following vertices in 1957:</p>
+<p><br /><span class="math display"><em>A</em> = (0, 0, 0),<em>B</em> = (1, 0, 0),<em>C</em> = (0, 1, 0),<em>D</em> = (1, 1, <em>k</em>),</span><br /></p>
+<p>where <span class="math inline"><em>k</em></span> can be any natural number. Then for any <span class="math inline"><em>k</em></span>, the tetrahedron <span class="math inline"><em>A</em><em>B</em><em>C</em><em>D</em></span> does not contain integer point inside it and has only <span class="math inline">4</span> points on its borders, <span class="math inline"><em>A</em>, <em>B</em>, <em>C</em>, <em>D</em></span>. Thus, the volume and surface area may vary in spite of unchanged number of points within and on boundary. Therefore, Pick's theorem doesn't allow generalizations.</p>
+<p>However, higher dimensions still has a generalization using <strong>Ehrhart polynomials</strong> but they are quite complex and depends not only on points inside but also on the boundary of polytype.</p>
+<h2 id="extra-resources">Extra Resources</h2>
+<p>A few simple examples and a simple proof of Pick's theorem can be found <a href="http://www.geometer.org/mathcircles/pick.pdf">here</a>.</p>
+</body>
+</html>

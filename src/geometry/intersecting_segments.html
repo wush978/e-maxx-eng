@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Search for a pair of intersecting segments -->
+<h1 id="search-for-a-pair-of-intersecting-segments">Search for a pair of intersecting segments</h1>
+<p>Given <span class="math inline"><em>n</em></span> line segments on the plane. It is required to check whether at least two of them intersect with each other. If the answer is yes, then print this pair of intersecting segments; it is enough to choose any of them among several answers.</p>
+<p>The naive solution algorithm is to iterate over all pairs of segments in <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> and check for each pair whether they intersect or not. This article describes an algorithm with the runtime time <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>, which is based on the <strong>sweep line algorithm</strong>.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>Let's draw a vertical line <span class="math inline"><em>x</em> = −∞</span> mentally and start moving this line to the right. In the course of its movement, this line will meet with segments, and at each time a segment intersect with our line it intersects in exactly one point (we will assume that there are no vertical segments).</p>
+<center>
+<img src="&amp;imgroot&amp;/sweep_line_1.png" alt="sweep line and line segment intersection" />
+</center>
+<p>Thus, for each segment, at some point in time, its point will appear on the sweep line, then with the movement of the line, this point will move, and finally, at some point, the segment will disappear from the line.</p>
+<p>We are interested in the <strong>relative order of the segments</strong> along the vertical. Namely, we will store a list of segments crossing the sweep line at a given time, where the segments will be sorted by their <span class="math inline"><em>y</em></span>-coordinate on the sweep line.</p>
+<center>
+<img src="&amp;imgroot&amp;/sweep_line_2.png" alt="relative order of the segments across sweep line" />
+</center>
+<p>This order is interesting because intersecting segments will have the same <span class="math inline"><em>y</em></span>-coordinate at least at one time:</p>
+<center>
+<img src="&amp;imgroot&amp;/sweep_line_3.png" alt="intersection point having same y-coordinate" />
+</center>
+<p>We formulate key statements:</p>
+<ul>
+<li>To find an intersecting pair, it is sufficient to consider <strong>only adjacent segments</strong> at each fixed position of the sweep line.</li>
+<li>It is enough to consider the sweep line not in all possible real positions <span class="math inline">( − ∞…+∞)</span>, but <strong>only in those positions when new segments appear or old ones disappear</strong>. In other words, it is enough to limit yourself only to the positions equal to the abscissas of the end points of the segments.</li>
+<li>When a new line segment appears, it is enough to <strong>insert</strong> it to the desired location in the list obtained for the previous sweep line. We should only check for the intersection of the <strong>added segment with its immediate neighbors in the list above and below</strong>.</li>
+<li>If the segment disappears, it is enough to <strong>remove</strong> it from the current list. After that, it is necessary <strong>check for the intersection of the upper and lower neighbors in the list</strong>.</li>
+<li>Other changes in the sequence of segments in the list, except for those described, do not exist. No other intersection checks are required.</li>
+</ul>
+<p>To understand the truth of these statements, the following remarks are sufficient:</p>
+<ul>
+<li>Two disjoint segments never change their <strong>relative order</strong>.<br> In fact, if one segment was first higher than the other, and then became lower, then between these two moments there was an intersection of these two segments.</li>
+<li>Two non-intersecting segments also cannot have the same <span class="math inline"><em>y</em></span>-coordinates.</li>
+<li>From this it follows that at the moment of the segment appearance we can find the position for this segment in the queue, and we will not have to rearrange this segment in the queue any more: <strong>its order relative to other segments in the queue will not change</strong>.</li>
+<li>Two intersecting segments at the moment of their intersection point will be neighbors of each other in the queue.</li>
+<li>Therefore, for finding pairs of intersecting line segments is sufficient to check the intersection of all and only those pairs of segments that sometime during the movement of the sweep line at least once were neighbors to each other. <br> It is easy to notice that it is enough only to check the added segment with its upper and lower neighbors, as well as when removing the segment — its upper and lower neighbors (which after removal will become neighbors of each other).<br></li>
+<li>It should be noted that at a fixed position of the sweep line, we must <strong>first add all the segments</strong> that start at this x-coordinate, and only <strong>then remove all the segments</strong> that end here.<br> Thus, we do not miss the intersection of segments on the vertex: i.e. such cases when two segments have a common vertex.</li>
+<li>Note that <strong>vertical segments</strong> do not actually affect the correctness of the algorithm.<br> These segments are distinguished by the fact that they appear and disappear at the same time. However, due to the previous comment, we know that all segments will be added to the queue first, and only then they will be deleted. Therefore, if the vertical segment intersects with some other segment opened at that moment (including the vertical one), it will be detected.<br> <strong>In what place of the queue to place vertical segments?</strong> After all, a vertical segment does not have one specific <span class="math inline"><em>y</em></span>-coordinate, it extends for an entire segment along the <span class="math inline"><em>y</em></span>-coordinate. However, it is easy to understand that any coordinate from this segment can be taken as a <span class="math inline"><em>y</em></span>-coordinate.</li>
+</ul>
+<p>Thus, the entire algorithm will perform no more than <span class="math inline">2<em>n</em></span> tests on the intersection of a pair of segments, and will perform <span class="math inline"><em>O</em>(<em>n</em>)</span> operations with a queue of segments (<span class="math inline"><em>O</em>(1)</span> operations at the time of appearance and disappearance of each segment).</p>
+<p>The final <strong>asymptotic behavior of the algorithm</strong> is thus <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>We present the full implementation of the described algorithm:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">double</span> EPS = <span class="fl">1E-9</span>;
+
+<span class="kw">struct</span> pt {
+    <span class="dt">double</span> x, y;
+};
+
+<span class="kw">struct</span> seg {
+    pt p, q;
+    <span class="dt">int</span> id;
+
+    <span class="dt">double</span> get_y(<span class="dt">double</span> x) <span class="dt">const</span> {
+        <span class="kw">if</span> (abs(p.x - q.x) &lt; EPS)
+            <span class="kw">return</span> p.y;
+        <span class="kw">return</span> p.y + (q.y - p.y) * (x - p.x) / (q.x - p.x);
+    }
+};
+
+<span class="dt">bool</span> intersect1d(<span class="dt">double</span> l1, <span class="dt">double</span> r1, <span class="dt">double</span> l2, <span class="dt">double</span> r2) {
+    <span class="kw">if</span> (l1 &gt; r1)
+        swap(l1, r1);
+    <span class="kw">if</span> (l2 &gt; r2)
+        swap(l2, r2);
+    <span class="kw">return</span> max(l1, l2) &lt;= min(r1, r2) + EPS;
+}
+
+<span class="dt">int</span> vec(<span class="dt">const</span> pt&amp; a, <span class="dt">const</span> pt&amp; b, <span class="dt">const</span> pt&amp; c) {
+    <span class="dt">double</span> s = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    <span class="kw">return</span> abs(s) &lt; EPS ? <span class="dv">0</span> : s &gt; <span class="dv">0</span> ? <span class="dv">+1</span> : <span class="dv">-1</span>;
+}
+
+<span class="dt">bool</span> intersect(<span class="dt">const</span> seg&amp; a, <span class="dt">const</span> seg&amp; b)
+{
+    <span class="kw">return</span> intersect1d(a.p.x, a.q.x, b.p.x, b.q.x) &amp;&amp;
+           intersect1d(a.p.y, a.q.y, b.p.y, b.q.y) &amp;&amp;
+           vec(a.p, a.q, b.p) * vec(a.p, a.q, b.q) &lt;= <span class="dv">0</span> &amp;&amp;
+           vec(b.p, b.q, a.p) * vec(b.p, b.q, a.q) &lt;= <span class="dv">0</span>;
+}
+
+<span class="dt">bool</span> <span class="kw">operator</span>&lt;(<span class="dt">const</span> seg&amp; a, <span class="dt">const</span> seg&amp; b)
+{
+    <span class="dt">double</span> x = max(min(a.p.x, a.q.x), min(b.p.x, b.q.x));
+    <span class="kw">return</span> a.get_y(x) &lt; b.get_y(x) - EPS;
+}
+
+<span class="kw">struct</span> event {
+    <span class="dt">double</span> x;
+    <span class="dt">int</span> tp, id;
+
+    event() {}
+    event(<span class="dt">double</span> x, <span class="dt">int</span> tp, <span class="dt">int</span> id) : x(x), tp(tp), id(id) {}
+
+    <span class="dt">bool</span> <span class="kw">operator</span>&lt;(<span class="dt">const</span> event&amp; e) <span class="dt">const</span> {
+        <span class="kw">if</span> (abs(x - e.x) &gt; EPS)
+            <span class="kw">return</span> x &lt; e.x;
+        <span class="kw">return</span> tp &gt; e.tp;
+    }
+};
+
+set&lt;seg&gt; s;
+vector&lt;set&lt;seg&gt;::iterator&gt; where;
+
+set&lt;seg&gt;::iterator prev(set&lt;seg&gt;::iterator it) {
+    <span class="kw">return</span> it == s.begin() ? s.end() : --it;
+}
+
+set&lt;seg&gt;::iterator next(set&lt;seg&gt;::iterator it) {
+    <span class="kw">return</span> ++it;
+}
+
+pair&lt;<span class="dt">int</span>, <span class="dt">int</span>&gt; solve(<span class="dt">const</span> vector&lt;seg&gt;&amp; a) {
+    <span class="dt">int</span> n = (<span class="dt">int</span>)a.size();
+    vector&lt;event&gt; e;
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        e.push_back(event(min(a[i].p.x, a[i].q.x), <span class="dv">+1</span>, i));
+        e.push_back(event(max(a[i].p.x, a[i].q.x), <span class="dv">-1</span>, i));
+    }
+    sort(e.begin(), e.end());
+
+    s.clear();
+    where.resize(a.size());
+    <span class="kw">for</span> (size_t i = <span class="dv">0</span>; i &lt; e.size(); ++i) {
+        <span class="dt">int</span> id = e[i].id;
+        <span class="kw">if</span> (e[i].tp == <span class="dv">+1</span>) {
+            set&lt;seg&gt;::iterator nxt = s.lower_bound(a[id]), prv = prev(nxt);
+            <span class="kw">if</span> (nxt != s.end() &amp;&amp; intersect(*nxt, a[id]))
+                <span class="kw">return</span> make_pair(nxt-&gt;id, id);
+            <span class="kw">if</span> (prv != s.end() &amp;&amp; intersect(*prv, a[id]))
+                <span class="kw">return</span> make_pair(prv-&gt;id, id);
+            where[id] = s.insert(nxt, a[id]);
+        } <span class="kw">else</span> {
+            set&lt;seg&gt;::iterator nxt = next(where[id]), prv = prev(where[id]);
+            <span class="kw">if</span> (nxt != s.end() &amp;&amp; prv != s.end() &amp;&amp; intersect(*nxt, *prv))
+                <span class="kw">return</span> make_pair(prv-&gt;id, nxt-&gt;id);
+            s.erase(where[id]);
+        }
+    }
+
+    <span class="kw">return</span> make_pair(<span class="dv">-1</span>, <span class="dv">-1</span>);
+}</code></pre></div>
+<p>The main function here is <code>solve()</code>, which returns the number of found intersecting segments, or <span class="math inline">( − 1, −1)</span>, if there are no intersections.</p>
+<p>Checking for the intersection of two segments is carried out by the <code>intersect ()</code> function, using an <strong>algorithm based on the oriented area of the triangle</strong>.</p>
+<p>The queue of segments is the global variable <code>s</code>, a <code>set&lt;event&gt;</code>. Iterators that specify the position of each segment in the queue (for convenient removal of segments from the queue) are stored in the global array <code>where</code>.</p>
+<p>Two auxiliary functions <code>prev()</code> and <code>next()</code> are also introduced, which return iterators to the previous and next elements (or <code>end()</code>, if one does not exist).</p>
+<p>The constant <code>EPS</code> denotes the error of comparing two real numbers (it is mainly used when checking two segments for intersection).</p>
+</body>
+</html>

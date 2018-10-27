@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Dynamic Programming on Broken Profile. Problem "Parquet" -->
+<h1 id="dynamic-programming-on-broken-profile.-problem-parquet">Dynamic Programming on Broken Profile. Problem &quot;Parquet&quot;</h1>
+<p>Common problems solved using DP on broken profile include:</p>
+<ul>
+<li>finding number of ways to fully fill an area (e.g. chessboard/grid) with some figures (e.g. dominoes)</li>
+<li>finding a way to fill an area with minimum number of figures</li>
+<li>finding a partial fill with minimum number of unfilled space (or cells, in case of grid)</li>
+<li>finding a partial fill with the minimum number of figures, such that no more figures can be added</li>
+</ul>
+<h2 id="problem-parquet">Problem &quot;Parquet&quot;</h2>
+<p><strong>Problem description.</strong> Given a grid of size <span class="math inline"><em>N</em> × <em>M</em></span>. Find number of ways to fill the grid with figures of size <span class="math inline">2 × 1</span> (no cell should be left unfilled, and figures should not overlap each other).</p>
+<p>Let the DP state be: <code>D[i][mask]</code>, where <code>i = 1 ... N</code>, and <code>mask = 0 ... 2^M-1</code>. <code>i</code> respresents number of rows in the current grid, and <code>mask</code> is the state of last row of current grid. If <code>j</code>-th bit of <code>mask</code> is 0 then the corresponding cell is filled, otherwise it is unfilled. Clearly, the answer to the problem will be <code>D[N][0]</code>.</p>
+<p>We will be building the DP state by iterating over each <code>i = 1 ... N</code> and each <code>mask = 0 ... 2^M-1</code>, and for each <code>mask</code> we will be only transitioning forward, that is, we will be <em>adding</em> figures to the current grid.</p>
+<h3 id="implementation">Implementation</h3>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> n, m;
+vector &lt; vector&lt;<span class="dt">long</span> <span class="dt">long</span>&gt; &gt; d;
+
+
+<span class="dt">void</span> calc (<span class="dt">int</span> x = <span class="dv">0</span>, <span class="dt">int</span> y = <span class="dv">0</span>, <span class="dt">int</span> mask = <span class="dv">0</span>, <span class="dt">int</span> next_mask = <span class="dv">0</span>)
+{
+    <span class="kw">if</span> (x == n)
+        <span class="kw">return</span>;
+    <span class="kw">if</span> (y &gt;= m)
+        d[x<span class="dv">+1</span>][next_mask] += d[x][mask];
+    <span class="kw">else</span>
+    {
+        <span class="dt">int</span> my_mask = <span class="dv">1</span> &lt;&lt; y;
+        <span class="kw">if</span> (mask &amp; my_mask)
+            calc (x, y<span class="dv">+1</span>, mask, next_mask);
+        <span class="kw">else</span>
+        {
+            calc (x, y<span class="dv">+1</span>, mask, next_mask | my_mask);
+            <span class="kw">if</span> (y<span class="dv">+1</span> &lt; m &amp;&amp; ! (mask &amp; my_mask) &amp;&amp; ! (mask &amp; (my_mask &lt;&lt; <span class="dv">1</span>)))
+                calc (x, y<span class="dv">+2</span>, mask, next_mask);
+        }
+    }
+}
+
+
+<span class="dt">int</span> main()
+{
+    cin &gt;&gt; n &gt;&gt; m;
+    
+    d.resize (n<span class="dv">+1</span>, vector&lt;<span class="dt">long</span> <span class="dt">long</span>&gt; (<span class="dv">1</span>&lt;&lt;m));
+    d[<span class="dv">0</span>][<span class="dv">0</span>] = <span class="dv">1</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> x=<span class="dv">0</span>; x&lt;n; ++x)
+        <span class="kw">for</span> (<span class="dt">int</span> mask=<span class="dv">0</span>; mask&lt;(<span class="dv">1</span>&lt;&lt;m); ++mask)
+            calc (x, <span class="dv">0</span>, mask, <span class="dv">0</span>);
+
+    cout &lt;&lt; d[n][<span class="dv">0</span>];
+
+}</code></pre></div>
+</body>
+</html>

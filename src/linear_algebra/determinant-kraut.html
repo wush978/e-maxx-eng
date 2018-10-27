@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Calculating the determinant using Kraut method-->
+<h1 id="calculating-the-determinant-using-kraut-method-in-on3">Calculating the determinant using Kraut method in <span class="math inline"><em>O</em>(<em>N</em><sup>3</sup>)</span></h1>
+<p>In this article, we'll describe how to find the determinant of the matrix using Kraut method, which works in <span class="math inline"><em>O</em>(<em>N</em><sup>3</sup>)</span>.</p>
+<p>The Kraut algorithm finds decomposition of matrix <span class="math inline"><em>A</em></span> as <span class="math inline"><em>A</em> = <em>L</em><em>U</em></span> where <span class="math inline"><em>L</em></span> is lower triangular and <span class="math inline"><em>U</em></span> is upper triangular matrix. Without loss of generality, we can assume that all the diagonal elements of <span class="math inline"><em>L</em></span> are equal to 1. Once we know these matrices, it is easy to calculate the determinant of <span class="math inline"><em>A</em></span>: it is equal to the product of all the elements on the main diagonal of the matrix <span class="math inline"><em>U</em></span>.</p>
+<p>There is a theorem stating that any invertible matrix has a LU-decomposition, and it is unique, if and only if all its principle minors are non-zero. We consider only such decomposition in which the diagonal of matrix <span class="math inline"><em>L</em></span> consists of ones.</p>
+<p>Let <span class="math inline"><em>A</em></span> be the matrix and <span class="math inline"><em>N</em></span> - its size. We will find the elements of the matrices <span class="math inline"><em>L</em></span> and <span class="math inline"><em>U</em></span> using the following steps:</p>
+<ol style="list-style-type: decimal">
+<li>Let <span class="math inline"><em>L</em><sub><em>i</em><em>i</em></sub> = 1</span> for <span class="math inline"><em>i</em> = 1, 2, ..., <em>N</em></span>.</li>
+<li>For each <span class="math inline"><em>j</em> = 1, 2, ..., <em>N</em></span> perform:
+<ul>
+<li>For <span class="math inline"><em>i</em> = 1, 2, ..., <em>j</em></span> find values <br /><span class="math display">$$U_{ij} = A_{ij} - \sum_{k=1}^{i-1} L_{ik} \cdot U_{kj}$$</span><br /></li>
+<li>Next, for <span class="math inline"><em>i</em> = <em>j</em> + 1, <em>j</em> + 2, ..., <em>N</em></span> find values <br /><span class="math display">$$L_{ij} = \frac{1}{U_{jj}} \left(A_{ij} - \sum_{k=1}^{j-1} L_{ik} \cdot U_{kj} \right)$$</span><br />.</li>
+</ul></li>
+</ol>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java"><span class="dt">static</span> BigInteger <span class="fu">det</span> (BigDecimal a [][], <span class="dt">int</span> n) {
+    <span class="kw">try</span> {
+
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;n; i++) {
+        <span class="dt">boolean</span> nonzero = <span class="kw">false</span>;
+        <span class="kw">for</span> (<span class="dt">int</span> j=<span class="dv">0</span>; j&lt;n; j++)
+            <span class="kw">if</span> (a[i][j].<span class="fu">compareTo</span> (<span class="kw">new</span> BigDecimal (BigInteger.<span class="fu">ZERO</span>)) &gt; <span class="dv">0</span>)
+                nonzero = <span class="kw">true</span>;
+        <span class="kw">if</span> (!nonzero)
+            <span class="kw">return</span> BigInteger.<span class="fu">ZERO</span>;
+    }
+
+    BigDecimal scaling [] = <span class="kw">new</span> BigDecimal [n];
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;n; i++) {
+        BigDecimal big = <span class="kw">new</span> BigDecimal (BigInteger.<span class="fu">ZERO</span>);
+        <span class="kw">for</span> (<span class="dt">int</span> j=<span class="dv">0</span>; j&lt;n; j++)
+            <span class="kw">if</span> (a[i][j].<span class="fu">abs</span>().<span class="fu">compareTo</span> (big) &gt; <span class="dv">0</span>)
+                big = a[i][j].<span class="fu">abs</span>();
+        scaling[i] = (<span class="kw">new</span> BigDecimal (BigInteger.<span class="fu">ONE</span>)) .<span class="fu">divide</span>
+            (big, <span class="dv">100</span>, BigDecimal.<span class="fu">ROUND_HALF_EVEN</span>);
+    }
+
+    <span class="dt">int</span> sign = <span class="dv">1</span>;
+
+    <span class="kw">for</span> (<span class="dt">int</span> j=<span class="dv">0</span>; j&lt;n; j++) {
+        <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;j; i++) {
+            BigDecimal sum = a[i][j];
+            <span class="kw">for</span> (<span class="dt">int</span> k=<span class="dv">0</span>; k&lt;i; k++)
+                sum = sum.<span class="fu">subtract</span> (a[i][k].<span class="fu">multiply</span> (a[k][j]));
+            a[i][j] = sum;
+        }
+
+        BigDecimal big = <span class="kw">new</span> BigDecimal (BigInteger.<span class="fu">ZERO</span>);
+        <span class="dt">int</span> imax = -<span class="dv">1</span>;
+        <span class="kw">for</span> (<span class="dt">int</span> i=j; i&lt;n; i++) {
+            BigDecimal sum = a[i][j];
+            <span class="kw">for</span> (<span class="dt">int</span> k=<span class="dv">0</span>; k&lt;j; k++)
+                sum = sum.<span class="fu">subtract</span> (a[i][k].<span class="fu">multiply</span> (a[k][j]));
+            a[i][j] = sum;
+            BigDecimal cur = sum.<span class="fu">abs</span>();
+            cur = cur.<span class="fu">multiply</span> (scaling[i]);
+            <span class="kw">if</span> (cur.<span class="fu">compareTo</span> (big) &gt;= <span class="dv">0</span>) {
+                big = cur;
+                imax = i;
+            }
+        }
+
+        <span class="kw">if</span> (j != imax) {
+            <span class="kw">for</span> (<span class="dt">int</span> k=<span class="dv">0</span>; k&lt;n; k++) {
+                BigDecimal t = a[j][k];
+                a[j][k] = a[imax][k];
+                a[imax][k] = t;
+            }
+
+            BigDecimal t = scaling[imax];
+            scaling[imax] = scaling[j];
+            scaling[j] = t;
+
+            sign = -sign;
+        }
+
+        <span class="kw">if</span> (j != n<span class="dv">-1</span>)
+            <span class="kw">for</span> (<span class="dt">int</span> i=j<span class="dv">+1</span>; i&lt;n; i++)
+                a[i][j] = a[i][j].<span class="fu">divide</span>
+                    (a[j][j], <span class="dv">100</span>, BigDecimal.<span class="fu">ROUND_HALF_EVEN</span>);
+
+    }
+
+    BigDecimal result = <span class="kw">new</span> BigDecimal (<span class="dv">1</span>);
+    <span class="kw">if</span> (sign == -<span class="dv">1</span>)
+        result = result.<span class="fu">negate</span>();
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;n; i++)
+        result = result.<span class="fu">multiply</span> (a[i][i]);
+
+    <span class="kw">return</span> result.<span class="fu">divide</span>
+        (BigDecimal.<span class="fu">valueOf</span>(<span class="dv">1</span>), <span class="dv">0</span>, BigDecimal.<span class="fu">ROUND_HALF_EVEN</span>).<span class="fu">toBigInteger</span>();
+    }
+    <span class="kw">catch</span> (Exception e) {
+        <span class="kw">return</span> BigInteger.<span class="fu">ZERO</span>;
+    }
+}</code></pre></div>
+</body>
+</html>

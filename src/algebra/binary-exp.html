@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Binary Exponentiation-->
+<h1 id="binary-exponentiation">Binary Exponentiation</h1>
+<p>Binary exponentiation (also known as exponentiation by squaring) is a trick which allows to calculate <span class="math inline"><em>a</em><sup><em>n</em></sup></span> using only <span class="math inline"><em>O</em>(log<em>n</em>)</span> multiplications (instead of <span class="math inline"><em>O</em>(<em>n</em>)</span> multiplications required by naive approach).</p>
+<p>It also has important applications in many tasks unrelated to arithmetic, since it can be used with any operations that have the property of <strong>associativity</strong>:</p>
+<p><br /><span class="math display">(<em>X</em> ⋅ <em>Y</em>)⋅<em>Z</em> = <em>X</em> ⋅ (<em>Y</em> ⋅ <em>Z</em>)</span><br /></p>
+<p>Most obviously this applies to modular multiplication, to multiplication of matrices and to other problems which we will discuss below.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>Raising <span class="math inline"><em>a</em></span> to the power of <span class="math inline"><em>n</em></span> is expressed naively as multiplication by <span class="math inline"><em>a</em></span> done <span class="math inline"><em>n</em> − 1</span> times: <span class="math inline"><em>a</em><sup><em>n</em></sup> = <em>a</em> ⋅ <em>a</em> ⋅ … ⋅ <em>a</em></span>. However, this approach is not practical for large <span class="math inline"><em>a</em></span> or <span class="math inline"><em>n</em></span>.</p>
+<p><span class="math inline"><em>a</em><sup><em>b</em> + <em>c</em></sup> = <em>a</em><sup><em>b</em></sup> ⋅ <em>a</em><sup><em>c</em></sup></span> and <span class="math inline"><em>a</em><sup>2<em>b</em></sup> = <em>a</em><sup><em>b</em></sup> ⋅ <em>a</em><sup><em>b</em></sup> = (<em>a</em><sup><em>b</em></sup>)<sup>2</sup></span>.</p>
+<p>The idea of binary exponentiation is, that we split the work using the binary representation of the exponent.</p>
+<p>Let's write <span class="math inline"><em>n</em></span> in base 2, for example: <br /><span class="math display">3<sup>13</sup> = 3<sup>1101<sub>2</sub></sup> = 3<sup>8</sup> ⋅ 3<sup>4</sup> ⋅ 3<sup>1</sup></span><br /></p>
+<p>Since the number <span class="math inline"><em>n</em></span> has exactly <span class="math inline">⌊log<sub>2</sub><em>n</em>⌋+1</span> digits in base 2, we only need to perform <span class="math inline"><em>O</em>(log<em>n</em>)</span> multiplications, if we know the powers <span class="math inline"><em>a</em><sup>1</sup>, <em>a</em><sup>2</sup>, <em>a</em><sup>4</sup>, <em>a</em><sup>8</sup>, …, <em>a</em><sup>⌊log<em>n</em>⌋</sup></span>.</p>
+<p>So we only need to know a fast way to compute those. Luckily this is very easy, since an element in the sequence is just the square of the previous element.</p>
+<p><br /><span class="math display">$$\begin{align}
+3^1 &amp;= 3 \\\\
+3^2 &amp;= \left(3^1\right)^2 = 3^2 = 9 \\\\
+3^4 &amp;= \left(3^2\right)^2 = 9^2 = 81 \\\\
+3^8 &amp;= \left(3^4\right)^2 = 81^2 = 6561
+\end{align}$$</span><br /></p>
+<p>So to get the final answer for <span class="math inline">3<sup>13</sup></span>, we only need to multiply three of them (skipping <span class="math inline">3<sup>2</sup></span> because the corresponding bit in <span class="math inline"><em>n</em></span> is not set): <span class="math inline">3<sup>13</sup> = 6561 ⋅ 81 ⋅ 3 = 1594323</span></p>
+<p>The final complexity of this algorithm is <span class="math inline"><em>O</em>(log<em>n</em>)</span>: we have to compute <span class="math inline">log<em>n</em></span> powers of <span class="math inline"><em>a</em></span>, and then have to do at most <span class="math inline">log<em>n</em></span> multiplications to get the final answer from them.</p>
+<p>The following recursive approach expresses the same idea:</p>
+<p><br /><span class="math display">$$a^n = \begin{cases}
+1 &amp;\text{if } n == 0 \\\\
+\left(a^{\frac{n}{2}}\right)^2 &amp;\text{if } n &gt; 0 \text{ and } n \text{ even}\\\\
+\left(a^{\frac{n - 1}{2}}\right)^2 \cdot a &amp;\text{if } n &gt; 0 \text{ and } n \text{ odd}\\\\
+\end{cases}$$</span><br /></p>
+<h2 id="implementation">Implementation</h2>
+<p>First the recursive approach, which is a direct translation of the recursive formula:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">long</span> <span class="dt">long</span> binpow(<span class="dt">long</span> <span class="dt">long</span> a, <span class="dt">long</span> <span class="dt">long</span> b) {
+    <span class="kw">if</span> (b == <span class="dv">0</span>)
+        <span class="kw">return</span> <span class="dv">1</span>;
+    <span class="dt">long</span> <span class="dt">long</span> res = binpow(a, b / <span class="dv">2</span>);
+    <span class="kw">if</span> (b % <span class="dv">2</span>)
+        <span class="kw">return</span> res * res * a;
+    <span class="kw">else</span>
+        <span class="kw">return</span> res * res;
+}</code></pre></div>
+<p>The second approach accomplishes the same task without recusion. It computes all the powers in a loop, and multiplies the ones with the corresponding set bit in <span class="math inline"><em>n</em></span>. Although the complexity of both approaches is identical, this approach will be faster in practice since we have the overhead of the recursive calls.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">long</span> <span class="dt">long</span> binpow(<span class="dt">long</span> <span class="dt">long</span> a, <span class="dt">long</span> <span class="dt">long</span> b) {
+    <span class="dt">long</span> <span class="dt">long</span> res = <span class="dv">1</span>;
+    <span class="kw">while</span> (b &gt; <span class="dv">0</span>) {
+        <span class="kw">if</span> (b &amp; <span class="dv">1</span>)
+            res = res * a;
+        a = a * a;
+        b &gt;&gt;= <span class="dv">1</span>;
+    }
+    <span class="kw">return</span> res;
+}</code></pre></div>
+<h2 id="applications">Applications</h2>
+<h3 id="effective-computation-of-large-exponents-modulo-a-number">Effective computation of large exponents modulo a number</h3>
+<p><strong>Problem:</strong> Compute <span class="math inline">$x^n \bmod m$</span>. This is a very common operation. For instance it is used in computing the <a href="./algebra/module-inverse.html">modular multiplicative inverse</a>.</p>
+<p><strong>Solution:</strong> Since we know that the module operator doesn't interfer with multiplications (<span class="math inline">$a \cdot b \equiv (a \bmod m) \cdot (b \bmod m) \pmod m$</span>), we can directly use the same code, and just replace every multiplication with a modular multiplication:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">long</span> <span class="dt">long</span> binpow(<span class="dt">long</span> <span class="dt">long</span> a, <span class="dt">long</span> <span class="dt">long</span> b, <span class="dt">long</span> <span class="dt">long</span> m) {
+    a %= m;
+    <span class="dt">long</span> <span class="dt">long</span> res = <span class="dv">1</span>;
+    <span class="kw">while</span> (b &gt; <span class="dv">0</span>) {
+        <span class="kw">if</span> (b &amp; <span class="dv">1</span>)
+            res = res * a % m;
+        a = a * a % m;
+        b &gt;&gt;= <span class="dv">1</span>;
+    }
+    <span class="kw">return</span> res;
+}</code></pre></div>
+<h3 id="effective-computation-of-fibonacci-numbers">Effective computation of Fibonacci numbers</h3>
+<p><strong>Problem:</strong> Compute <span class="math inline"><em>n</em></span>-th Fibonacci number <span class="math inline"><em>F</em><sub><em>n</em></sub></span>.</p>
+<p><strong>Solution:</strong> For more details, see the <a href="./algebra/fibonacci-numbers.html">Fibonacci Number article</a>. We will only go through an overview of the algorithm. To compute the next Fibonacci number, only the two previous ones are needed, as <span class="math inline"><em>F</em><sub><em>n</em></sub> = <em>F</em><sub><em>n</em> − 1</sub> + <em>F</em><sub><em>n</em> − 2</sub></span>. We can build a <span class="math inline">2 × 2</span> matrix that describes this transformation: the transition from <span class="math inline"><em>F</em><sub><em>i</em></sub></span> and <span class="math inline"><em>F</em><sub><em>i</em> + 1</sub></span> to <span class="math inline"><em>F</em><sub><em>i</em> + 1</sub></span> and <span class="math inline"><em>F</em><sub><em>i</em> + 2</sub></span>. For example, applying this transformation to the pair <span class="math inline"><em>F</em><sub>0</sub></span> and <span class="math inline"><em>F</em><sub>1</sub></span> would change it into <span class="math inline"><em>F</em><sub>1</sub></span> and <span class="math inline"><em>F</em><sub>2</sub></span>. Therefore, we can raise this transformation matrix to the <span class="math inline"><em>n</em></span>-th power to find <span class="math inline"><em>F</em><sub><em>n</em></sub></span> in time complexity <span class="math inline"><em>O</em>(log<em>n</em>)</span>.</p>
+<h3 id="applying-a-permutation-k-times">Applying a permutation <span class="math inline"><em>k</em></span> times</h3>
+<p><strong>Problem:</strong> You are given a sequence of length <span class="math inline"><em>n</em></span>. Apply to it a given permutation <span class="math inline"><em>k</em></span> times.</p>
+<p><strong>Solution:</strong> Simply raise the permutation to <span class="math inline"><em>k</em></span>-th power using binary exponentiation, and then apply it to the sequence. This will give you a time complexity of <span class="math inline"><em>O</em>(<em>n</em>log<em>k</em>)</span>.</p>
+<p><strong>Note:</strong> This task can be solved more efficiently in linear time by building the permutation graph and considering each cycle independently. You could then compute <span class="math inline"><em>k</em></span> modulo the size of the cycle and find the final position for each number which is part of this cycle.</p>
+<h3 id="fast-application-of-a-set-of-geometric-operations-to-a-set-of-points">Fast application of a set of geometric operations to a set of points</h3>
+<p><strong>Problem:</strong> Given <span class="math inline"><em>n</em></span> points <span class="math inline"><em>p</em><sub><em>i</em></sub></span>, apply <span class="math inline"><em>m</em></span> transformations to each of these points. Each transformation can be a shift, a scaling or a rotation around a given axis by a given angle. There is also a &quot;loop&quot; operation which applies a given list of transformations <span class="math inline"><em>k</em></span> times (&quot;loop&quot; operations can be nested). You should apply all transformations faster than <span class="math inline"><em>O</em>(<em>n</em> ⋅ <em>l</em><em>e</em><em>n</em><em>g</em><em>t</em><em>h</em>)</span>, where <span class="math inline"><em>l</em><em>e</em><em>n</em><em>g</em><em>t</em><em>h</em></span> is the total number of transformations to be applied (after unrolling &quot;loop&quot; operations).</p>
+<p><strong>Solution:</strong> Let's look at how the different types of transformations change the coordinates:</p>
+<ul>
+<li>Shift operation: adds a different constant to each of the coordinates.</li>
+<li>Scaling operation: multiplies each of the coordinates by a different constant.</li>
+<li>Rotation operation: the transformation is more complicated (we won't go in details here), but each of the new coordinates still can be represented as a linear combination of the old ones.</li>
+</ul>
+<p>As you can see, each of the transformations can be represented as a linear operation on the coordinates. Thus, a transformation can be written as a <span class="math inline">4 × 4</span> matrix of the form:</p>
+<p><br /><span class="math display">$$\begin{pmatrix}
+a_{11} &amp; a_ {12} &amp; a_ {13} &amp; a_ {14} \\\
+a_{21} &amp; a_ {22} &amp; a_ {23} &amp; a_ {24} \\\
+a_{31} &amp; a_ {32} &amp; a_ {33} &amp; a_ {34} \\\
+a_{41} &amp; a_ {42} &amp; a_ {43} &amp; a_ {44} \\\
+\end{pmatrix}$$</span><br /></p>
+<p>that, when multiplied by a vector with the old coordinates and an unit gives a new vector with the new coordinates and an unit:</p>
+<p><br /><span class="math display">$$\begin{pmatrix} x &amp; y &amp; z &amp; 1 \end{pmatrix} \cdot
+\begin{pmatrix}
+a_{11} &amp; a_ {12} &amp; a_ {13} &amp; a_ {14} \\\
+a_{21} &amp; a_ {22} &amp; a_ {23} &amp; a_ {24} \\\
+a_{31} &amp; a_ {32} &amp; a_ {33} &amp; a_ {34} \\\
+a_{41} &amp; a_ {42} &amp; a_ {43} &amp; a_ {44} \\\
+\end{pmatrix}
+ = \begin{pmatrix} x' &amp; y' &amp; z' &amp; 1 \end{pmatrix}$$</span><br /></p>
+<p>(Why introduce a fictitious fourth coordinate, you ask? Without this, it would not be possible to implement the shift operation, as it requires us to add a constant to the coordinates. Without the fictitious coordinates, we would only be able to apply a linear combination to the coordinates, not being able to add a constant.)</p>
+<p>Here are some examples of how transformations are represented in matrix form:</p>
+<ul>
+<li><p>Shift operation: shift <span class="math inline"><em>x</em></span> coordinate by <span class="math inline">5</span>, <span class="math inline"><em>y</em></span> coordinate by <span class="math inline">7</span> and <span class="math inline"><em>z</em></span> coordinate by <span class="math inline">9</span>. <br /><span class="math display">$$\begin{pmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\\
+0 &amp; 1 &amp; 0 &amp; 0 \\\
+0 &amp; 0 &amp; 1 &amp; 0 \\\
+5 &amp; 7 &amp; 9 &amp; 1 \\\
+\end{pmatrix}$$</span><br /></p></li>
+<li><p>Scaling operation: scale the <span class="math inline"><em>x</em></span> coordinate by <span class="math inline">10</span> and the other two by <span class="math inline">5</span>. <br /><span class="math display">$$\begin{pmatrix}
+10 &amp; 0 &amp; 0 &amp; 0 \\\
+0 &amp; 5 &amp; 0 &amp; 0 \\\
+0 &amp; 0 &amp; 5 &amp; 0 \\\
+0 &amp; 0 &amp; 0 &amp; 1 \\\
+\end{pmatrix}$$</span><br /></p></li>
+<li><p>Rotation operation: rotate <span class="math inline"><em>θ</em></span> degrees around the <span class="math inline"><em>x</em></span> axis following the right-hand rule (counter-clockwise direction). <br /><span class="math display">$$\begin{pmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\\
+0 &amp; \cos \theta &amp; -\sin \theta &amp; 0 \\\
+0 &amp; \sin \theta &amp; \cos \theta &amp; 0 \\\
+0 &amp; 0 &amp; 0 &amp; 1 \\\
+\end{pmatrix}$$</span><br /></p></li>
+</ul>
+<p>Now, once every transformation is described as a matrix, the sequence of transformations can be described as a product of these matrices, and a &quot;loop&quot; of <span class="math inline"><em>k</em></span> repetitions can be described as the matrix raised to the power of <span class="math inline"><em>k</em></span> (which can be calculated using binary exponentiation in <span class="math inline"><em>O</em>(log<em>k</em>)</span>). This way, the matrix which represents all transformations can be calculated first in <span class="math inline"><em>O</em>(<em>m</em>log<em>k</em>)</span>, and then it can be applied to each of the <span class="math inline"><em>n</em></span> points in <span class="math inline"><em>O</em>(<em>n</em>)</span> for a total complexity of <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>log<em>k</em>)</span>.</p>
+<h3 id="number-of-paths-of-length-k-in-a-graph">Number of paths of length <span class="math inline"><em>k</em></span> in a graph</h3>
+<p><strong>Problem:</strong> Given a directed unweighted graph of <span class="math inline"><em>n</em></span> vertices, find the number of paths of length <span class="math inline"><em>k</em></span> from any vertex <span class="math inline"><em>u</em></span> to any other vertex <span class="math inline"><em>v</em></span>.</p>
+<p><strong>Solution:</strong> This problem is considered in more detail in <a href="./graph/fixed_length_paths.html">a separate article</a>. The algorithm consists of raising the adjacency matrix <span class="math inline"><em>M</em></span> of the graph (a matrix where <span class="math inline"><em>m</em><sub><em>i</em><em>j</em></sub> = 1</span> if there is an edge from <span class="math inline"><em>i</em></span> to <span class="math inline"><em>j</em></span>, or <span class="math inline">0</span> otherwise) to the <span class="math inline"><em>k</em></span>-th power. Now <span class="math inline"><em>m</em><sub><em>i</em><em>j</em></sub></span> will be the number of paths of length <span class="math inline"><em>k</em></span> from <span class="math inline"><em>i</em></span> to <span class="math inline"><em>j</em></span>. The time complexity of this solution is <span class="math inline"><em>O</em>(<em>n</em><sup>3</sup>log<em>k</em>)</span>.</p>
+<p><strong>Note:</strong> In that same article, another variation of this problem is considered: when the edges are weighted and it is required to find the minimum weight path containing exactly <span class="math inline"><em>k</em></span> edges. As shown in that article, this problem is also solved by exponentiation of the adjacency matrix. The matrix would have the weight of the edge from <span class="math inline"><em>i</em></span> to <span class="math inline"><em>j</em></span>, or <span class="math inline">∞</span> if there is no such edge. Instead of the usual operation of multiplying two matrices, a modified one should be used: instead of multiplication, both values are added, and instead of a summation, a minimum is taken. That is: <span class="math inline">$result_{ij} = \min\limits_{1\ \leq\ k\ \leq\ n}(a_{ik} + b_{kj})$</span>.</p>
+<h3 id="variation-of-binary-exponentiation-multiplying-two-numbers-modulo-m">Variation of binary exponentiation: multiplying two numbers modulo <span class="math inline"><em>m</em></span></h3>
+<p><strong>Problem:</strong> Multiply two numbers <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> modulo <span class="math inline"><em>m</em></span>. <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> fit in the built-in data types, but their product is too big to fit in a 64-bit integer. The idea is to compute <span class="math inline">$a \cdot b \pmod m$</span> without using bignum arithmetics.</p>
+<p><strong>Solution:</strong> We simply apply the binary construction algorithm described above, only performing additions instead of multiplications. In other words, we have &quot;expanded&quot; the multiplication of two numbers to <span class="math inline"><em>O</em>(log<em>m</em>)</span> operations of addition and multiplication by two (which, in essence, is an addition).</p>
+<p><br /><span class="math display">$$a \cdot b = \begin{cases}
+0 &amp;\text{if }a = 0 \\\\
+2 \cdot \frac{a}{2} \cdot b &amp;\text{if }a &gt; 0 \text{ and }a \text{ even} \\\\
+2 \cdot \frac{a-1}{2} \cdot b + b &amp;\text{if }a &gt; 0 \text{ and }a \text{ odd}
+\end{cases}$$</span><br /></p>
+<p><strong>Note:</strong> You can solve this task in a different way by using floating-point operations. First compute the expression <span class="math inline">$\frac{a \cdot b}{m}$</span> using floating-point numbers and cast it to an unsigned integer <span class="math inline"><em>q</em></span>. Subtract <span class="math inline"><em>q</em> ⋅ <em>m</em></span> from <span class="math inline"><em>a</em> ⋅ <em>b</em></span> using unsigned integer arithmetics and take it modulo <span class="math inline"><em>m</em></span> to find the answer. This solution looks rather unreliable, but it is very fast, and very easy to implement. See <a href="https://cs.stackexchange.com/questions/77016/modular-multiplication">here</a> for more information.</p>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=3671">UVa 1230 - MODEX</a></li>
+<li><a href="http://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=310">UVa 374 - Big Mod</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=1970">UVa 11029 - Leading and Trailing</a></li>
+<li><a href="http://codeforces.com/problemset/problem/630/I">Codeforces - Parking Lot</a></li>
+<li><a href="http://www.spoj.com/problems/LASTDIG/">SPOJ - The last digit</a></li>
+<li><a href="http://www.spoj.com/problems/LOCKER/">SPOJ - Locker</a></li>
+<li><a href="https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1723">LA - 3722 Jewel-eating Monsters</a></li>
+<li><a href="http://www.spoj.com/problems/ZSUM/">SPOJ - Just add it</a></li>
+</ul>
+</body>
+</html>

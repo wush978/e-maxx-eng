@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Discrete Logarithm -->
+<h1 id="discrete-logarithm">Discrete Logarithm</h1>
+<p>The discrete logarithm is an integer <span class="math inline"><em>x</em></span> solving the equation</p>
+<p><span class="math inline">$a^x \equiv b \pmod m$</span></p>
+<p>where <span class="math inline"><em>a</em></span> and <span class="math inline"><em>m</em></span> are relatively prime. (<code>Note</code>: if they are not relatively prime, then the algorithm described below is incorret, though it can be modified so that it can work).</p>
+<p>In this article, we describe the <code>Baby step - giant step</code> algorithm, proposed by Shanks in 1971, which has complexity <span class="math inline">$O(\sqrt{m} \log m)$</span>. This algorithm is also known as <code>meet-in-the-middle</code>, because of it uses technique separation of tasks in half.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>Consider the equation:</p>
+<p><span class="math inline">$a^x \equiv b \pmod m$</span></p>
+<p>where <span class="math inline"><em>a</em></span> and <span class="math inline"><em>m</em></span> are relatively prime.</p>
+<p>Let <span class="math inline"><em>x</em> = <em>n</em><em>p</em> − <em>q</em></span>, where <span class="math inline"><em>n</em></span> is some pre-selected constant (we will describe how to select <span class="math inline"><em>n</em></span> later). <span class="math inline"><em>p</em></span> is known as <code>giant step</code>, since increasing it by one increases <span class="math inline"><em>x</em></span> by <span class="math inline"><em>n</em></span>. Similarly, <span class="math inline"><em>q</em></span> is known as <code>baby step</code>.</p>
+<p>Obviously, any value of <span class="math inline"><em>x</em></span> in the interval <span class="math inline">[0; <em>m</em>)</span> can be represented in this form, where <span class="math inline">$p \in [1; \lceil \frac{m}{n} \rceil ]$</span> and <span class="math inline"><em>q</em> ∈ [0; <em>n</em>]</span>.</p>
+<p>Then, the equation becomes:</p>
+<p><span class="math inline">$a^{np - q} \equiv b \pmod m$</span>.</p>
+<p>Using the fact that <span class="math inline"><em>a</em></span> and <span class="math inline"><em>m</em></span> are relatively prime, we obtain:</p>
+<p><span class="math inline">$a^{np} \equiv ba^q \pmod m$</span></p>
+<p>This new equation can be rewriten in a simplified form:</p>
+<p><span class="math inline"><em>f</em><sub>1</sub>(<em>p</em>)=<em>f</em><sub>2</sub>(<em>q</em>)</span>.</p>
+<p>This problem can be solved using the method meet-in-the-middle as follows:</p>
+<ul>
+<li>We calculate <span class="math inline"><em>f</em><sub>1</sub></span> for all possible values of <span class="math inline"><em>p</em></span>. Sort these values.</li>
+<li>For each value of <span class="math inline"><em>q</em></span>, calculate <span class="math inline"><em>f</em><sub>2</sub></span>, and look for the corresponding value of <span class="math inline"><em>p</em></span> using the sorted array of <span class="math inline"><em>f</em><sub>1</sub></span> using binary search.</li>
+</ul>
+<h2 id="complexity">Complexity</h2>
+<p>For each value of <span class="math inline"><em>p</em></span>, we can calculate <span class="math inline"><em>f</em><sub>1</sub>(<em>p</em>)</span> in <span class="math inline"><em>O</em>(log<em>m</em>)</span> using <a href="./algebra/binary-exp.html">binary exponentation algorithm</a>. Similar for <span class="math inline"><em>f</em><sub>2</sub>(<em>q</em>)</span>.</p>
+<p>In the first step of the algorithm, we need to calculate <span class="math inline"><em>f</em><sub>1</sub></span> for every possible values of <span class="math inline"><em>p</em></span>, and then sort them. Thus, this step has complexity:</p>
+<p><span class="math inline">$O(\lceil \frac{m}{n} \rceil (\log m + \log \lceil \frac{m}{n} \rceil )) = O( \lceil \frac {m}{n} \rceil \log m)$</span></p>
+<p>In the second step of the algorithm, we need to calculate <span class="math inline"><em>f</em><sub>2</sub>(<em>q</em>)</span> for each possible value of <span class="math inline"><em>q</em></span>, and then do a binary search on the array of values of <span class="math inline"><em>f</em><sub>1</sub></span>, thus this step has complexity:</p>
+<p><span class="math inline">$O(n (\log m + \log \frac{m}{n} ) ) = O(n \log m)$</span>.</p>
+<p>Now, when we add these two complexity, we would get <span class="math inline">log<em>m</em></span> multiplied by <span class="math inline"><em>n</em></span> and <span class="math inline"><em>m</em>/<em>n</em></span>, which has minimum value when <span class="math inline"><em>n</em> = <em>m</em>/<em>n</em></span>, which means, to achieve optimal performance, <span class="math inline"><em>n</em></span> should be chosen such that:</p>
+<p><span class="math inline">$n = \sqrt{m}$</span>.</p>
+<p>Then, the complexity of the algorithm becomes:</p>
+<p><span class="math inline">$O(\sqrt {m} \log m)$</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<h3 id="the-simplest-implementation">The simplest implementation</h3>
+<p>In the following code, function <code>powmod</code> performs binary exponential <span class="math inline">$a^b \pmod m$</span>, and function <code>solve</code> produces a proper solution to the problem. It will returns <span class="math inline">−1</span> if there is no solution, and returns one possible solution in case a solution exists.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> powmod (<span class="dt">int</span> a, <span class="dt">int</span> b, <span class="dt">int</span> m) {
+    <span class="dt">int</span> res = <span class="dv">1</span>;
+    <span class="kw">while</span> (b &gt; <span class="dv">0</span>)
+        <span class="kw">if</span> (b &amp; <span class="dv">1</span>) {
+            res = (res * a) % m;
+            --b;
+        }
+        <span class="kw">else</span> {
+            a = (a * a) % m;
+            b &gt;&gt;= <span class="dv">1</span>;
+        }
+    <span class="kw">return</span> res % m;
+}
+ 
+<span class="dt">int</span> solve (<span class="dt">int</span> a, <span class="dt">int</span> b, <span class="dt">int</span> m) {
+    <span class="dt">int</span> n = (<span class="dt">int</span>) sqrt (m + <span class="fl">.0</span>) + <span class="dv">1</span>;
+    map&lt;<span class="dt">int</span>,<span class="dt">int</span>&gt; vals;
+    <span class="kw">for</span> (<span class="dt">int</span> i=n; i&gt;=<span class="dv">1</span>; --i)
+        vals[ powmod (a, i * n, m) ] = i;
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;=n; ++i) {
+        <span class="dt">int</span> cur = (powmod (a, i, m) * b) % m;
+        <span class="kw">if</span> (vals.count(cur)) {
+            <span class="dt">int</span> ans = vals[cur] * n - i;
+            <span class="kw">if</span> (ans &lt; m)
+                <span class="kw">return</span> ans;
+        }
+    }
+    <span class="kw">return</span> <span class="dv">-1</span>;
+}</code></pre></div>
+<p>In this code, we used <code>map</code> from C++ STL to store the values of <span class="math inline"><em>f</em><sub>1</sub>(<em>i</em>)</span>. Internally, <code>map</code> uses red-black-tree to store values. This code is a little bit slower than if we uses array and binary search for <span class="math inline"><em>f</em>1</span>, but is much easier to write.</p>
+<p>Another thing to note is that, if there are multiple values of <span class="math inline"><em>p</em></span> that has same value of <span class="math inline"><em>f</em><sub>1</sub></span>, we only store one such value. This works in this case because we only want to return one possible solution. If we need to return all possible solutions, we need to change <code>map&lt;int,int&gt;</code> to, say, <code>map&lt;int, vector&lt;int&gt; &gt;</code>. And we also need to change the second step accordingly.</p>
+<h2 id="improved-implementation">Improved implementation</h2>
+<p>A possible improvement is to get rid of binary exponentiation in the second phase of the algorithm. This can be done by keeping a variable that multiplies by <span class="math inline"><em>a</em></span> each time we increase <span class="math inline"><em>q</em></span>. With this change, the complexity of the algorithm is still the same, but now the log part is only for <span class="math inline"><em>m</em><em>a</em><em>p</em></span>. Instead of <span class="math inline"><em>m</em><em>a</em><em>p</em></span>, we can also use hash table (<code>unordered_map</code> in GNU C++) which has complexity <span class="math inline"><em>O</em>(1)</span> for inserting and searching. And when the value of <span class="math inline"><em>m</em></span> is small enough, we can also get rid of <span class="math inline"><em>m</em><em>a</em><em>p</em></span>, and use a regular array to store and lookup values of <span class="math inline"><em>f</em><sub>1</sub></span>.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> solve (<span class="dt">int</span> a, <span class="dt">int</span> b, <span class="dt">int</span> m) {
+    <span class="dt">int</span> n = (<span class="dt">int</span>) sqrt (m + <span class="fl">.0</span>) + <span class="dv">1</span>;
+ 
+    <span class="dt">int</span> an = <span class="dv">1</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>; i&lt;n; ++i)
+        an = (an * a) % m;
+ 
+    map&lt;<span class="dt">int</span>,<span class="dt">int</span>&gt; vals;
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">1</span>, cur=an; i&lt;=n; ++i) {
+        <span class="kw">if</span> (!vals.count(cur))
+            vals[cur] = i;
+        cur = (cur * an) % m;
+    }
+ 
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>, cur=b; i&lt;=n; ++i) {
+        <span class="kw">if</span> (vals.count(cur)) {
+            <span class="dt">int</span> ans = vals[cur] * n - i;
+            <span class="kw">if</span> (ans &lt; m)
+                <span class="kw">return</span> ans;
+        }
+        cur = (cur * a) % m;
+    }
+    <span class="kw">return</span> <span class="dv">-1</span>;
+}</code></pre></div>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/MOD/">Spoj - Power Modulo Inverted</a></li>
+<li><a href="https://community.topcoder.com/stat?c=problem_statement&amp;pm=14386&amp;rd=16801">Topcoder - SplittingFoxes3</a></li>
+</ul>
+</body>
+</html>

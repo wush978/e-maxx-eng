@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Check whether a graph is bipartite -->
+<h1 id="check-whether-a-graph-is-bipartite">Check whether a graph is bipartite</h1>
+<p>A bipartite graph is a graph whose vertices can be divided into two disjoint sets so that every edge connects two vertices from different sets (i.e. there are no edges which connect vertices from the same set). These sets are usually called sides.</p>
+<p>You are given an undirected graph. Check whether it is bipartite, and if it is, output its sides.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>There exists a theorem which claims that a graph is bipartite if and only if all its cycles have even length. However, in practice it's more convenient to use a different formulation of the definition: a graph is bipartite if and only if it is two-colorable.</p>
+<p>Let's use a series of <a href="./graph/breadth-first-search.html">breadth-first searches</a>, starting from each vertex which hasn't been visited yet. In each search, assign the vertex from which we start to side 1. Each time we visit a yet unvisited neighbor of a vertex assigned to one side, we assign it to the other side. When we try to go to a neighbor of a vertex assigned to one side which has already been visited, we check that is has been assigned to the other side; if it has been assigned to the same side, we conclude that the graph is not bipartite. Once we've visited all vertices and successfully assigned them to sides, we know that the graph is bipartite and we have constructed its partitioning.</p>
+<h2 id="implementation">Implementation</h2>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> n;
+vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; adj;
+
+vector&lt;<span class="dt">int</span>&gt; side(n, <span class="dv">-1</span>);
+<span class="dt">bool</span> is_bipartite = <span class="kw">true</span>;
+queue&lt;<span class="dt">int</span>&gt; q;
+<span class="kw">for</span> (<span class="dt">int</span> st = <span class="dv">0</span>; st &lt; n; ++st) {
+    <span class="kw">if</span> (side[st] == <span class="dv">-1</span>) {
+        q.push(st);
+        side[st] = <span class="dv">0</span>;
+        <span class="kw">while</span> (!q.empty()) {
+            <span class="dt">int</span> v = q.front();
+            q.pop();
+            <span class="kw">for</span> (<span class="dt">int</span> u : adj[v]) {
+                <span class="kw">if</span> (side[u] == <span class="dv">-1</span>) {
+                    side[u] = side[v] ^ <span class="dv">1</span>
+                    q.push(u);
+                } <span class="kw">else</span> {
+                    is_bipartite &amp;= side[u] != side[v];
+                }
+            }
+        }
+    }
+}
+
+cout &lt;&lt; (is_bipartite ? <span class="st">&quot;YES&quot;</span> : <span class="st">&quot;NO&quot;</span>) &lt;&lt; endl;</code></pre></div>
+<h3 id="practice-problems">Practice problems:</h3>
+<ul>
+<li><a href="http://www.spoj.com/problems/BUGLIFE/">SPOJ - BUGLIFE</a></li>
+</ul>
+</body>
+</html>

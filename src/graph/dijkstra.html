@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Dijkstra Algorithm -->
+<h1 id="dijkstra-algorithm">Dijkstra Algorithm</h1>
+<p>You are given a directed or undirected weighted graph with <span class="math inline"><em>n</em></span> vertices and <span class="math inline"><em>m</em></span> edges. The weights of all edges are non-negative. You are also given a starting vertex <span class="math inline"><em>s</em></span>. This article discusses finding the lengths of the shortest paths from a starting vertex <span class="math inline"><em>s</em></span> to all other vertices, and output the shortest paths themselves.</p>
+<p>This problem is also called <strong>single-source shortest paths problem</strong>.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>Here is an algorithm described by the Dutch computer scientist Edsger W. Dijkstra in 1959.</p>
+<p>Let's create an array <span class="math inline"><em>d</em>[]</span> where for each vertex <span class="math inline"><em>v</em></span> we store the current length of the shortest path from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>v</em></span> in <span class="math inline"><em>d</em>[<em>v</em>]</span>. Initially <span class="math inline"><em>d</em>[<em>s</em>]=0</span>, and for all other vertices this length equals infinity. In the implementation a sufficiently large number (which is guaranteed to be greater than any possible path length) is chosen as infinity.</p>
+<p><br /><span class="math display"><em>d</em>[<em>v</em>]=∞, <em>v</em> ≠ <em>s</em></span><br /></p>
+<p>In addition, we maintain a Boolean array <span class="math inline"><em>u</em>[]</span> which stores for each vertex <span class="math inline"><em>v</em></span> whether it's marked. Initially all vertices are unmarked:</p>
+<p><br /><span class="math display">$$u[v] = {\rm false}$$</span><br /></p>
+<p>The Dijkstra's algorithm runs for <span class="math inline"><em>n</em></span> iterations. At each iteration a vertex <span class="math inline"><em>v</em></span> is chosen as unmarked vertex which has the least value <span class="math inline"><em>d</em>[<em>v</em>]</span>:</p>
+<p>Evidently, in the first iteration the starting vertex <span class="math inline"><em>s</em></span> will be selected.</p>
+<p>The selected vertex <span class="math inline"><em>v</em></span> is marked. Next, from vertex <span class="math inline"><em>v</em></span> <strong>relaxations</strong> are performed: all edges of the form <span class="math inline">(<em>v</em>, to)</span> are considered, and for each vertex <span class="math inline">to</span> the algorithm tries to improve the value <span class="math inline"><em>d</em>[to]</span>. If the length of the current edge equals <span class="math inline"><em>l</em><em>e</em><em>n</em></span>, the code for relaxation is:</p>
+<p><br /><span class="math display"><em>d</em>[to]=min(<em>d</em>[to],<em>d</em>[<em>v</em>]+<em>l</em><em>e</em><em>n</em>)</span><br /></p>
+<p>After all such edges are considered, the current iteration ends. Finally, after <span class="math inline"><em>n</em></span> iterations, all vertices will be marked, and the algorithm terminates. We claim that the found values <span class="math inline"><em>d</em>[<em>v</em>]</span> are the lengths of shortest paths from <span class="math inline"><em>s</em></span> to all vertices <span class="math inline"><em>v</em></span>.</p>
+<p>Note that if some vertices are unreachable from the starting vertex <span class="math inline"><em>s</em></span>, the values <span class="math inline"><em>d</em>[<em>v</em>]</span> for them will remain infinite. Obviously, the last few iterations of the algorithm will choose those vertices, but no useful work will be done for them. Therefore, the algorithm can be stopped as soon as the selected vertex has infinite distance to it.</p>
+<h3 id="restoring-shortest-paths">Restoring Shortest Paths</h3>
+<p>Usually one needs to know not only the lengths of shortest paths but also the shortest paths themselves. Let's see how to maintain sufficient information to restore the shortest path from <span class="math inline"><em>s</em></span> to any vertex. We'll maintain an array of predecessors <span class="math inline"><em>p</em>[]</span> in which for each vertex <span class="math inline"><em>v</em> ≠ <em>s</em></span> <span class="math inline"><em>p</em>[<em>v</em>]</span> is the penultimate vertex in the shortest path from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>v</em></span>. Here we use the fact that if we take the shortest path to some vertex <span class="math inline"><em>v</em></span> and remove <span class="math inline"><em>v</em></span> from this path, we'll get a path ending in at vertex <span class="math inline"><em>p</em>[<em>v</em>]</span>, and this path will be the shortest for the vertex <span class="math inline"><em>p</em>[<em>v</em>]</span>. This array of predecessors can be used to restore the shortest path to any vertex: starting with <span class="math inline"><em>v</em></span>, repeatedly take the predecessor of the current vertex until we reach the starting vertex <span class="math inline"><em>s</em></span> to get the required shortest path with vertices listed in reverse order. So, the shortest path <span class="math inline"><em>P</em></span> to the vertex <span class="math inline"><em>v</em></span> is equal to:</p>
+<p><br /><span class="math display"><em>P</em> = (<em>s</em>, …, <em>p</em>[<em>p</em>[<em>p</em>[<em>v</em>]]],<em>p</em>[<em>p</em>[<em>v</em>]], <em>p</em>[<em>v</em>],<em>v</em>)</span><br /></p>
+<p>Building this array of predecessors is very simple: for each successful relaxation, i.e. when for some selected vertex <span class="math inline"><em>v</em></span>, there is an improvement in the distance to some vertex <span class="math inline">to</span>, we update the predecessor vertex for <span class="math inline">to</span> with vertex <span class="math inline"><em>v</em></span>:</p>
+<p><br /><span class="math display"><em>p</em>[to]=<em>v</em></span><br /></p>
+<h2 id="proof">Proof</h2>
+<p>The main assertion on which Dijkstra's algorithm correctness is based is the following:</p>
+<p><strong>After any vertex <span class="math inline"><em>v</em></span> becomes marked, the current distance to it <span class="math inline"><em>d</em>[<em>v</em>]</span> is the shortest, and will no longer change.</strong></p>
+<p>The proof is done by induction. For the first iteration this statement is obvious: the only marked vertex is <span class="math inline"><em>s</em></span>, and the distance to is <span class="math inline"><em>d</em>[<em>s</em>]=0</span> is indeed the length of the shortest path to <span class="math inline"><em>s</em></span>. Now suppose this statement is true for all previous iterations, i.e. for all already marked vertices; let's prove that it is not violated after the current iteration completes. Let <span class="math inline"><em>v</em></span> be the vertex selected in the current iteration, i.e. <span class="math inline"><em>v</em></span> is the vertex that the algorithm will mark. Now we have to prove that <span class="math inline"><em>d</em>[<em>v</em>]</span> is indeed equal to the length of the shortest path to it <span class="math inline"><em>l</em>[<em>v</em>]</span>.</p>
+<p>Consider the shortest path <span class="math inline"><em>P</em></span> to the vertex <span class="math inline"><em>v</em></span>. This path can be split into two parts: <span class="math inline"><em>P</em><sub>1</sub></span> which consists of only marked nodes (at least the starting vertex <span class="math inline"><em>s</em></span> is part of <span class="math inline"><em>P</em><sub>1</sub></span>), and the rest of the path <span class="math inline"><em>P</em><sub>2</sub></span> (it may include a marked vertex, but it always starts with an unmarked vertex). Let's denote the first vertex of the path <span class="math inline"><em>P</em><sub>2</sub></span> as <span class="math inline"><em>p</em></span>, and the last vertex of the path <span class="math inline"><em>P</em><sub>1</sub></span> as <span class="math inline"><em>q</em></span>.</p>
+<p>First we prove our statement for the vertex <span class="math inline"><em>p</em></span>, i.e. let's prove that <span class="math inline"><em>d</em>[<em>p</em>]=<em>l</em>[<em>p</em>]</span>. This is almost obvious: on one of the previous iterations we chose the vertex <span class="math inline"><em>q</em></span> and performed relaxation from it. Since (by virtue of the choice of vertex <span class="math inline"><em>p</em></span>) the shortest path to <span class="math inline"><em>p</em></span> is the shortest path to <span class="math inline"><em>q</em></span> plus edge <span class="math inline">(<em>p</em>, <em>q</em>)</span>, the relaxation from <span class="math inline"><em>q</em></span> set the value of <span class="math inline"><em>d</em>[<em>p</em>]</span> to the length of the shortest path <span class="math inline"><em>l</em>[<em>q</em>]</span>.</p>
+<p>Since the edges' weights are non-negative, the length of the shortest path <span class="math inline"><em>l</em>[<em>p</em>]</span> (which we just proved to be equal to <span class="math inline"><em>d</em>[<em>p</em>]</span>) does not exceed the length <span class="math inline"><em>l</em>[<em>v</em>]</span> of the shortest path to the vertex <span class="math inline"><em>v</em></span>. Given that <span class="math inline"><em>l</em>[<em>v</em>]≤<em>d</em>[<em>v</em>]</span> (because Dijkstra's algorithm could not have found a shorter way than the shortest possible one), we get the inequality:</p>
+<p><br /><span class="math display"><em>d</em>[<em>p</em>]=<em>l</em>[<em>p</em>]≤<em>l</em>[<em>v</em>]≤<em>d</em>[<em>v</em>]</span><br /></p>
+<p>On the other hand, since both vertices <span class="math inline"><em>p</em></span> and <span class="math inline"><em>v</em></span> are unmarked, and the current iteration chose vertex <span class="math inline"><em>v</em></span>, not <span class="math inline"><em>p</em></span>, we get another inequality:</p>
+<p><br /><span class="math display"><em>d</em>[<em>p</em>]≥<em>d</em>[<em>v</em>]</span><br /></p>
+<p>From these two inequalities we conclude that <span class="math inline"><em>d</em>[<em>p</em>]=<em>d</em>[<em>v</em>]</span>, and then from previously found equations we get:</p>
+<p><br /><span class="math display"><em>d</em>[<em>v</em>]=<em>l</em>[<em>v</em>]</span><br /></p>
+<p>Q.E.D.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Dijkstra's algorithm performs <span class="math inline"><em>n</em></span> iterations. On each iteration it selects an unmarked vertex <span class="math inline"><em>v</em></span> with the lowest value <span class="math inline"><em>d</em>[<em>v</em>]</span>, marks it and checks all the edges <span class="math inline">(<em>v</em>, to)</span> attempting to improve the value <span class="math inline"><em>d</em>[to]</span>.</p>
+<p>The running time of the algorithm consists of:</p>
+<ul>
+<li><span class="math inline"><em>n</em></span> searches for a vertex with the smallest value <span class="math inline"><em>d</em>[<em>v</em>]</span> among <span class="math inline"><em>O</em>(<em>n</em>)</span> unmarked vertices</li>
+<li><span class="math inline"><em>m</em></span> relaxation attempts</li>
+</ul>
+<p>For the simplest implementation of these operations on each iteration vertex search requires <span class="math inline"><em>O</em>(<em>n</em>)</span> operations, and each relaxation can be performed in <span class="math inline"><em>O</em>(1)</span>. Hence, the resulting asymptotic behavior of the algorithm is:</p>
+<p><br /><span class="math display"><em>O</em>(<em>n</em><sup>2</sup> + <em>m</em>)</span><br /></p>
+<p>```cpp dijkstra_dense const int INF = 1000000000; vector<vector<pair<int, int>&gt;&gt; adj;</p>
+<p>void dijkstra(int s, vector<int> &amp; d, vector<int> &amp; p) { int n = adj.size(); d.assign(n, INF); p.assign(n, -1); vector<bool> u(n, false);</p>
+<pre><code>d[s] = 0;
+for (int i = 0; i &lt; n; i++) {
+    int v = -1;
+    for (int j = 0; j &lt; n; j++) {
+        if (!u[j] &amp;&amp; (v == -1 || d[j] &lt; d[v]))
+            v = j;
+    }
+    
+    if (d[v] == INF)
+        break;
+    
+    u[v] = true;
+    for (auto edge : adj[v]) {
+        int to = edge.first;
+        int len = edge.second;
+        
+        if (d[v] + len &lt; d[to]) {
+            d[to] = d[v] + len;
+            p[to] = v;
+        }
+    }
+}</code></pre>
+<p>} ```</p>
+<p>Here the graph <span class="math inline">adj</span> is stored as adjacency list: for each vertex <span class="math inline"><em>v</em></span> <span class="math inline">adj[<em>v</em>]</span> contains the list of edges going from this vertex, i.e. the list of <code>pair&lt;int,int&gt;</code> where the first element in the pair is the vertex at the other end of the edge, and the second element is the edge weight.</p>
+<p>The function takes the starting vertex <span class="math inline"><em>s</em></span> and two vectors that will be used as return values.</p>
+<p>First of all, the code initializes arrays: distances <span class="math inline"><em>d</em>[]</span>, labels <span class="math inline"><em>u</em>[]</span> and predecessors <span class="math inline"><em>p</em>[]</span>. Then it performs <span class="math inline"><em>n</em></span> iterations. At each iteration the vertex <span class="math inline"><em>v</em></span> is selected which has the smallest distance <span class="math inline"><em>d</em>[<em>v</em>]</span> among all the unmarked vertices. If the distance to selected vertex <span class="math inline"><em>v</em></span> is equal to infinity, the algorithm stops. Otherwise the vertex is marked, and all the edges going out from this vertex are checked. If relaxation along the edge is possible (i.e. distance <span class="math inline"><em>d</em>[to]</span> can be improved), the distance <span class="math inline"><em>d</em>[to]</span> and predecessor <span class="math inline"><em>p</em>[to]</span> are updated.</p>
+<p>After performing all the iterations array <span class="math inline"><em>d</em>[]</span> stores the lengths of the shortest paths to all vertices, and array <span class="math inline"><em>p</em>[]</span> stores the predecessors of all vertices (except starting vertex <span class="math inline"><em>s</em></span>). The path to any vertex <span class="math inline"><em>t</em></span> can be restored in the following way:</p>
+<p>```cpp dijkstra_restore_path vector<int> restore_path(int s, int t, vector<int> const&amp; p) { vector<int> path;</p>
+<pre><code>for (int v = t; v != s; v = p[v])
+    path.push_back(v);
+path.push_back(s);
+
+reverse(path.begin(), path.end());
+return path;</code></pre>
+<p>} ```</p>
+<h2 id="references">References</h2>
+<ul>
+<li>Edsger Dijkstra. A note on two problems in connexion with graphs [1959]</li>
+<li>Thomas Cormen, Charles Leiserson, Ronald Rivest, Clifford Stein. Introduction to Algorithms [2005]</li>
+</ul>
+<h2 id="practice-problems">Practice Problems</h2>
+<ul>
+<li><a href="http://acm.timus.ru/problem.aspx?space=1&amp;num=1930">Timus - Ivan's Car</a> [Difficulty:Medium]</li>
+<li><a href="http://acm.timus.ru/problem.aspx?space=1&amp;num=1004">Timus - Sightseeing Trip</a></li>
+<li><a href="http://www.spoj.com/problems/SHPATH/">SPOJ - SHPATH</a> [Difficulty:Easy]</li>
+<li><a href="http://codeforces.com/problemset/problem/20/C">Codeforces - Dijkstra?</a> [Difficulty:Easy]</li>
+<li><a href="http://codeforces.com/problemset/problem/59/E">Codeforces - Shortest Path</a></li>
+<li><a href="http://codeforces.com/problemset/problem/449/B">Codeforces - Jzzhu and Cities</a></li>
+<li><a href="http://codeforces.com/problemset/problem/464/E">Codeforces - The Classic Problem</a></li>
+<li><a href="http://codeforces.com/problemset/problem/567/E">Codeforces - President and Roads</a></li>
+<li><a href="http://codeforces.com/problemset/problem/715/B">Codeforces - Complete The Graph</a></li>
+<li><a href="https://community.topcoder.com/stat?c=problem_statement&amp;pm=12468">TopCoder - SkiResorts</a></li>
+<li><a href="https://community.topcoder.com/stat?c=problem_statement&amp;pm=13596">TopCoder - MaliciousPath</a></li>
+<li><a href="http://www.spoj.com/problems/ADATRIP/">SPOJ - Ada and Trip</a></li>
+<li><a href="https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1851">LA - 3850 - Here We Go(relians) Again</a></li>
+<li><a href="http://codeforces.com/gym/100625">GYM - Destination Unknown (D)</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=4829">UVA 12950 - Even Obsession</a></li>
+<li><a href="http://codeforces.com/gym/100753">GYM - Journey to Grece (A)</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=866&amp;page=show_problem&amp;problem=4918">UVA 13030 - Brain Fry</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=3468">UVA 1027 - Toll</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=2372">UVA 11377 - Airport Setup</a></li>
+<li><a href="http://codeforces.com/problemset/problem/843/D">Codeforces - Dynamic Shortest Path</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2913">UVA 11813 - Shopping</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=226&amp;page=show_problem&amp;problem=2933">UVA 11833 - Route Change</a></li>
+<li><a href="http://www.spoj.com/problems/EZDIJKST/en/">SPOJ - Easy Dijkstra Problem</a></li>
+<li><a href="https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=820">LA - 2819 - Cave Raider</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=3296">UVA 12144 - Almost Shortest Path</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=3198">UVA 12047 - Highest Paid Toll</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=2509">UVA 11514 - Batman</a></li>
+<li><a href="http://codeforces.com/contest/757/problem/F">Codeforces - Team Rocket Rises Again</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2313">UVA - 11338 - Minefield</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2369">UVA 11374 - Airport Express</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2038">UVA 11097 - Poor My Problem</a></li>
+<li><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=5083">UVA 13172 - The music teacher</a></li>
+<li><a href="http://codeforces.com/contest/827/problem/F">Codeforces - Dirty Arkady's Kitchen</a></li>
+<li><a href="http://www.spoj.com/problems/DELIVER/">SPOJ - Delivery Route</a></li>
+<li><a href="http://www.spoj.com/problems/CCHESS/">SPOJ - Costly Chess</a></li>
+</ul>
+</body>
+</html>

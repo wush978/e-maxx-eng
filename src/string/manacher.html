@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Finding all sub-palindromes in O(N)-->
+<h1 id="finding-all-sub-palindromes-in-on">Finding all sub-palindromes in <span class="math inline"><em>O</em>(<em>N</em>)</span></h1>
+<h2 id="statement">Statement</h2>
+<p>Given string <span class="math inline"><em>s</em></span> with length <span class="math inline"><em>n</em></span>. Find all the pairs <span class="math inline">(<em>i</em>, <em>j</em>)</span> such that substring <span class="math inline"><em>s</em>[<em>i</em>…<em>j</em>]</span> is a palindrome. String <span class="math inline"><em>t</em></span> is a palindrome when <span class="math inline"><em>t</em> = <em>t</em><sub><em>r</em><em>e</em><em>v</em></sub></span> (<span class="math inline"><em>t</em><sub><em>r</em><em>e</em><em>v</em></sub></span> is a reversed string for <span class="math inline"><em>t</em></span>).</p>
+<h2 id="more-precise-statement">More precise statement</h2>
+<p>It's clear that in the worst case we can have <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> palindrome strings, and at the first glance it seems that there is no linear algorithm for this problem.</p>
+<p>But the information about the palindromes can be kept <strong>in a more compact way</strong>: for each position <span class="math inline"><em>i</em> = 0…<em>n</em> − 1</span> we'll find the values <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]</span> and <span class="math inline"><em>d</em><sub>2</sub>[<em>i</em>]</span>, denoting the number of palindromes accordingly with odd and even lengths with centers in the position <span class="math inline"><em>i</em></span>.</p>
+<p>For instance, string <span class="math inline"><em>s</em> = <em>a</em><em>b</em><em>a</em><em>b</em><em>a</em><em>b</em><em>c</em></span> has three palindromes with odd length with centers in the position <span class="math inline"><em>s</em>[3]=<em>b</em></span>, i. e. <span class="math inline"><em>d</em><sub>1</sub>[3]=3</span>:</p>
+<p><span class="math inline">$a\ \overbrace{b\ a\ \underbrace{b}_{s_3}\ a\ b}^{d_1[3]=3} c$</span></p>
+<p>And string <span class="math inline"><em>s</em> = <em>c</em><em>b</em><em>a</em><em>a</em><em>b</em><em>d</em></span> has two palindromes with even length with centers in the position <span class="math inline"><em>s</em>[3]=<em>a</em></span>, i. e. <span class="math inline"><em>d</em><sub>2</sub>[3]=2</span>:</p>
+<p><span class="math inline">$c\ \overbrace{b\ a\ \underbrace{a}_{s_3}\ b}^{d_2[3]=2} d$</span></p>
+<p>So the idea is that if we have a sub-palindrome with length <span class="math inline"><em>l</em></span> with center in some position <span class="math inline"><em>i</em></span>, we also have sub-palindromes with lengths <span class="math inline"><em>l</em> − 2</span>, <span class="math inline"><em>l</em> − 4</span> etc. with centers in <span class="math inline"><em>i</em></span>. So these two arrays <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]</span> and <span class="math inline"><em>d</em><sub>2</sub>[<em>i</em>]</span> are enough to keep the information about all the sub-palindromes in the string.</p>
+<p>It's a surprising fact that there is an algorithm, which is simple enough, that calculates these &quot;palindromity arrays&quot; <span class="math inline"><em>d</em><sub>1</sub>[]</span> and <span class="math inline"><em>d</em><sub>2</sub>[]</span> in linear time. The algorithm is described in this article.</p>
+<h2 id="solution">Solution</h2>
+<p>In general, this problem has many solutions: with <a href="/string/string-hashing.html">String Hashing</a> it can be solved in <span class="math inline"><em>O</em>(<em>n</em> ⋅ log<em>n</em>)</span>, and with <a href="/string/suffix-tree-ukkonen.html">Suffix Trees</a> and fast LCA this problem can be solved in <span class="math inline"><em>O</em>(<em>n</em>)</span>.</p>
+<p>But the method described here is <strong>sufficiently</strong> simpler and has less hidden constant in time and memory complexity. This algorithm was discovered by <strong>Glenn K. Manacher</strong> in 1975.</p>
+<h2 id="trivial-algorithm">Trivial algorithm</h2>
+<p>To avoid ambiguities in the further description we denote what &quot;trivial algorithm&quot; is.</p>
+<p>It's the algorithm that does the following. For each center position <span class="math inline"><em>i</em></span> it tries to increase the answer by one until it's possible, comparing a pair of corresponding characters each time.</p>
+<p>Such algorithm is slow, it can calculate the answer only in <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span>.</p>
+<p>The implementation of the trivial algorithm is:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;<span class="dt">int</span>&gt; d1(n),  d2(n);
+<span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; i++) {
+    d1[i] = <span class="dv">1</span>;
+    <span class="kw">while</span> (<span class="dv">0</span> &lt;= i - d1[i] &amp;&amp; i + d1[i] &lt; n &amp;&amp; s[i - d1[i]] == s[i + d1[i]]) {
+        d1[i]++;
+    }
+    
+    d2[i] = <span class="dv">0</span>;
+    <span class="kw">while</span> (<span class="dv">0</span> &lt;= i - d2[i] - <span class="dv">1</span> &amp;&amp; i + d2[i] &lt; n &amp;&amp; s[i - d2[i] - <span class="dv">1</span>] == s[i + d2[i]]) {
+        d2[i]++;
+    }
+}</code></pre></div>
+<h2 id="manachers-algorithm">Manacher's algorithm</h2>
+<p>We describe the algorithm to find all the sub-palindromes with odd length, i. e. to calculate <span class="math inline"><em>d</em><sub>1</sub>[]</span>; the solution for all the sub-palindromes with even length (i. e. calculating the array <span class="math inline"><em>d</em><sub>2</sub>[]</span>) will be a minor modification for this one.</p>
+<p>For fast calculation we'll keep the <strong>borders <span class="math inline">(<em>l</em>, <em>r</em>)</span></strong> of the rightmost found sub-palindrome (i. e. the palindrome with maximal <span class="math inline"><em>r</em></span>). Initially we assume <span class="math inline"><em>l</em> = 0, <em>r</em> = −1</span>.</p>
+<p>So, we want to calculate <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]</span> for the next <span class="math inline"><em>i</em></span>, and all the previous values in <span class="math inline"><em>d</em><sub>1</sub>[]</span> have been already calculated. We do the following:</p>
+<ul>
+<li><p>If <span class="math inline"><em>i</em></span> is outside the current sub-palindrome, i. e. <span class="math inline"><em>i</em> &gt; <em>r</em></span>, we'll just launch the trivial algorithm.</p>
+<p>So we'll increase <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]</span> consecutively and check each time if the current substring <span class="math inline">[<em>i</em> − <em>d</em><sub>1</sub>[<em>i</em>]…<em>i</em> + <em>d</em><sub>1</sub>[<em>i</em>]]</span> is a palindrome. When we find first divergence or meet the boundaries of <span class="math inline"><em>s</em></span>, we'll stop. In this case we've finally calculated <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]</span>. After this, we must not forget to update <span class="math inline">(<em>l</em>, <em>r</em>)</span>.</p></li>
+<li><p>Now consider the case when <span class="math inline"><em>i</em> ≤ <em>r</em></span>. We'll try to extract some information from the already calculated values in <span class="math inline"><em>d</em><sub>1</sub>[]</span>. So, let's flip the position <span class="math inline"><em>i</em></span> inside the sub-palindrome <span class="math inline">(<em>l</em>, <em>r</em>)</span>, i. e. we'll get the position <span class="math inline"><em>j</em> = <em>l</em> + (<em>r</em> − <em>i</em>)</span>, and we'll look on the value <span class="math inline"><em>d</em><sub>1</sub>[<em>j</em>]</span>. Because <span class="math inline"><em>j</em></span> is the position symmetrical to <span class="math inline"><em>i</em></span>, we'll <strong>almost always</strong> can assign <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]=<em>d</em><sub>1</sub>[<em>j</em>]</span>. Illustration of this (palindrome around <span class="math inline"><em>j</em></span> is actually &quot;copied&quot; into the palindrome around <span class="math inline"><em>i</em></span>):</p>
+<p><br /><span class="math display">$$
+\ldots\ 
+\overbrace{
+    s\_l\ \ldots\ 
+    \underbrace{
+        s\_{j-d_1[j]+1}\ \ldots\ s_j\ \ldots\ s\_{j+d_1[j]-1}\ 
+    }\_\text{palindrome}\ 
+    \ldots\ 
+    \underbrace{
+        s\_{i-d_1[j]+1}\ \ldots\ s_i\ \ldots\ s\_{i+d_1[j]-1}\ 
+    }\_\text{palindrome}\ 
+    \ldots\ s_r\ 
+}^\text{palindrome}\ 
+\ldots
+$$</span><br /></p>
+<p>But there is a <strong>tricky case</strong> to be handled correctly: when the &quot;inner&quot; palindrome reaches the borders of the &quot;outer&quot; one, i. e. <span class="math inline"><em>j</em> − <em>d</em><sub>1</sub>[<em>j</em>]+1 ≤ <em>l</em></span> (or, which is the same, <span class="math inline"><em>i</em> + <em>d</em><sub>1</sub>[<em>j</em>]−1 ≥ <em>r</em></span>). Because the symmetry outside the &quot;outer&quot; palindrome is not guaranteed, just assigning <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]=<em>d</em><sub>1</sub>[<em>j</em>]</span> will be incorrect: we have not enough data to state that the palindrome in the position <span class="math inline"><em>i</em></span> has the same length.</p>
+<p>Actually, we should &quot;cut&quot; the length of our palindrome, i. e. assign <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]=<em>r</em> − <em>i</em></span>, to handle such situations correctly. After this we'll run the trivial algorithm which will try to increase <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]</span> while it's possible.</p>
+<p>Illustration of this case (the palindrome with center <span class="math inline"><em>j</em></span> is already &quot;cut&quot; to fit the &quot;outer&quot; palindrome):</p>
+<p><br /><span class="math display">$$
+\ldots\ 
+\overbrace{
+    \underbrace{
+        s_l\ \ldots\ s_j\ \ldots\ s_{j+(j-l)}\ 
+    }\_\text{palindrome}\ 
+    \ldots\ 
+    \underbrace{
+        s_{i-(r-i)}\ \ldots\ s_i\ \ldots\ s_r
+    }\_\text{palindrome}\ 
+}^\text{palindrome}\ 
+\underbrace{
+    \ldots \ldots \ldots \ldots \ldots
+}\_\text{try moving here}
+$$</span><br /></p>
+<p>It is shown on the illustration that, though the palindrome with center <span class="math inline"><em>j</em></span> could be larger and go outside the &quot;outer&quot; palindrome, in the position <span class="math inline"><em>i</em></span> we can use only the part that entirely fits into the &quot;outer&quot; palindrome. But the answer for the position <span class="math inline"><em>i</em></span> can be much longer that this part, so next we'll run our trivial algorithm that will try to grow it outside our &quot;outer&quot; palindrome, i. e. to the region &quot;try moving here&quot;.</p></li>
+</ul>
+<p>At the end, it's necessary to remind that we should not forget to update the values <span class="math inline">(<em>l</em>, <em>r</em>)</span> after calculating each <span class="math inline"><em>d</em><sub>1</sub>[<em>i</em>]</span>.</p>
+<p>Also we'll repeat that the algorithm was described to calculate the array for odd palindromes <span class="math inline"><em>d</em><sub>1</sub>[]</span>, the algorithm is similar for the array of even palindromes <span class="math inline"><em>d</em><sub>2</sub>[]</span>.</p>
+<h2 id="complexity-of-manachers-algorithm">Complexity of Manacher's algorithm</h2>
+<p>At the first glance it's not obvious that this algorithm has linear time complexity, because we often run the naive algorithm while searching the answer for a particular position.</p>
+<p>But more careful analysis shows that the algorithm is linear however. We need to mention <a href="/string/z-function.html">Z-function building algorithm</a> which looks similar to this algorithm and also works in linear time.</p>
+<p>Actually, we can notice that every iteration of trivial algorithm makes <span class="math inline"><em>r</em></span> increase by one. Also <span class="math inline"><em>r</em></span> cannot be decreased during the algorithm. So, trivial algorithm will make <span class="math inline"><em>O</em>(<em>n</em>)</span> iterations in total.</p>
+<p>Also, other parts of Manacher's algorithm work obviously in linear time, we get <span class="math inline"><em>O</em>(<em>n</em>)</span> time complexity.</p>
+<h2 id="implementation-of-manachers-algorithm">Implementation of Manacher's algorithm</h2>
+<p>For calculating <span class="math inline"><em>d</em><sub>1</sub>[]</span>, we get the following code:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;<span class="dt">int</span>&gt; d1(n);
+<span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>, l = <span class="dv">0</span>, r = <span class="dv">-1</span>; i &lt; n; i++) {
+    <span class="dt">int</span> k = (i &gt; r) ? <span class="dv">1</span> : min(d1[l + r - i], r - i);
+    <span class="kw">while</span> (<span class="dv">0</span> &lt;= i - k &amp;&amp; i + k &lt; n &amp;&amp; s[i - k] == s[i + k]) {
+        k++;
+    }
+    d1[i] = k--;
+    <span class="kw">if</span> (i + k &gt; r) {
+        l = i - k;
+        r = i + k;
+    }
+}</code></pre></div>
+<p>For calculating <span class="math inline"><em>d</em><sub>2</sub>[]</span>, the code looks similar, but with minor changes in arithmetical expressions:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;<span class="dt">int</span>&gt; d2(n);
+<span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>, l = <span class="dv">0</span>, r = <span class="dv">-1</span>; i &lt; n; i++) {
+    <span class="dt">int</span> k = (i &gt; r) ? <span class="dv">0</span> : min(d2[l + r - i + <span class="dv">1</span>], r - i + <span class="dv">1</span>);
+    <span class="kw">while</span> (<span class="dv">0</span> &lt;= i - k - <span class="dv">1</span> &amp;&amp; i + k &lt; n &amp;&amp; s[i - k - <span class="dv">1</span>] == s[i + k]) {
+        k++;
+    }
+    d2[i] = k--;
+    <span class="kw">if</span> (i + k &gt; r) {
+        l = i - k - <span class="dv">1</span>;
+        r = i + k ;
+    }
+}</code></pre></div>
+<h2 id="problems">Problems</h2>
+<p><a href="https://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2470">UVA #11475 &quot;Extend to Palindrome&quot;</a></p>
+</body>
+</html>

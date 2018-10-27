@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Fast Fourier transform -->
+<h1 id="fast-fourier-transform">Fast Fourier transform</h1>
+<p>In this article we will discuss an algorithm that allows us to multiply two polynomials of length <span class="math inline"><em>n</em></span> in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time, which is better than the trivial multiplication which takes takes <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span> time. Obviously also multiplying two long numbers can be reduced to multiplying polynomials, so also two long numbers can be multiplied in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time (where <span class="math inline"><em>n</em></span> is the number of digits in the numbers).</p>
+<p>The discovery of the <strong>Fast Fourier transformation (FFT)</strong> is attributed to Cooley and Tukey, who published an algorithm in 1965. But in fact the FFT has been discovered repeatedly before, but the importance of it was not understood before the inventions of modern computers. Some researchers attribute the discovery of the FFT to Runge and König in 1924. But actually Gauss developed such a method already in 1805, but never published it.</p>
+<h2 id="discrete-fourier-transform">Discrete Fourier transform</h2>
+<p>Let there be a polynomial of degree <span class="math inline"><em>n</em> − 1</span>: <br /><span class="math display"><em>A</em>(<em>x</em>)=<em>a</em><sub>0</sub><em>x</em><sup>0</sup> + <em>a</em><sub>1</sub><em>x</em><sup>1</sup> + … + <em>a</em><sub><em>n</em> − 1</sub><em>x</em><sup><em>n</em> − 1</sup></span><br /> Without loss of generality we assume that <span class="math inline"><em>n</em></span> - the number of coefficients - is a power of <span class="math inline">2</span>. If <span class="math inline"><em>n</em></span> is not a power of <span class="math inline">2</span>, then we simply add the missing terms <span class="math inline"><em>a</em><sub><em>i</em></sub><em>x</em><sup><em>i</em></sup></span> and set the coefficients <span class="math inline"><em>a</em><sub><em>i</em></sub></span> to <span class="math inline">0</span>.</p>
+<p>The theory of complex numbers tells us that the equation <span class="math inline"><em>x</em><sup><em>n</em></sup> = 1</span> has <span class="math inline"><em>n</em></span> complex solutions (called the <span class="math inline"><em>n</em></span>-th roots of unity), and the solutions are of the form <span class="math inline">$w_{n, k} = e^{\frac{2 k \pi i}{n}}$</span> with <span class="math inline"><em>k</em> = 0…<em>n</em> − 1</span>. Additionally these complex numbers have some very interesting properties: e.g. the principal <span class="math inline"><em>n</em></span>-th root <span class="math inline">$w_n = w_{n, 1} = e^{\frac{2 \pi i}{n}}$</span> can be used to describe all other <span class="math inline"><em>n</em></span>-th roots: <span class="math inline"><em>w</em><sub><em>n</em>, <em>k</em></sub> = (<em>w</em><sub><em>n</em></sub>)<sup><em>k</em></sup></span>.</p>
+<p>The <strong>discrete Fourier transform (DFT)</strong> of the polynomial <span class="math inline"><em>A</em>(<em>x</em>)</span> (or equivalently the vector of coefficients <span class="math inline">(<em>a</em><sub>0</sub>, <em>a</em><sub>1</sub>, …, <em>a</em><sub><em>n</em> − 1</sub>)</span> is defined as the values of the polynomial at the points <span class="math inline"><em>x</em> = <em>w</em><sub><em>n</em>, <em>k</em></sub></span>, i.e. it is the vector: <br /><span class="math display">$$\begin{align}
+\text{DFT}(a_0, a_1, \dots, a_{n-1}) &amp;= (y_0, y_1, \dots, y_{n-1}) \\\\
+&amp;= (A(w_{n_0}), A(w_{n, 1}), \dots, A(w_{n, n-1})) \\\\
+&amp;= (A(w_n^0), A(w_n^1), \dots, A(w_n^{n-1}))
+\end{align}$$</span><br /></p>
+<p>Similarly the <strong>inverse discrete Fourier transform</strong> is defined: The inverse DFT of values of the polynomial <span class="math inline">(<em>y</em><sub>0</sub>, <em>y</em><sub>1</sub>, …, <em>y</em><sub><em>n</em> − 1</sub>)</span> are the coefficients of the polynomial <span class="math inline">(<em>a</em><sub>0</sub>, <em>a</em><sub>1</sub>, …, <em>a</em><sub><em>n</em> − 1</sub>)</span>. <br /><span class="math display">InverseDFT(<em>y</em><sub>0</sub>, <em>y</em><sub>1</sub>, …, <em>y</em><sub><em>n</em> − 1</sub>)=(<em>a</em><sub>0</sub>, <em>a</em><sub>1</sub>, …, <em>a</em><sub><em>n</em> − 1</sub>)</span><br /></p>
+<p>Thus, if a direct DFT computes the values of the polynomial at the points at the <span class="math inline"><em>n</em></span>-th roots, the inverse DFT can restore the coefficients of the polynomial using those values.</p>
+<h3 id="application-of-the-dft-fast-multiplication-of-polynomials">Application of the DFT: fast multiplication of polynomials</h3>
+<p>Let there be two polynomials <span class="math inline"><em>A</em></span> and <span class="math inline"><em>B</em></span>. We compute the DFT for each of them: <span class="math inline">DFT(<em>A</em>)</span> and <span class="math inline">DFT(<em>B</em>)</span>.</p>
+<p>What happens if we multiply these polynomials? Obviously at each point the values are simply multiplied, i.e. <br /><span class="math display">(<em>A</em> ⋅ <em>B</em>)(<em>x</em>)=<em>A</em>(<em>x</em>)⋅<em>B</em>(<em>x</em>).</span><br /></p>
+<p>This means that if we multiply the vectors <span class="math inline">DFT(<em>A</em>)</span> and <span class="math inline">DFT(<em>B</em>)</span> - by multiplying each element of one vector by the corresponding element of the other vector - then we get nothing other than the DFT of the polynomial <span class="math inline">DFT(<em>A</em> ⋅ <em>B</em>)</span>: <br /><span class="math display">DFT(<em>A</em> ⋅ <em>B</em>)=DFT(<em>A</em>)⋅DFT(<em>B</em>)</span><br /></p>
+<p>Finally, applying the inverse DFT, we obtain: <br /><span class="math display"><em>A</em> ⋅ <em>B</em> = InverseDFT(DFT(<em>A</em>)⋅DFT(<em>B</em>))</span><br /></p>
+<p>On the right the product of the two DFTs we mean the pairwise product of the vector elements. This can be computed in <span class="math inline"><em>O</em>(<em>n</em>)</span> time. If we can compute the DFT and the inverse DFT in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span>, then we can compute the product of the two polynomials (and consequently also two long numbers) with the same time complexity.</p>
+<p>It should be noted, that the two polynomials should have the same degree. Otherwise the two result vectors of the DFT have different length. We can accomplish this by adding coefficients with the value <span class="math inline">0</span>.</p>
+<p>And also, since the result of the product of two polynomials is a polynomial of degree <span class="math inline">2(<em>n</em> − 1)</span>, we have to double the degrees of each polynomial (again by padding <span class="math inline">0</span>s). From a vector with <span class="math inline"><em>n</em></span> values we cannot reconstruct the desired polynomial with <span class="math inline">2<em>n</em> − 1</span> coefficients.</p>
+<h3 id="fast-fourier-transform-1">Fast Fourier Transform</h3>
+<p>The <strong>fast Fourier transform</strong> is a method that allows computing the DFT in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time. The basic idea of the FFT is to apply divide and conquer. We divide the coefficient vector of the polynomial into two vectors, recursively compute the DFT for each of them, and combine the results to compute the DFT of the complete polynomial.</p>
+<p>So let there be a polynomial <span class="math inline"><em>A</em>(<em>x</em>)</span> with degree <span class="math inline"><em>n</em> − 1</span>, where <span class="math inline"><em>n</em></span> is a power of <span class="math inline">2</span>, and <span class="math inline"><em>n</em> &gt; 1</span>: <br /><span class="math display"><em>A</em>(<em>x</em>)=<em>a</em><sub>0</sub><em>x</em><sup>0</sup> + <em>a</em><sub>1</sub><em>x</em><sup>1</sup> + … + <em>a</em><sub><em>n</em> − 1</sub><em>x</em><sup><em>n</em> − 1</sup></span><br /></p>
+<p>We divide it into two smaller polynomials, the one containing only the coefficients of the even positions, and the one containing the coefficients of the odd positions: <br /><span class="math display">$$\begin{align}
+A_0(x) &amp;= a_0 x^0 + a_2 x^1 + \dots + a_{n-2} x^{\frac{n}{2}-1} \\\\
+A_1(x) &amp;= a_1 x^0 + a_3 x^1 + \dots + a_{n-1} x^{\frac{n}{2}-1}
+\end{align}$$</span><br /></p>
+<p>It is easy to see that <br /><span class="math display"><em>A</em>(<em>x</em>)=<em>A</em><sub>0</sub>(<em>x</em><sup>2</sup>)+<em>x</em><em>A</em><sub>1</sub>(<em>x</em><sup>2</sup>).</span><br /></p>
+<p>The polynomials <span class="math inline"><em>A</em><sub>0</sub></span> and <span class="math inline"><em>A</em><sub>1</sub></span> are only half as much coefficients as the polynomial <span class="math inline"><em>A</em></span>. If we can compute the <span class="math inline">DFT(<em>A</em>)</span> in linear time using <span class="math inline">DFT(<em>A</em><sub>0</sub>)</span> and <span class="math inline">DFT(<em>A</em><sub>1</sub>)</span>, then we get the recurrence <span class="math inline">$T_{\text{DFT}}(n) = 2 T_{\text{DFT}}\left(\frac{n}{2}\right) + O(n)$</span> for the time complexity, which results in <span class="math inline"><em>T</em><sub>DFT</sub>(<em>n</em>)=<em>O</em>(<em>n</em>log<em>n</em>)</span> by the <strong>master theorem</strong>.</p>
+<p>Lets learn how we can accomplish that.</p>
+<p>Suppose we have computed the vectors <span class="math inline">(<em>y</em><sub><em>k</em></sub><sup>0</sup>)_<em>k</em> = 0<sup><em>n</em>/2 − 1</sup> = DFT(<em>A</em><sub>0</sub>)</span> and <span class="math inline">(<em>y</em><sub><em>k</em></sub><sup>1</sup>)_<em>k</em> = 0<sup><em>n</em>/2 − 1</sup> = DFT(<em>A</em><sub>1</sub>)</span>. Let us find a expression for <span class="math inline">(<em>y</em><sub><em>k</em></sub>)<sub><em>k</em> = 0</sub><sup><em>n</em> − 1</sup> = DFT(<em>A</em>)</span>.</p>
+<p>For the first <span class="math inline">$\frac{n}{2}$</span> values we can just use the previously noted equation <span class="math inline"><em>A</em>(<em>x</em>)=<em>A</em><sub>0</sub>(<em>x</em><sup>2</sup>)+<em>x</em><em>A</em><sub>1</sub>(<em>x</em><sup>2</sup>)</span>: <br /><span class="math display">$$y_k = y_k^0 + w_n^k y_k^1, \quad k = 0 \dots \frac{n}{2} - 1.$$</span><br /></p>
+<p>However for the second <span class="math inline">$\frac{n}{2}$</span> values we need to find a slightly, different expression: <br /><span class="math display">$$\begin{align}
+y_{k+n/2} &amp;= A\left(w_n^{k+n/2}\right) \\\\
+&amp;= A_0\left(w_n^{2k+n}\right) + w_n^{k + n/2} A_1\left(w_n^{2k+n}\right) \\\\
+&amp;= A_0\left(w_n^{2k} w_n^n\right) + w_n^k w_n^{n/2} A_1\left(w_n^{2k} w_n^n\right) \\\\
+&amp;= A_0\left(w_n^{2k}\right) - w_n^k A_1\left(w_n^{2k}\right) \\\\
+&amp;= y_k^0 - w_n^k y_k^1
+\end{align}$$</span><br /> Here we used again <span class="math inline"><em>A</em>(<em>x</em>)=<em>A</em><sub>0</sub>(<em>x</em><sup>2</sup>)+<em>x</em><em>A</em><sub>1</sub>(<em>x</em><sup>2</sup>)</span> and the two identities <span class="math inline"><em>w</em><sub><em>n</em></sub><sup><em>n</em></sup> = 1</span> and <span class="math inline"><em>w</em><sub><em>n</em></sub><sup><em>n</em>/2</sup> = −1</span>.</p>
+<p>Therefore we get the desired formulas for computing the whole vector <span class="math inline">(<em>y</em><sub><em>k</em></sub>)</span>: <br /><span class="math display">$$\begin{align}
+y_k &amp;= y_k^0 + w_n^k y_k^1, &amp;\quad k = 0 \dots \frac{n}{2} - 1, \\\\
+y_{k+n/2} &amp;= y_k^0 - w_n^k y_k^1, &amp;\quad k = 0 \dots \frac{n}{2} - 1.
+\end{align}$$</span><br /> (This pattern <span class="math inline"><em>a</em> + <em>b</em></span> and <span class="math inline"><em>a</em> − <em>b</em></span> is sometimes called a <strong>butterfly</strong>.)</p>
+<p>Thus we learned how to compute the DFT in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time.</p>
+<h3 id="inverse-fft">Inverse FFT</h3>
+<p>Let the vector <span class="math inline">(<em>y</em><sub>0</sub>, <em>y</em><sub>1</sub>, …<em>y</em><sub><em>n</em> − 1</sub>)</span> - the values of polynomial <span class="math inline"><em>A</em></span> of degree <span class="math inline"><em>n</em> − 1</span> in the points <span class="math inline"><em>x</em> = <em>w</em><sub><em>n</em></sub><sup><em>k</em></sup></span> - be given. We want to restore the coefficients <span class="math inline">(<em>a</em><sub>0</sub>, <em>a</em><sub>1</sub>, …, <em>a</em><sub><em>n</em> − 1</sub>)</span> of the polynomial. This known problem is called <strong>interpolation</strong>, and there are general algorithms for solving it. But in this special case (since we know the values of the points at the roots of unity), we can obtains a much simpler algorithm (that is practically the same as the direct FFT).</p>
+<p>We can write the DFT, according to its definition, in the matrix form: <br /><span class="math display">$$
+\begin{pmatrix}
+w_n^0 &amp; w_n^0 &amp; w_n^0 &amp; w_n^0 &amp; \cdots &amp; w_n^0 \\\\
+w_n^0 &amp; w_n^1 &amp; w_n^2 &amp; w_n^3 &amp; \cdots &amp; w_n^{n-1} \\\\
+w_n^0 &amp; w_n^2 &amp; w_n^4 &amp; w_n^6 &amp; \cdots &amp; w_n^{2(n-1)} \\\\
+w_n^0 &amp; w_n^3 &amp; w_n^6 &amp; w_n^9 &amp; \cdots &amp; w_n^{3(n-1)} \\\\
+\vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\\\
+w_n^0 &amp; w_n^{n-1} &amp; w_n^{2(n-1)} &amp; w_n^{3(n-1)} &amp; \cdots &amp; w_n^{(n-1)(n-1)}
+\end{pmatrix} \begin{pmatrix}
+a_0 \\\\ a_1 \\\\ a_2 \\\\ a_3 \\\\ \vdots \\\\ a_{n-1}
+\end{pmatrix} = \begin{pmatrix}
+y_0 \\\\ y_1 \\\\ y_2 \\\\ y_3 \\\\ \vdots \\\\ y_{n-1}
+\end{pmatrix}
+$$</span><br /> This matrix is called the <strong>Vandermonde matrix</strong>.</p>
+<p>Thus we can compute the vector <span class="math inline">(<em>a</em><sub>0</sub>, <em>a</em><sub>1</sub>, …, <em>a</em><sub><em>n</em> − 1</sub>)</span> by multiplying the vector <span class="math inline">(<em>y</em><sub>0</sub>, <em>y</em><sub>1</sub>, …<em>y</em><sub><em>n</em> − 1</sub>)</span> from the left with the inverse of the matrix: <br /><span class="math display">$$
+\begin{pmatrix}
+a_0 \\\\ a_1 \\\\ a_2 \\\\ a_3 \\\\ \vdots \\\\ a_{n-1}
+\end{pmatrix} = \begin{pmatrix}
+w_n^0 &amp; w_n^0 &amp; w_n^0 &amp; w_n^0 &amp; \cdots &amp; w_n^0 \\\\
+w_n^0 &amp; w_n^1 &amp; w_n^2 &amp; w_n^3 &amp; \cdots &amp; w_n^{n-1} \\\\
+w_n^0 &amp; w_n^2 &amp; w_n^4 &amp; w_n^6 &amp; \cdots &amp; w_n^{2(n-1)} \\\\
+w_n^0 &amp; w_n^3 &amp; w_n^6 &amp; w_n^9 &amp; \cdots &amp; w_n^{3(n-1)} \\\\
+\vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\\\
+w_n^0 &amp; w_n^{n-1} &amp; w_n^{2(n-1)} &amp; w_n^{3(n-1)} &amp; \cdots &amp; w_n^{(n-1)(n-1)}
+\end{pmatrix}^{-1} \begin{pmatrix}
+y_0 \\\\ y_1 \\\\ y_2 \\\\ y_3 \\\\ \vdots \\\\ y_{n-1}
+\end{pmatrix}
+$$</span><br /></p>
+<p>A quick check can verify that the inverse of the matrix has the following form: <br /><span class="math display">$$
+\frac{1}{n}
+\begin{pmatrix}
+w_n^0 &amp; w_n^0 &amp; w_n^0 &amp; w_n^0 &amp; \cdots &amp; w_n^0 \\\\
+w_n^0 &amp; w_n^{-1} &amp; w_n^{-2} &amp; w_n^{-3} &amp; \cdots &amp; w_n^{-(n-1)} \\\\
+w_n^0 &amp; w_n^{-2} &amp; w_n^{-4} &amp; w_n^{-6} &amp; \cdots &amp; w_n^{-2(n-1)} \\\\
+w_n^0 &amp; w_n^{-3} &amp; w_n^{-6} &amp; w_n^{-9} &amp; \cdots &amp; w_n^{-3(n-1)} \\\\
+\vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\\\
+w_n^0 &amp; w_n^{-(n-1)} &amp; w_n^{-2(n-1)} &amp; w_n^{-3(n-1)} &amp; \cdots &amp; w_n^{-(n-1)(n-1)}
+\end{pmatrix}
+$$</span><br /> Thus we obtain the formula: <br /><span class="math display">$$a_k = \frac{1}{n} \sum_{j=0}^{n-1} y_j w_n^{-k j}$$</span><br /> Comparing this to the formula for <span class="math inline"><em>y</em><sub><em>k</em></sub></span> <br /><span class="math display">$$y_k = \sum_{j=0}^{n-1} a_j w_n^{k j},$$</span><br /> we notice that these problems are almost the same, so the coefficients <span class="math inline"><em>a</em><sub><em>k</em></sub></span> can be found by the same divide and conquer algorithm, as well as the direct FFT, only instead of <span class="math inline"><em>w</em><sub><em>n</em></sub><sup><em>k</em></sup></span> we have to use <span class="math inline"><em>w</em><sub><em>n</em></sub><sup>−<em>k</em></sup></span>, and at the end we need to divide the resulting coefficients by <span class="math inline"><em>n</em></span>.</p>
+<p>Thus the computation of the inverse DFT is almost the same as the calculation of the direct DFT, and it also can be performed in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time.</p>
+<h3 id="implementation">Implementation</h3>
+<p>Here we present a simple recursive <strong>implementation of the FFT</strong> and the inverse FFT, both in one function, since the difference between the forward and the inverse FFT are so minimal. To store the complex numbers we use the complex type in the C++ STL.</p>
+<p>```cpp fft_recursive using cd = complex<double>; const double PI = acos(-1);</p>
+<p>void fft(vector<cd> &amp; a, bool invert) { int n = a.size(); if (n == 1) return;</p>
+<pre><code>vector&lt;cd&gt; a0(n / 2), a1(n / 2);
+for (int i = 0; 2 * i &lt; n; i++) {
+    a0[i] = a[2*i];
+    a1[i] = a[2*i+1];
+}
+fft(a0, invert);
+fft(a1, invert);
+
+double ang = 2 * PI / n * (invert ? -1 : 1);
+cd w(1), wn(cos(ang), sin(ang));
+for (int i = 0; 2 * i &lt; n; i++) {
+    a[i] = a0[i] + w * a1[i];
+    a[i + n/2] = a0[i] - w * a1[i];
+    if (invert) {
+        a[i] /= 2;
+        a[i + n/2] /= 2;
+    }
+    w *= wn;
+}</code></pre>
+<p>} ```</p>
+<p>The function gets passed a vector of coefficients, and the function will compute the DFT or inverse DFT and store the result again in this vector. The argument <span class="math inline">invert</span> shows whether the direct or the inverse DFT should be computed. Inside the function we first check if the length of the vector is equal to one, if this is the case then we don't have to do anything. Otherwise we divide the vector <span class="math inline"><em>a</em></span> into two vectors <span class="math inline"><em>a</em>0</span> and <span class="math inline"><em>a</em>1</span> and compute the DFT for both recursively. Then we initialize the value <span class="math inline"><em>w</em><em>n</em></span> and a variable <span class="math inline"><em>w</em></span>, which will contain the current power of <span class="math inline"><em>w</em><em>n</em></span>. Then the values of the resulting DFT are computed using the above formulas.</p>
+<p>If the flag <span class="math inline">invert</span> is set, then we replace <span class="math inline"><em>w</em><em>n</em></span> with <span class="math inline"><em>w</em><em>n</em><sup>−1</sup></span>, and each of the values of the result is divided by <span class="math inline">2</span> (since this will be done in each level of the recursion, this will end up dividing the final values by <span class="math inline"><em>n</em></span>).</p>
+<p>Using this function we can create a function for <strong>multiplying two polynomials</strong>:</p>
+<p>```cpp fft_multiply vector<int> multiply(vector<int> const&amp; a, vector<int> const&amp; b) { vector<cd> fa(a.begin(), a.end()), fb(b.begin(), b.end()); int n = 1; while (n &lt; a.size() + b.size()) n &lt;&lt;= 1; fa.resize(n); fb.resize(n);</p>
+<pre><code>fft(fa, false);
+fft(fb, false);
+for (int i = 0; i &lt; n; i++)
+    fa[i] *= fb[i];
+fft(fa, true);
+
+vector&lt;int&gt; result(n);
+for (int i = 0; i &lt; n; i++)
+    result[i] = round(fa[i].real());
+return result;</code></pre>
+<p>} ```</p>
+<p>This function works with polynomials with integer coefficients, however you can also adjust it to work with other types. Since there is some error when working with complex numbers, we need round the resulting coefficients at the end.</p>
+<p>Finally the function for <strong>multiplying</strong> two long numbers practically doesn't differ from the function for multiplying polynomials. The only thing we have to do afterwards, is to normalize the number:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">    <span class="dt">int</span> carry = <span class="dv">0</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; i++)
+        result[i] += carry;
+        carry = result[i] / <span class="dv">10</span>;
+        result[i] %= <span class="dv">10</span>;
+    }</code></pre></div>
+<p>Since the length of the product of two numbers never exceed the total length of both numbers, the size of the vector is enough to perform all carry operations.</p>
+<h3 id="improved-implementation-in-place-computation">Improved implementation: in-place computation</h3>
+<p>To increase the efficiency we will switch from the recursive implementation to an iterative one. In the above recursive implementation we explicitly separated the vector <span class="math inline"><em>a</em></span> into two vectors - the element on the even positions got assigned to one temporary vector, and the elements on odd positions to another. However if we reorder the elements in a certain way, we don't need to create these temporary vectors (i.e. all the calculations can be done &quot;in-place&quot;, right in the vector <span class="math inline"><em>A</em></span> itself).</p>
+<p>Note that at the first recursion level, the elements whose lowest bit of the position was zero got assigned to the vector <span class="math inline"><em>a</em><sub>0</sub></span>, and the ones with a one as the lowest bit of the position got assigned to <span class="math inline"><em>a</em><sub>1</sub></span>. In the second recursion level the same thing happens, but with the second lowest bit instead, etc. Therefore if we reverse the bits of the position of each coefficient, and sort them by these reversed values, we get the desired order (it is called the bit-reversal permutation).</p>
+<p>For example the desired order for <span class="math inline"><em>n</em> = 8</span> has the form: <br /><span class="math display">$$a = \left\\{ \left[ (a_0, a_4), (a_2, a_6) \right], \left[ (a_1, a_5), (a_3, a_7) \right] \right\\}$$</span><br /> Indeed in the first recursion level (surrounded by curly braces), the vector gets divided into two parts <span class="math inline">[<em>a</em><sub>0</sub>, <em>a</em><sub>2</sub>, <em>a</em><sub>4</sub>, <em>a</em><sub>6</sub>]</span> and <span class="math inline">[<em>a</em><sub>1</sub>, <em>a</em><sub>3</sub>, <em>a</em><sub>5</sub>, <em>a</em><sub>7</sub>]</span>. As we see, in the bit-reversal permutation this corresponds to simply dividing the vector into two halves: the first <span class="math inline">$\frac{n}{2}$</span> elements and the last <span class="math inline">$\frac{n}{2}$</span> elements. Then there is a recursive call for each halve. Let the resulting DFT for each of them be returned in place of the elements themselves (i.e. the first half and the second half of the vector <span class="math inline"><em>a</em></span> respectively. <br /><span class="math display">$$a = \left\\{[y_0^0, y_1^0, y_2^0, y_3^0], [y_0^1, y_1^1, y_2^1, y_3^1]\right\\}$$</span><br /></p>
+<p>Now we want to combine the two DFTs into one for the complete vector. The order of the elements is ideal, and we can also perform the union directly in this vector. We can take the elements <span class="math inline"><em>y</em><sub>0</sub><sup>0</sup></span> and <span class="math inline"><em>y</em><sub>0</sub><sup>1</sup></span> and perform the butterfly transform. The place of the resulting two values is the same as the place of the two initial values, so we get: <br /><span class="math display">$$a = \left\\{[y_0^0 + w_n^0 y_0^1, y_1^0, y_2^0, y_3^0], [y_0^0 - w_n^0 y_0^1, y_1^1, y_2^1, y_3^1]\right\\}$$</span><br /> Similarly we can compute the butterfly transform of <span class="math inline"><em>y</em><sub>1</sub><sup>0</sup></span> and <span class="math inline"><em>y</em><sub>1</sub><sup>1</sup></span> and put the results in their place, and so on. As a result we get: <br /><span class="math display">$$a = \left\\{[y_0^0 + w_n^0 y_0^1, y_1^0 + w_n^1 y_1^1, y_2^0 + w_n^2 y_2^1, y_3^0 + w_n^3 y_3^1], [y_0^0 - w_n^0 y_0^1, y_1^0 - w_n^1 y_1^1, y_2^0 - w_n^2 y_2^1, y_3^0 - w_n^3 y_3^1]\right\\}$$</span><br /> Thus we computed the required DFT from the vector <span class="math inline"><em>a</em></span>.</p>
+<p>Here we described the process of computing the DFT only at the first recursion level, but the same works obviously also for all other levels. Thus, after applying the bit-reversal permutation, we can compute the DFT in-place, without any additional memory.</p>
+<p>This additionally allows us to get rid of the recursion. We just start at the lowest level, i.e. we divide the vector into pairs and apply the butterfly transform to them. This results with the vector <span class="math inline"><em>a</em></span> with the work of the last level applied. In the next step we divide the vector into vectors of size <span class="math inline">4</span>, and again apply the butterfly transform, which gives us the DFT for each block of size <span class="math inline">4</span>. And so on. Finally in the last step we obtained the result of the DFTs of both halves of <span class="math inline"><em>a</em></span>, and by applying the butterfly transform we obtain the DFT for the complete vector <span class="math inline"><em>a</em></span>.</p>
+<p>```cpp fft_implementation_iterative using cd = complex<double>; const double PI = acos(-1);</p>
+<p>int reverse(int num, int lg_n) { int res = 0; for (int i = 0; i &lt; lg_n; i++) { if (num &amp; (1 &lt;&lt; i)) res |= 1 &lt;&lt; (lg_n - 1 - i); } return res; }</p>
+<p>void fft(vector<cd> &amp; a, bool invert) { int n = a.size(); int lg_n = 0; while ((1 &lt;&lt; lg_n) &lt; n) lg_n++;</p>
+<pre><code>for (int i = 0; i &lt; n; i++) {
+    if (i &lt; reverse(i, lg_n))
+        swap(a[i], a[reverse(i, lg_n)]);
+}
+
+for (int len = 2; len &lt;= n; len &lt;&lt;= 1) {
+    double ang = 2 * PI / len * (invert ? -1 : 1);
+    cd wlen(cos(ang), sin(ang));
+    for (int i = 0; i &lt; n; i += len) {
+        cd w(1);
+        for (int j = 0; j &lt; len / 2; j++) {
+            cd u = a[i+j], v = a[i+j+len/2] * w;
+            a[i+j] = u + v;
+            a[i+j+len/2] = u - v;
+            w *= wlen;
+        }
+    }
+}
+
+if (invert) {
+    for (cd &amp; x : a)
+        x /= n;
+}</code></pre>
+<p>} ```</p>
+<p>At first we apply the bit-reversal permutation by swapping the each element with the element of the reversed position. Then the <span class="math inline">log<em>n</em> − 1</span> states of the algorithm we compute the DFT for each block of the corresponding size <span class="math inline">len</span>. For all those blocks we have the same root of unity <span class="math inline">wlen</span>. We iterate all blocks and perform the butterfly transform on each of them.</p>
+<p>We can further optimize the reversal of the bits. In the previous implementation we iterated all bits of the index and created the bitwise reversed index. However we can reverse the bits in a different way.</p>
+<p>Suppose that <span class="math inline"><em>j</em></span> already contains the reverse of <span class="math inline"><em>i</em></span>. Then by to go to <span class="math inline"><em>i</em> + 1</span>, we have to increment <span class="math inline"><em>i</em></span>, and we also also have to increment <span class="math inline"><em>j</em></span>, but in a &quot;reversed&quot; number system. Adding one in the conventional binary system is equivalent to flip all tailing ones into zeros and flipping the zero right before them into a one. Equivalently in the &quot;reversed&quot; number system, we flip all leading ones, and the also the next zero.</p>
+<p>Thus we get the following implementation:</p>
+<p>```cpp fft_implementation_iterative_opt using cd = complex<double>; const double PI = acos(-1);</p>
+<p>void fft(vector<cd> &amp; a, bool invert) { int n = a.size();</p>
+<pre><code>for (int i = 1, j = 0; i &lt; n; i++) {
+    int bit = n &gt;&gt; 1;
+    for (; j &amp; bit; bit &gt;&gt;= 1)
+        j ^= bit;
+    j ^= bit;
+
+    if (i &lt; j)
+        swap(a[i], a[j]);
+}
+
+for (int len = 2; len &lt;= n; len &lt;&lt;= 1) {
+    double ang = 2 * PI / len * (invert ? -1 : 1);
+    cd wlen(cos(ang), sin(ang));
+    for (int i = 0; i &lt; n; i += len) {
+        cd w(1);
+        for (int j = 0; j &lt; len / 2; j++) {
+            cd u = a[i+j], v = a[i+j+len/2] * w;
+            a[i+j] = u + v;
+            a[i+j+len/2] = u - v;
+            w *= wlen;
+        }
+    }
+}
+
+if (invert) {
+    for (cd &amp; x : a)
+        x /= n;
+}</code></pre>
+<p>} ```</p>
+<p>Additionally we can precompute the bit-reversal permutation beforehand. This is especially useful when the size <span class="math inline"><em>n</em></span> is the same for all calls. But even when we only have three calls (which are necessary for multiplying two polynomials), the effect is noticeable. Also we can precompute all roots of unity and their powers.</p>
+<h2 id="number-theoretic-transform">Number theoretic transform</h2>
+<p>Now we switch the objective a little bit. We still want to to multiply two polynomials in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time, but this time we want to compute the coefficients modulo some prime number <span class="math inline"><em>p</em></span>. Of course for this task we can use the normal DFT and apply the modulo operator to the result. However, doing so might lead to rounding errors, especially when dealing with large numbers. The <strong>number theoretic transform (NTT)</strong> has the advantage, that it only works with integer, and therefore the result are guaranteed to be correct.</p>
+<p>The discrete Fourier transform is based on complex numbers, and the <span class="math inline"><em>n</em></span>-th roots of unity. To efficiently compute it, we extensively use properties of the roots (e.g. that there is one root that generates all other roots by exponentiation).</p>
+<p>But the same properties hold for the <span class="math inline"><em>n</em></span>-th roots of unity in modular arithmetic. A <span class="math inline"><em>n</em></span>-th root of unity under a primitive field is such a number <span class="math inline"><em>w</em><sub><em>n</em></sub></span> that satisfies: <br /><span class="math display">$$\begin{align}
+(w_n)^n &amp;= 1 \pmod{p}, \\\\
+(w_n)^k &amp;\ne 1 \pmod{p}, \quad 1 \le k &lt; n.
+\end{align}$$</span><br /> The other <span class="math inline"><em>n</em> − 1</span> roots can be obtained as powers of the root <span class="math inline"><em>w</em><sub><em>n</em></sub></span>.</p>
+<p>To apply it in the fast Fourier transform algorithm, we need a root to exist for some <span class="math inline"><em>n</em></span>, which is a power of <span class="math inline">2</span>, and also for all smaller powers. We can notice the following interesting property: <br /><span class="math display">$$\begin{align}
+(w_n^2)^m = w_n^n &amp;= 1 \pmod{p}, \quad \text{with } m = \frac{n}{2}\\\\
+(w_n^2)^k = w_n^{2k} &amp;\ne 1 \pmod{p}, \quad 1 \le k &lt; m.
+\end{align}$$</span><br /> Thus if <span class="math inline"><em>w</em><sub><em>n</em></sub></span> is a <span class="math inline"><em>n</em></span>-th root of unity, then <span class="math inline"><em>w</em><sub><em>n</em></sub><sup>2</sup></span> is a <span class="math inline">$\frac{n}{2}$</span>-th root of unity. And consequently for all smaller powers of two there exist roots of the required degree, and they can be computed using <span class="math inline"><em>w</em><sub><em>n</em></sub></span>.</p>
+<p>For computing the inverse DFT, we need need the inverse <span class="math inline"><em>w</em><sub><em>n</em></sub><sup>−1</sup></span> of <span class="math inline"><em>w</em><sub><em>n</em></sub></span>. But for a prime modulus the inverse always exists.</p>
+<p>Thus all the properties that we need from the complex roots are also available in modular arithmetic, provided that we have a large enough module <span class="math inline"><em>p</em></span> for which a <span class="math inline"><em>n</em></span>-th root of unity exists.</p>
+<p>For example we can take the following values: module <span class="math inline"><em>p</em> = 7340033</span>, <span class="math inline"><em>w</em><sub>2<sup>20</sup></sub> = 5</span>. If this module is not enough, we need to find a different pair. We can use that fact that for modules of the form <span class="math inline"><em>p</em> = <em>c</em>2<sup><em>k</em></sup> + 1</span> (and <span class="math inline"><em>p</em></span> is prime), there always exists the <span class="math inline">2<sup><em>k</em></sup></span>-th root of unity. It can be shown that <span class="math inline"><em>g</em><sup><em>c</em></sup></span> is such a <span class="math inline">2<sup><em>k</em></sup></span>-th root of unity, where <span class="math inline"><em>g</em></span> is a <a href="./algebra/primitive-root.html">primitive root</a> of <span class="math inline"><em>p</em></span>.</p>
+<p>```cpp fft_implementation_modular_arithmetic const int mod = 7340033; const int root = 5; const int root_1 = 4404020; const int root_pw = 1 &lt;&lt; 20;</p>
+<p>void fft(vector<int> &amp; a, bool invert) { int n = a.size();</p>
+<pre><code>for (int i = 1, j = 0; i &lt; n; i++) {
+    int bit = n &gt;&gt; 1;
+    for (; j &amp; bit; bit &gt;&gt;= 1)
+        j ^= bit;
+    j ^= bit;
+
+    if (i &lt; j)
+        swap(a[i], a[j]);
+}
+
+for (int len = 2; len &lt;= n; len &lt;&lt;= 1) {
+    int wlen = invert ? root_1 : root;
+    for (int i = len; i &lt; root_pw; i &lt;&lt;= 1)
+        wlen = (int)(1LL * wlen * wlen % mod);
+
+    for (int i = 0; i &lt; n; i += len) {
+        int w = 1;
+        for (int j = 0; j &lt; len / 2; j++) {
+            int u = a[i+j], v = (int)(1LL * a[i+j+len/2] * w % mod);
+            a[i+j] = u + v &lt; mod ? u + v : u + v - mod;
+            a[i+j+len/2] = u - v &gt;= 0 ? u - v : u - v + mod;
+            w = (int)(1LL * w * wlen % mod);
+        }
+    }
+}
+
+if (invert) {
+    int n_1 = inverse(n, mod);
+    for (int &amp; x : a)
+        x = (int)(1LL * x * n_1 % mod);
+}</code></pre>
+<p>} ```</p>
+<p>Here the function <code>inverse</code> computes the modular inverse (see <a href="./algebra/module-inverse.html">Modular Multiplicative Inverse</a>). The constants <code>mod</code>, <code>root</code>, <code>root_pw</code> determine the module and the root, and <code>root_1</code> is the inverse of <code>root</code> modulo <code>mod</code>.</p>
+<p>In practice this implementation is slower than the implementation using complex numbers (due to the huge number of modulo operations), but it has some advantages such as less memory usage and no rounding errors.</p>
+<h2 id="multiplication-with-arbitrary-modulus">Multiplication with arbitrary modulus</h2>
+<p>Here we want to achieve the same goal as in previous section. Multiplying two polynomial <span class="math inline"><em>A</em>(<em>x</em>)</span> and <span class="math inline"><em>B</em>(<em>x</em>)</span>, and computing the coefficients modulo some number <span class="math inline"><em>M</em></span>. The number theoretic transform only works for certain prime numbers. What about the case when the modulus is not of the desired form?</p>
+<p>One option would be to perform multiple number theoretic transforms with different prime numbers of the form <span class="math inline"><em>c</em>2<sup><em>k</em></sup> + 1</span>, then apply the <a href="./algebra/chinese-remainder-theorem.html">Chinese Remainder Theorem</a> to compute the final coefficients.</p>
+<p>Another options is to distribute the polynomials <span class="math inline"><em>A</em>(<em>x</em>)</span> and <span class="math inline"><em>B</em>(<em>x</em>)</span> into two smaller polynomials each <br /><span class="math display">$$\begin{align}
+A(x) &amp;= A_1(x) + A_2(x) \cdot C \\\\
+B(x) &amp;= B_1(x) + B_2(x) \cdot C
+\end{align}$$</span><br /> with <span class="math inline">$C \approx \sqrt{M}$</span>.</p>
+<p>Then the product of <span class="math inline"><em>A</em>(<em>x</em>)</span> and <span class="math inline"><em>B</em>(<em>x</em>)</span> can then be represented as: <br /><span class="math display"><em>A</em>(<em>x</em>)⋅<em>B</em>(<em>x</em>)=<em>A</em><sub>1</sub>(<em>x</em>)⋅<em>B</em><sub>1</sub>(<em>x</em>)+(<em>A</em><sub>1</sub>(<em>x</em>)⋅<em>B</em><sub>2</sub>(<em>x</em>)+<em>A</em><sub>2</sub>(<em>x</em>)⋅<em>B</em><sub>1</sub>(<em>x</em>)) ⋅ <em>C</em> + (<em>A</em><sub>2</sub>(<em>x</em>)⋅<em>B</em><sub>2</sub>(<em>x</em>)) ⋅ <em>C</em><sup>2</sup></span><br /></p>
+<p>The polynomials <span class="math inline"><em>A</em><sub>1</sub>(<em>x</em>)</span>, <span class="math inline"><em>A</em><sub>2</sub>(<em>x</em>)</span>, <span class="math inline"><em>B</em><sub>1</sub>(<em>x</em>)</span> and <span class="math inline"><em>B</em><sub>2</sub>(<em>x</em>)</span> contain only coefficients smaller than <span class="math inline">$\sqrt{M}$</span>, therefore the coefficients of all the appearing products are smaller than <span class="math inline"><em>M</em> ⋅ <em>n</em></span>, which is usually small enough to handle with typical floating point types.</p>
+<p>This approach therefore requires computing the products of polynomials with smaller coefficients (by using the normal FFT and inverse FFT), and then the original product can be restored using modular addition and multiplication in <span class="math inline"><em>O</em>(<em>n</em>)</span> time.</p>
+<h2 id="applications">Applications</h2>
+<p>DFT can be used in a huge variety of other problems, which at the first glance have nothing to do with multiplying polynomials.</p>
+<h3 id="all-possible-sums">All possible sums</h3>
+<p>We are given two arrays <span class="math inline"><em>a</em>[]</span> and <span class="math inline"><em>b</em>[]</span>. We have to find all possible sums <span class="math inline"><em>a</em>[<em>i</em>]+<em>b</em>[<em>j</em>]</span>, and for each sum count how often it appears.</p>
+<p>For example for <span class="math inline"><em>a</em> = [1,  2,  3]</span> and <span class="math inline"><em>b</em> = [2,  4]</span> we get: then sum <span class="math inline">3</span> can be obtained in <span class="math inline">1</span> way, the sum <span class="math inline">4</span> also in <span class="math inline">1</span> way, <span class="math inline">5</span> in <span class="math inline">2</span>, <span class="math inline">6</span> in <span class="math inline">1</span>, <span class="math inline">7</span> in <span class="math inline">1</span>.</p>
+<p>We construct for the arrays <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span> two polynomials <span class="math inline"><em>A</em></span> and <span class="math inline"><em>B</em></span>. The numbers of the array will act as the exponents in the polynomial (<span class="math inline"><em>a</em>[<em>i</em>]⇒<em>x</em><sup><em>a</em>[<em>i</em>]</sup></span>); and the coefficients of this term will by how often the number appears in the array.</p>
+<p>Then, by multiplying these two polynomials in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time, we get a polynomial <span class="math inline"><em>C</em></span>, where the exponents will tell us which sums can be obtained, and the coefficients tell us how often. To demonstrate this on the example: <br /><span class="math display">(1<em>x</em><sup>1</sup> + 1<em>x</em><sup>2</sup> + 1<em>x</em><sup>3</sup>)(1<em>x</em><sup>2</sup> + 1<em>x</em><sup>4</sup>)=1<em>x</em><sup>3</sup> + 1<em>x</em><sup>4</sup> + 2<em>x</em><sup>5</sup> + 1<em>x</em><sup>6</sup> + 1<em>x</em><sup>7</sup></span><br /></p>
+<h3 id="all-possible-scalar-products">All possible scalar products</h3>
+<p>We are given two arrays <span class="math inline"><em>a</em>[]</span> and <span class="math inline"><em>b</em>[]</span> of length <span class="math inline"><em>n</em></span>. We have to compute the products of <span class="math inline"><em>a</em></span> with every cyclic shift of <span class="math inline"><em>b</em></span>.</p>
+<p>We generate two new arrays of size <span class="math inline">2<em>n</em></span>: We reverse <span class="math inline"><em>a</em></span> and append <span class="math inline"><em>n</em></span> zeros to it. And we just append <span class="math inline"><em>b</em></span> to itself. When we multiply these two arrays as polynomials, and look at the coefficient <span class="math inline"><em>c</em>[<em>n</em> − 1], <em>c</em>[<em>n</em>], <em>c</em>[2<em>n</em> − 2]</span> of the product <span class="math inline"><em>c</em></span>, we get: <br /><span class="math display"><em>c</em>[<em>k</em>]=∑<sub><em>i</em> + <em>j</em> = <em>k</em></sub><em>a</em>[<em>i</em>]<em>b</em>[<em>j</em>]</span><br /> And since all the elements <span class="math inline"><em>a</em>[<em>i</em>]=0</span> for <span class="math inline"><em>i</em> ≥ <em>n</em></span>: <br /><span class="math display">$$c[k] = \sum_{i=0}^{n-1} a[i] b[k-i]$$</span><br /> It is easy to see that this sum is just the scalar product of the vector <span class="math inline"><em>a</em></span> with the <span class="math inline">(<em>k</em> − (<em>n</em> − 1))</span>-th cyclic left shift. Thus these coefficients are the answer to the problem, and we were still able to obtain it in <span class="math inline"><em>O</em>(<em>n</em>log<em>n</em>)</span> time. Note here that <span class="math inline"><em>c</em>[2<em>n</em> − 1]</span> also gives us the <span class="math inline"><em>n</em></span>th cyclic shift but that is the same as the <span class="math inline">0</span>th cyclic shift so we don't need to consider that seperately into our answer.</p>
+<h3 id="two-stripes">Two stripes</h3>
+<p>We are given two Boolean stripes (cyclic arrays of values <span class="math inline">0</span> and <span class="math inline">1</span>) <span class="math inline"><em>a</em></span> and <span class="math inline"><em>b</em></span>. We want to find all ways to attach the first stripe to the second one, such that at no position we have a <span class="math inline">1</span> of the first stripe next to a <span class="math inline">1</span> of the second stripe.</p>
+<p>The problem doesn't actually differ much from the previous problem. Attaching two stripes just means that we perform a cyclic shift on the second array, and we can attach the two stripes, if scalar product of the two arrays is <span class="math inline">0</span>.</p>
+<h3 id="string-matching">String matching</h3>
+<p>We are given two strings, a text <span class="math inline"><em>T</em></span> and a pattern <span class="math inline"><em>P</em></span>, consisting of lowercase letters. We have to compute all the occurrences of the pattern in the text.</p>
+<p>We create a polynomial for each string (<span class="math inline"><em>T</em>[<em>i</em>]</span> and <span class="math inline"><em>P</em>[<em>I</em>]</span> are numbers between <span class="math inline">0</span> and <span class="math inline">25</span> corresponding to the <span class="math inline">26</span> letters of the alphabet): <br /><span class="math display"><em>A</em>(<em>x</em>)=<em>a</em><sub>0</sub><em>x</em><sup>0</sup> + <em>a</em><sub>1</sub><em>x</em><sup>1</sup> + … + <em>a</em><sub><em>n</em> − 1</sub><em>x</em><sup><em>n</em> − 1</sup>,  <em>n</em> = |<em>T</em>|</span><br /> with <br /><span class="math display">$$a_i = \cos(\alpha_i) + i \sin(\alpha_i), \quad \alpha_i = \frac{2 \pi T[i]}{26}.$$</span><br /></p>
+<p>And <br /><span class="math display"><em>B</em>(<em>x</em>)=<em>b</em><sub>0</sub><em>x</em><sup>0</sup> + <em>b</em><sub>1</sub><em>x</em><sup>1</sup> + … + <em>b</em><sub><em>m</em> − 1</sub><em>x</em><sup><em>m</em> − 1</sup>,  <em>m</em> = |<em>P</em>|</span><br /> with <br /><span class="math display">$$b_i = \cos(\beta_i) - i \sin(\beta_i), \quad \beta_i = \frac{2 \pi P[m-i-1]}{26}.$$</span><br /></p>
+<p>Notice that with the expression <span class="math inline"><em>P</em>[<em>m</em> − <em>i</em> − 1]</span> explicitly reverses the pattern.</p>
+<p>The <span class="math inline">(<em>m</em> − 1 + <em>i</em>)</span>th coefficients of the product of the two polynomials <span class="math inline"><em>C</em>(<em>x</em>)=<em>A</em>(<em>x</em>)⋅<em>B</em>(<em>x</em>)</span> will tell us, if the pattern appears in the text at position <span class="math inline"><em>i</em></span>.</p>
+<p><br /><span class="math display">$$c_{m-1+i} = \sum_{j = 0}^{m-1} a_{i+j} \cdot b_{m-1-j} = \sum_{j=0}^{m-1} \left(\cos(\alpha_{i+j}) + i \sin(\alpha_{i+j})\right) \cdot \left(\cos(\beta_j) - i \sin(\beta_j)\right)
+$$</span><br /> with <span class="math inline">$\alpha_{i+j} = \frac{2 \pi T[i+j]}{26}$</span> and <span class="math inline">$\beta_j = \frac{2 \pi P[j]}{26}$</span></p>
+<p>If there is a match, than <span class="math inline"><em>T</em>[<em>i</em> + <em>j</em>]=<em>P</em>[<em>j</em>]</span>, and therefore <span class="math inline"><em>α</em><sub><em>i</em> + <em>j</em></sub> = <em>β</em><sub><em>j</em></sub></span>. This gives (using the Pythagorean trigonometric identity): <br /><span class="math display">$$\begin{align}
+c_{m-1+i} &amp;= \sum_{j = 0}^{m-1}  \left(\cos(\alpha_{i+j}) + i \sin(\alpha_{i+j})\right) \cdot \left(\cos(\alpha_{i+j}) - i \sin(\alpha_{i+j})\right) \\\\
+&amp;= \sum_{j = 0}^{m-1} \cos(\alpha_{i+j})^2 + \sin(\alpha_{i+j})^2 = \sum_{j = 0}^{m-1} 1 = m
+\end{align}$$</span><br /></p>
+<p>If there isn't a match, then at least a character is different, which leads that one of the products <span class="math inline"><em>a</em><sub><em>i</em> + 1</sub> ⋅ <em>b</em><sub><em>m</em> − 1 − <em>j</em></sub></span> is not equal to <span class="math inline">1</span>, which leads to the coefficient <span class="math inline"><em>c</em><sub><em>m</em> − 1 + <em>i</em></sub> ≠ <em>m</em></span>.</p>
+<h3 id="string-matching-with-wildcards">String matching with wildcards</h3>
+<p>This is an extension of the previous problem. This time we allow that the pattern contains the wildcard character <span class="math inline">$\*$</span>, which can match every possible letter. E.g. the pattern <span class="math inline"><em>a</em> * <em>c</em></span> appears in the text <span class="math inline"><em>a</em><em>b</em><em>c</em><em>c</em><em>a</em><em>a</em><em>c</em><em>c</em></span> at exactly three positions, at index <span class="math inline">0</span>, index <span class="math inline">4</span> and index <span class="math inline">5</span>.</p>
+<p>We create the exact same polynomials, except that we set <span class="math inline"><em>b</em><sub><em>i</em></sub> = 0</span> if <span class="math inline"><em>P</em>[<em>m</em> − <em>i</em> − 1]=*</span>. If <span class="math inline"><em>x</em></span> is the number of wildcards in <span class="math inline"><em>P</em></span>, then we will have a match of <span class="math inline"><em>P</em></span> in <span class="math inline"><em>T</em></span> at index <span class="math inline"><em>i</em></span> if <span class="math inline"><em>c</em><sub><em>m</em> − 1 + <em>i</em></sub> = <em>m</em> − <em>x</em></span>.</p>
+<h2 id="practice-problems">Practice problems</h2>
+<ul>
+<li><a href="http://www.spoj.com/problems/POLYMUL/">SPOJ - POLYMUL</a></li>
+<li><a href="http://www.spoj.com/problems/MAXMATCH/">SPOJ - MAXMATCH</a></li>
+<li><a href="http://www.spoj.com/problems/ADAMATCH/">SPOJ - ADAMATCH</a></li>
+<li><a href="http://codeforces.com/problemset/problem/954/I">Codeforces - Yet Another String Matching Problem</a></li>
+<li><a href="http://codeforces.com/problemset/problem/958/F3">Codeforces - Lightsabers (hard)</a></li>
+<li><a href="https://open.kattis.com/problems/kinversions">Kattis - K-Inversions</a></li>
+<li><a href="http://codeforces.com/contest/754/problem/E">Codeforces - Dasha and cyclic table</a></li>
+</ul>
+</body>
+</html>

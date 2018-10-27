@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Expression parsing -->
+<h1 id="expression-parsing">Expression parsing</h1>
+<p>A string containing a mathematical expression containing numbers and various operators is given. We have to compute the value of it in <span class="math inline"><em>O</em>(<em>n</em>)</span>, where <span class="math inline"><em>n</em></span> is the length of the string.</p>
+<p>The algorithm discussed here translates an expression into the so-called <strong>reverse Polish notation</strong> (explicitly or implicitly), and evaluates this expression.</p>
+<h2 id="reverse-polish-notation">Reverse Polish notation</h2>
+<p>The reverse Polish notation is a form of writing mathematical expressions, in which the operators are located after their operands. For example the following expression <br /><span class="math display"><em>a</em> + <em>b</em> * <em>c</em> * <em>d</em> + (<em>e</em> − <em>f</em>)*(<em>g</em> * <em>h</em> + <em>i</em>)</span><br /> can be written in reverse Polish notation in the following way: <br /><span class="math display"><em>a</em><em>b</em><em>c</em> * <em>d</em> * +<em>e</em><em>f</em> − <em>g</em><em>h</em> * <em>i</em> + *+</span><br /></p>
+<p>The reverse Polish notation was developed by the Australian philosopher and computer science specialist Charles Hamblin in the mid 1950s on the basis of the Polish notation, which was proposed in 1920 by the Polish mathematician Jan Łukasiewicz.</p>
+<p>The convenience of the reverse Polish notation is, that expressions in this form are very <strong>easy to evaluate</strong> in linear time. We use a stack, which is initially empty. We will iterate over the operands and operators of the expression in reverse Polish notation. If the current element is a number, then we put the value on top of the stack, if the current element is an operator, then we get the top two elements from the stack, perform the operation, and put the result back on top of the stack. In the end there will be exactly one element left in the stack, which will be the value of the expression.</p>
+<p>Obviously this simple evaluation runs in <span class="math inline"><em>O</em>(<em>n</em>)</span> time.</p>
+<h2 id="parsing-of-simple-expressions">Parsing of simple expressions</h2>
+<p>For the time being we only consider a simplified problem: we assume that all operators are <strong>binary</strong> (i.e. they take two arguments), and all are <strong>left-associative</strong> (if the priorities are equal, they get executed from left to right). Parentheses are allowed.</p>
+<p>We will set up two stacks: one for numbers, and one for operators and parentheses. Initially both stacks are empty. For the second stack we will maintain the condition that all operations are ordered by strict descending priority. If there are parenthesis on the stack, than each block of operators (corresponding to one pair of parenthesis) is ordered, and the entire stack is not necessarily ordered.</p>
+<p>We will iterate over the characters of the expression from left to right. If the current character is a digit, then we put the value of this number on the stack. If the current character is an opening parenthesis, then we put it on the stack. If the current character is a closing parenthesis, the we execute all operators on the stack until we reach the opening bracket (in other words we perform all operations inside the parenthesis). Finally if the current character is an operator, then while the top of the stack has an operator with the same or higher priority, we will execute this operation, and put the new operation on the stack.</p>
+<p>After we processed the entire string, some operators might still be in the stack, so we execute them.</p>
+<p>Here is the implementation of this method for the four operators <span class="math inline">+</span> <span class="math inline">−</span> <span class="math inline">*</span> <span class="math inline">/</span>:</p>
+<p>```cpp expression_parsing_simple bool delim(char c) { return c == ' '; }</p>
+<p>bool is_op(char c) { return c == '+' || c == '-' || c == '*' || c == '/'; }</p>
+<p>int priority (char op) { if (op == '+' || op == '-') return 1; if (op == '*' || op == '/') return 2; return -1; }</p>
+<p>void process_op(stack<int>&amp; st, char op) { int r = st.top(); st.pop(); int l = st.top(); st.pop(); switch (op) { case '+': st.push(l + r); break; case '-': st.push(l - r); break; case '<em>': st.push(l </em> r); break; case '/': st.push(l / r); break; } }</p>
+<p>int evaluate(string&amp; s) { stack<int> st; stack<char> op; for (int i = 0; i &lt; (int)s.size(); i++) { if (delim(s[i])) continue;</p>
+<pre><code>    if (s[i] == &#39;(&#39;) {
+        op.push(&#39;(&#39;);
+    } else if (s[i] == &#39;)&#39;) {
+        while (op.top() != &#39;(&#39;) {
+            process_op(st, op.top());
+            op.pop();
+        }
+        op.pop();
+    } else if (is_op(s[i])) {
+        char cur_op = s[i];
+        while (!op.empty() &amp;&amp; priority(op.top()) &gt;= priority(cur_op)) {
+            process_op(st, op.top());
+            op.pop();
+        }
+        op.push(cur_op);
+    } else {
+        int number = 0;
+        while (i &lt; (int)s.size() &amp;&amp; isalnum(s[i]))
+            number = number * 10 + s[i++] - &#39;0&#39;;
+        --i;
+        st.push(number);
+    }
+}
+
+while (!op.empty()) {
+    process_op(st, op.top());
+    op.pop();
+}
+return st.top();</code></pre>
+<p>} ```</p>
+<p>Thus we learned how to calculate the value of an expression in <span class="math inline"><em>O</em>(<em>n</em>)</span>, at the same time we implicitly used the reverse Polish notation. By slightly modifying the above implementation it is also possible to obtain the expression in reverse Polish notation in an explicit form.</p>
+<h2 id="unary-operators">Unary operators</h2>
+<p>Now suppose that the expression also contains <strong>unary</strong> operators (operators that take one argument). The unary plus and unary minus are common common examples for such operators.</p>
+<p>One of the differences in this case, is that we need to determine whether the current operator is a unary or a binary one.</p>
+<p>You can notice, that before an unary operator, there always is another operator or an opening parenthesis, or nothing at all (if it is at the very beginning of the expression). On the contrary before a binary operator there will always be an operand (number) or a closing parenthesis. Thus it is easy to flag whether the next operator can be unary or not.</p>
+<p>Additionally we need to execute a unary and a binary operator differently. And we need to chose the priority of a binary operator higher than all of the binary operations.</p>
+<p>In addition it should be noted, that some unary operators (e.g. unary plus and unary minus) are actually <strong>right-associative</strong>.</p>
+<h2 id="right-associativity">Right-associativity</h2>
+<p>Right-associative means, that whenever the priorities are equal, the operators must be evaluated from right to left.</p>
+<p>As noted above, unary operators are usually right-associative. Another example for an right-associative operator is the exponentiation operator (<span class="math inline"><em>a</em> ∧ <em>b</em> ∧ <em>c</em></span> is usually perceived as <span class="math inline"><em>a</em><sup><em>b</em><sup><em>c</em></sup></sup></span> and not as <span class="math inline">(<em>a</em><sup><em>b</em></sup>)<sup><em>c</em></sup></span>).</p>
+<p>What difference do we need to make in order to correctly handle right-associative operators? It turns out that the changes are very minimal. The only difference will be, if the priorities are equal we will postpone the execution of the right-associative operation.</p>
+<p>The only line that needs to be replaced is</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">while</span> (!op.empty() &amp;&amp; priority(op.top()) &gt;= priority(cur_op))</code></pre></div>
+<p>with</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">while</span> (!op.empty() &amp;&amp; (
+        (left_assoc(cur_op) &amp;&amp; priority(op.top()) &gt;= priority(cur_op)) ||
+        (!left_assoc(cur_op) &amp;&amp; priority(op.top()) &gt; priority(cur_op))
+    ))</code></pre></div>
+<p>where <code>left_assoc</code> is a function that decides if an operator is left_associative or not.</p>
+<p>Here is an implementation for the binary operators <span class="math inline">+</span> <span class="math inline">−</span> <span class="math inline">*</span> <span class="math inline">/</span> and the unary operators <span class="math inline">+</span> and <span class="math inline">−</span>.</p>
+<p>```cpp expression_parsing_unary bool delim(char c) { return c == ' '; }</p>
+<p>bool is_op(char c) { return c == '+' || c == '-' || c == '*' || c == '/'; }</p>
+<p>bool is_unary(char c) { return c == '+' || c=='-'; }</p>
+<p>int priority (char op) { if (op &lt; 0) // unary operator return 3; if (op == '+' || op == '-') return 1; if (op == '*' || op == '/') return 2; return -1; }</p>
+<p>void process_op(stack<int>&amp; st, char op) { if (op &lt; 0) { int l = st.top(); st.pop(); switch (-op) { case '+': st.push(l); break; case '-': st.push(-l); break; } } else { int r = st.top(); st.pop(); int l = st.top(); st.pop(); switch (op) { case '+': st.push(l + r); break; case '-': st.push(l - r); break; case '<em>': st.push(l </em> r); break; case '/': st.push(l / r); break; } } }</p>
+<p>int evaluate(string&amp; s) { stack<int> st; stack<char> op; bool may_be_unary = true; for (int i = 0; i &lt; (int)s.size(); i++) { if (delim(s[i])) continue;</p>
+<pre><code>    if (s[i] == &#39;(&#39;) {
+        op.push(&#39;(&#39;);
+        may_be_unary = true;
+    } else if (s[i] == &#39;)&#39;) {
+        while (op.top() != &#39;(&#39;) {
+            process_op(st, op.top());
+            op.pop();
+        }
+        op.pop();
+        may_be_unary = false;
+    } else if (is_op(s[i])) {
+        char cur_op = s[i];
+        if (may_be_unary &amp;&amp; is_unary(cur_op))
+            cur_op = -cur_op;
+        while (!op.empty() &amp;&amp; (
+                (cur_op &gt;= 0 &amp;&amp; priority(op.top()) &gt;= priority(cur_op)) ||
+                (cur_op &lt; 0 &amp;&amp; priority(op.top()) &gt; priority(cur_op))
+            )) {
+            process_op(st, op.top());
+            op.pop();
+        }
+        op.push(cur_op);
+        may_be_unary = true;
+    } else {
+        int number = 0;
+        while (i &lt; (int)s.size() &amp;&amp; isalnum(s[i]))
+            number = number * 10 + s[i++] - &#39;0&#39;;
+        --i;
+        st.push(number);
+        may_be_unary = false;
+    }
+}
+
+while (!op.empty()) {
+    process_op(st, op.top());
+    op.pop();
+}
+return st.top();</code></pre>
+<p>} ```</p>
+</body>
+</html>

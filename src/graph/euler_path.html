@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Finding the Eulerian path in O(M)     -->
+<h1 id="finding-the-eulerian-path-in-om">Finding the Eulerian path in <span class="math inline"><em>O</em>(<em>M</em>)</span></h1>
+<p>A Eulerian path is a path in a graph that passes through all of its edges exactly once. A Eulerian cycle is a Eulerian path that is a cycle.</p>
+<p>The problem is to find the Eulerian path in an <strong>undirected multigraph with loops</strong>.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>First we can check if there is an Eulerian path. We can use the following theorem. An Eulerian cycle exists if and only if the degrees of all vertices are even. And an Eulerian path exists if and only if the number of vertices with odd degrees is two (or zero, in the case of the existence of a Eulerian cycle). In addition, of course, the graph must be sufficiently connected (i.e., if you remove all isolated vertices from it, you should get a connected graph).</p>
+<p>The find the Eulerian path / Eulerian cycle we can do the following strategies: We find all simple cycles and combine them into one - this will be the Eulerian cycle. If the graph is such that the Eulerian path is not a cycle, then add the missing edge, find the Eulerian cycle, then remove the extra edge.</p>
+<p>Looking for all cycles and combining them can be done with a simple recursive procedure:</p>
+<pre class="nohighlight"><code>procedure FindEulerPath(V)
+  1. iterate through all the edges outgoing from vertex V;
+       remove this edge from the graph,
+       and call FindEulerPath from the second end of this edge;
+  2. add vertex V to the answer.</code></pre>
+<p>The complexity of this algorithm is obviously linear with respect to the number of edges.</p>
+<p>But we can write the same algorithm in the non-recursive version:</p>
+<pre class="nohighlight"><code>stack St;
+put start vertex in St;
+until St is empty
+  let V be the value at the top of St;
+  if degree(V) = 0, then
+    add V to the answer;
+    remove V from the top of St;
+  otherwise
+    find any edge coming out of V;
+    remove it from the graph;
+    put the second end of this edge in St;</code></pre>
+<p>It is easy to check the equivalence of these two forms of the algorithm. However, the second form is obviously faster, and the code will be much more.</p>
+<h2 id="the-domino-problem">The Domino problem</h2>
+<p>We give here a classical Eulerian cycle problem - the Domino problem.</p>
+<p>There are <span class="math inline"><em>N</em></span> dominoes, as it is known, on both ends of the Domino one number is written(usually from 1 to 6, but in our case it is not important). You want to put all the dominoes in a row so that the numbers on any two adjacent dominoes, written on their common side, coincide. Dominoes are allowed to turn.</p>
+<p>Reformulate the problem. Let the numbers written on the bottoms be the vertices of the graph, and the dominoes be the edges of this graph (each Domino with numbers <span class="math inline">(<em>a</em>, <em>b</em>)</span> are the edges <span class="math inline">(<em>a</em>, <em>b</em>)</span> and <span class="math inline">(<em>b</em>, <em>a</em>)</span>). Then our problem is reduced to the problem of finding the Eulerian path in this graph.</p>
+<h2 id="implementation">Implementation</h2>
+<p>The program below searches for and outputs a Eulerian loop or path in a graph, or outputs <span class="math inline">−1</span> if it does not exist.</p>
+<p>First, the program checks the degree of vertices: if there are no vertices with an odd degree, then the graph has an Euler cycle, if there are <span class="math inline">2</span> vertices with an odd degree, then in the graph there is only an Euler path (but no Euler cycle), if there are more than <span class="math inline">2</span> such vertices, then in the graph there is no Euler cycle or Euler path. To find the Euler path (not a cycle), let's do this: if <span class="math inline"><em>V</em>1</span> and <span class="math inline"><em>V</em>2</span> are two vertices of odd degree,then just add an edge <span class="math inline">(<em>V</em>1, <em>V</em>2)</span>, in the resulting graph we find the Euler cycle (it will obviously exist), and then remove the &quot;fictitious&quot; edge <span class="math inline">(<em>V</em>1, <em>V</em>2)</span> from the answer. We will look for the Euler cycle exactly as described above (non-recursive version), and at the same time at the end of this algorithm we will check whether the graph was connected or not (if the graph was not connected, then at the end of the algorithm some edges will remain in the graph, and in this case we need to print <span class="math inline">−1</span>). Finally, the program takes into account that there can be isolated vertices in the graph.</p>
+<p>Notice that we use an adjacency matrix in this problem. Also this implementation handles finding the next with brute-force, which requires to iterate over the complete row in the matrix over and over. A better way would be to store the graph as an adjacency list, and remove edges in <span class="math inline"><em>O</em>(1)</span> and mark the reversed edges in separate list. This way we can archive a <span class="math inline"><em>O</em>(<em>N</em>)</span> algorithm.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> main() {
+    <span class="dt">int</span> n;
+    vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; g(n, vector&lt;<span class="dt">int</span>&gt;(n));
+    <span class="co">// reading the graph in the adjacency matrix</span>
+
+    vector&lt;<span class="dt">int</span>&gt; deg(n);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; n; ++j)
+            deg[i] += g[i][j];
+    }
+
+    <span class="dt">int</span> first = <span class="dv">0</span>;
+    <span class="kw">while</span> (!deg[first])
+        ++first;
+
+    <span class="dt">int</span> v1 = <span class="dv">-1</span>, v2 = <span class="dv">-1</span>;
+    <span class="dt">bool</span> bad = <span class="kw">false</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">if</span> (deg[i] &amp; <span class="dv">1</span>) {
+            <span class="kw">if</span> (v1 == <span class="dv">-1</span>)
+                v1 = i;
+            <span class="kw">else</span> <span class="kw">if</span> (v2 == <span class="dv">-1</span>)
+                v2 = i;
+            <span class="kw">else</span>
+                bad = <span class="kw">true</span>;
+        }
+    }
+
+    <span class="kw">if</span> (v1 != <span class="dv">-1</span>)
+        ++g[v1][v2], ++g[v2][v1];
+
+    stack&lt;<span class="dt">int</span>&gt; st;
+    st.push(first);
+    vector&lt;<span class="dt">int</span>&gt; res;
+    <span class="kw">while</span> (!st.empty()) {
+        <span class="dt">int</span> v = st.top();
+        <span class="dt">int</span> i;
+        <span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; n; ++i)
+            <span class="kw">if</span> (g[v][i])
+                <span class="kw">break</span>;
+        <span class="kw">if</span> (i == n) {
+            res.push_back(v);
+            st.pop();
+        } <span class="kw">else</span> {
+            --g[v][i];
+            --g[i][v];
+            st.push(i);
+        }
+    }
+
+    <span class="kw">if</span> (v1 != <span class="dv">-1</span>) {
+        <span class="kw">for</span> (size_t i = <span class="dv">0</span>; i + <span class="dv">1</span> &lt; res.size(); ++i) {
+            <span class="kw">if</span> ((res[i] == v1 &amp;&amp; res[i + <span class="dv">1</span>] == v2) ||
+                (res[i] == v2 &amp;&amp; res[i + <span class="dv">1</span>] == v1)) {
+                vector&lt;<span class="dt">int</span>&gt; res2;
+                <span class="kw">for</span> (size_t j = i + <span class="dv">1</span>; j &lt; res.size(); ++j)
+                    res2.push_back(res[j]);
+                <span class="kw">for</span> (size_t j = <span class="dv">1</span>; j &lt;= i; ++j)
+                    res2.push_back(res[j]);
+                res = res2;
+                <span class="kw">break</span>;
+            }
+        }
+    }
+
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) {
+        <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; n; ++j) {
+            <span class="kw">if</span> (g[i][j])
+                bad = <span class="kw">true</span>;
+        }
+    }
+
+    <span class="kw">if</span> (bad) {
+        cout &lt;&lt; <span class="dv">-1</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">for</span> (<span class="dt">int</span> x : res)
+            cout &lt;&lt; x &lt;&lt; <span class="st">&quot; &quot;</span>;
+    }
+}</code></pre></div>
+</body>
+</html>

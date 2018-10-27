@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Lowest Common Ancestor - Tarjan's off-line algorithm -->
+<h1 id="lowest-common-ancestor---tarjans-off-line-algorithm">Lowest Common Ancestor - Tarjan's off-line algorithm</h1>
+<p>We have a tree <span class="math inline"><em>G</em></span> with <span class="math inline"><em>n</em></span> nodes and we have <span class="math inline"><em>m</em></span> queries of the form <span class="math inline">(<em>u</em>, <em>v</em>)</span>. For each query <span class="math inline">(<em>u</em>, <em>v</em>)</span> we want to find the lowest common ancestor of the vertices <span class="math inline"><em>u</em></span> and <span class="math inline"><em>v</em></span>, i.e. the node that is an ancestor of both <span class="math inline"><em>u</em></span> and <span class="math inline"><em>v</em></span> and has the greatest depth in the tree. The node <span class="math inline"><em>v</em></span> is also an ancestor of <span class="math inline"><em>v</em></span>, so the LCA can also be one of the two nodes.</p>
+<p>In this article we will solve the problem off-line, i.e. we assume that all queries are known in advance, and we therefore answer the queries in any order we like. The following algorithm allows to answer all <span class="math inline"><em>m</em></span> queries in <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>)</span> total time, i.e. for sufficiently large <span class="math inline"><em>m</em></span> in <span class="math inline"><em>O</em>(1)</span> for each query.</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>The algorithm is named after Robert Tarjan, who discovered it in 1979 and also made many other contributions to the <a href="./data_structures/disjoint_set_union.html">Disjoint Set Union</a> data structure, which will be heavily used in this algorithm.</p>
+<p>The algorithm answers all queries with one <a href="./graph/depth-first-search.html">DFS</a> traversal of the tree. Namely a query <span class="math inline">(<em>u</em>, <em>v</em>)</span> is answered at node <span class="math inline"><em>u</em></span>, if node <span class="math inline"><em>v</em></span> has already been visited previously, or vice versa.</p>
+<p>So let's assume we are currently at node <span class="math inline"><em>v</em></span>, we have already made recursive DFS calls, and also already visited the second node <span class="math inline"><em>u</em></span> from the query <span class="math inline">(<em>u</em>, <em>v</em>)</span>. Let's learn how to find the LCA of these two nodes.</p>
+<p>Note that <span class="math inline">LCA(<em>u</em>, <em>v</em>)</span> is either the node <span class="math inline"><em>v</em></span> or one of its ancestors. So we need to find the lowest node among the ancestors of <span class="math inline"><em>v</em></span> (including <span class="math inline"><em>v</em></span>), for which the node <span class="math inline"><em>u</em></span> is a descendant. Also note that for a fixed <span class="math inline"><em>v</em></span> the visited nodes of the tree split into a set of disjoint sets. Each ancestor <span class="math inline"><em>p</em></span> of node <span class="math inline"><em>v</em></span> has his own set containing this node and all subtrees with roots in those of its children who are not part of the path from <span class="math inline"><em>v</em></span> to the root of the tree. The set which contains the node <span class="math inline"><em>u</em></span> determines the <span class="math inline">LCA(<em>u</em>, <em>v</em>)</span>: the LCA is the representative of the set, namely the node on lies on the path between <span class="math inline"><em>v</em></span> and the root of the tree.</p>
+<p>We only need to learn to efficiently maintain all these sets. For this purpose we apply the data structure DSU. To be able to apply Union by rank, we store the real representative (the value on the path between <span class="math inline"><em>v</em></span> and the root of the tree) of each set in the array <code>ancestor</code>.</p>
+<p>Let's discuss the implementation of the DFS. Let's assume we are currently visiting the node <span class="math inline"><em>v</em></span>. We place the node in a new set in the DSU, <code>ancestor[v] = v</code>. As usual we process all children of <span class="math inline"><em>v</em></span>. For this we must first recursively call DFS from that node, and then add this node with all its subtree to the set of <span class="math inline"><em>v</em></span>. This can be done with the function <code>union_sets</code> and the following assignment <code>ancestor[find_set(v)] = v</code> (this is necessary, because <code>union_sets</code> might change the representative of the set).</p>
+<p>Finally after processing all children we can answer all queries of the form <span class="math inline">(<em>u</em>, <em>v</em>)</span> for which <span class="math inline"><em>u</em></span> has been already visited. The answer to the query, i.e. the LCA of <span class="math inline"><em>u</em></span> and <span class="math inline"><em>v</em></span>, will be the node <code>ancestor[find_set(u)]</code>. It is easy to see that a query will only be answered once.</p>
+<p>Let's us determine the time complexity of this algorithm. Firstly we have <span class="math inline"><em>O</em>(<em>n</em>)</span> because of the DFS. Secondly we have the function calls of <code>union_sets</code> which happen <span class="math inline"><em>n</em></span> times, resulting also in <span class="math inline"><em>O</em>(<em>n</em>)</span>. And thirdly we have the calls of <code>find_set</code> for every query, which gives <span class="math inline"><em>O</em>(<em>m</em>)</span>. So in total the time complexity is <span class="math inline"><em>O</em>(<em>n</em> + <em>m</em>)</span>, which means that for sufficiently large <span class="math inline"><em>m</em></span> this corresponds to <span class="math inline"><em>O</em>(1)</span> for answering one query.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Here is an implementation of this algorithm. The implementation of DSU has been not included, as it can be used without any modifications.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; adj;
+vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; queries;
+vector&lt;<span class="dt">int</span>&gt; ancestor;
+vector&lt;<span class="dt">bool</span>&gt; visited;
+
+<span class="dt">void</span> dfs(<span class="dt">int</span> v)
+{
+    visited[v] = <span class="kw">true</span>;
+    ancestor[v] = v;
+    <span class="kw">for</span> (<span class="dt">int</span> u : adj[v]) {
+        <span class="kw">if</span> (!visited[u]) {
+            dfs(u);
+            union_sets(v, u);
+            ancestor[find_set(v)] = v;
+        }
+    }
+    <span class="kw">for</span> (<span class="dt">int</span> other_node : queries[v]) {
+        <span class="kw">if</span> (visited[other_node])
+            cout &lt;&lt; <span class="st">&quot;LCA of &quot;</span> &lt;&lt; v &lt;&lt; <span class="st">&quot; and &quot;</span> &lt;&lt; other_node
+                 &lt;&lt; <span class="st">&quot; is &quot;</span> &lt;&lt; ancestor[find_set(other_node)] &lt;&lt; <span class="st">&quot;.</span><span class="ch">\n</span><span class="st">&quot;</span>;
+    }
+}
+
+<span class="dt">void</span> compute_LCAs() {
+    <span class="co">// initialize n, adj and DSU</span>
+    <span class="co">// for (each query (u, v)) {</span>
+    <span class="co">//    queries[u].push_back(v);</span>
+    <span class="co">//    queries[v].push_back(u);</span>
+    <span class="co">// }</span>
+
+    ancestor.resize(n);
+    visited.assign(n, <span class="kw">false</span>);
+    dfs(<span class="dv">0</span>);
+}</code></pre></div>
+</body>
+</html>

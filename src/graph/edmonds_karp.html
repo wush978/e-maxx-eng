@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<!--?title Maximum flow - Ford-Fulkerson and Edmonds-Karp -->
+<h1 id="maximum-flow---ford-fulkerson-and-edmonds-karp">Maximum flow - Ford-Fulkerson and Edmonds-Karp</h1>
+<p>The Edmonds-Karp algorithm is an implementation of the Ford-Fulkerson method for computing a maximal flow in a flow network.</p>
+<h2 id="flow-network">Flow network</h2>
+<p>First let's define what a <strong>flow network</strong>, a <strong>flow</strong>, and a <strong>maximum flow</strong> is.</p>
+<p>A <strong>network</strong> is a directed graph <span class="math inline"><em>G</em></span> with vertices <span class="math inline"><em>V</em></span> and edges <span class="math inline"><em>E</em></span> combined with a function <span class="math inline"><em>c</em></span>, which assigns each edge <span class="math inline"><em>e</em> ∈ <em>E</em></span> a non-negative integer value, the <strong>capacity</strong> of <span class="math inline"><em>e</em></span>. Such a network is called a <strong>flow network</strong>, if we additionally label two vertices, one as <strong>source</strong> and one as <strong>sink</strong>.</p>
+<p>A <strong>flow</strong> in a flow network is function <span class="math inline"><em>f</em></span>, that again assigns each edge <span class="math inline"><em>e</em></span> a non-negative integer value, namely the flow. The function has to fulfill the following two conditions:</p>
+<p>The flow of an edge cannot exceed the capacity. <br /><span class="math display"><em>f</em>(<em>e</em>)≤<em>c</em>(<em>e</em>)</span><br /></p>
+<p>And the sum of the incoming flow of a vertex <span class="math inline"><em>u</em></span> has to be equal to the sum of the outgoing flow of <span class="math inline"><em>u</em></span> except in the source and sink vertices. <br /><span class="math display">∑<sub>(<em>v</em>, <em>u</em>)∈<em>E</em></sub><em>f</em>((<em>v</em>, <em>u</em>)) = ∑<sub>(<em>u</em>, <em>v</em>)∈<em>E</em></sub><em>f</em>((<em>u</em>, <em>v</em>))</span><br /> The source vertex <span class="math inline"><em>s</em></span> only has an outgoing flow, and the sink vertex <span class="math inline"><em>t</em></span> has only incoming flow.</p>
+<p>It is easy to see that the following equation holds: <br /><span class="math display">∑<sub>(<em>s</em>, <em>u</em>)∈<em>E</em></sub><em>f</em>((<em>s</em>, <em>u</em>)) = ∑<sub>(<em>u</em>, <em>t</em>)∈<em>E</em></sub><em>f</em>((<em>u</em>, <em>t</em>))</span><br /></p>
+<p>A good analogy for a flow network is the following visualization: We represent edges as water pipes, the capacity of an edge is the maximal amount of water that can flow through the pipe per second, and the flow of an edge is the amount of water that currently flows though the pipe per second. This motivates the first flow condition. There cannot flow more water through a pipe than its capacity. The vertices act as junctions, where water comes out of some pipes, and distributes it in some way to other pipes. This also motivates the second flow condition. In each junction all the incoming water has to be distributed to the other pipes. It cannot magically disappear or appear. The source <span class="math inline"><em>s</em></span> is origin of all the water, and the water can only drain in the sink <span class="math inline"><em>t</em></span>.</p>
+The following image show a flow network. The first value of each edge represents the flow, which is initially 0, and the second value represents the capacity.
+<center>
+<img src="&amp;imgroot&amp;/Flow1.png" alt="Flow network" />
+</center>
+<p>We value of a flow of a network is the sum of all flows that gets produced in source <span class="math inline"><em>s</em></span>, or equivalent or the flows that is consumed in the sink <span class="math inline"><em>t</em></span>. A <strong>maximal flow</strong> is a flow with the maximal possible value. Finding this maximal flow of a flow network is the problem that we want to solve.</p>
+<p>In the visualization with water pipes, the problem can be formulated in the following way: how much water can we push through the pipes from the source to the sink.</p>
+The following image show the maximal flow in the flow network.
+<center>
+<img src="&amp;imgroot&amp;/Flow9.png" alt="Maximal flow" />
+</center>
+<h2 id="ford-fulkerson-method">Ford-Fulkerson method</h2>
+<p>Let's define one more thing. A <strong>residual capacity</strong> of an directed edge is the capacity minus the flow. It should be noted that if there is a flow along some directed edge <span class="math inline">(<em>u</em>, <em>v</em>)</span>, than the reversed edge has capacity 0 and we can define the flow of it as <span class="math inline"><em>f</em>((<em>v</em>, <em>u</em>)) = −<em>f</em>((<em>u</em>, <em>v</em>))</span>. This also defines the residual capacity for all reversed edges. From all these edges we can create a <strong>residual network</strong>, which is just a network with the same vertices and same edges, but we use the residual capacities as capacities.</p>
+<p>The Ford-Fulkerson method works as follows. First we set the flow of each edge to zero. Then we look for an <strong>augmenting path</strong> from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>t</em></span>. An augmenting path is simple path in the residual graph, i.e. along the edges whose residual capacity is positive. Is such a path is found, then we can add increase the flow along these edges. We keep on searching for augmenting paths and increasing the flow. Once there doesn't exists an augmenting path any more, the flow is maximal.</p>
+<p>Let us specify in more detail, what increasing the flow along an augmenting path means. Let <span class="math inline"><em>C</em></span> be the smallest residual capacity of the edges in the path. Then we increase the flow in the following way: we update <span class="math inline"><em>f</em>((<em>u</em>, <em>v</em>)) += <em>C</em></span> and <span class="math inline"><em>f</em>((<em>v</em>, <em>u</em>)) -= <em>C</em></span> for every edge <span class="math inline">(<em>u</em>, <em>v</em>)</span> in the path.</p>
+Here is an example to demonstrate the method. We use the same flow network as above. Initially we start with a flow of 0.
+<center>
+<img src="&amp;imgroot&amp;/Flow1.png" alt="Flow network" />
+</center>
+We can find the path <span class="math inline"><em>s</em> − <em>A</em> − <em>B</em> − <em>t</em></span> with the residual capacities 7, 5 and 8. Their minimum is 5, therefore we can increase the flow along this path by 5. This gives a flow of 5 for the network.
+<center>
+<img src="&amp;imgroot&amp;/Flow2.png" alt="First path" /> <img src="&amp;imgroot&amp;/Flow3.png" alt="Network after first path" />
+</center>
+Again we look for an augmenting path, this time we find <span class="math inline"><em>s</em> − <em>D</em> − <em>A</em> − <em>C</em> − <em>t</em></span> with the residual capacities 4, 3, 3 and 5. Therefore we can increase the flow by 3 and we get a flow of 8 for the network.
+<center>
+<img src="&amp;imgroot&amp;/Flow4.png" alt="Second path" /> <img src="&amp;imgroot&amp;/Flow5.png" alt="Network after second path" />
+</center>
+This time we find the path <span class="math inline"><em>s</em> − <em>D</em> − <em>C</em> − <em>B</em> − <em>t</em></span> with the residual capacities 1, 2, 3 and 3, and we increase by 1.
+<center>
+<img src="&amp;imgroot&amp;/Flow6.png" alt="Third path" /> <img src="&amp;imgroot&amp;/Flow7.png" alt="Network after third path" />
+</center>
+This time we find the augmenting path <span class="math inline"><em>s</em> − <em>A</em> − <em>D</em> − <em>C</em> − <em>t</em></span> with the residual capacities 2, 3, 1 and 2. We can increase by 1. But this path is very interesting. It includes the reversed edge <span class="math inline">(<em>A</em>, <em>D</em>)</span>. In the original flow network we are not allowed to send any flow from <span class="math inline"><em>A</em></span> to <span class="math inline"><em>D</em></span>. But because we already have a flow of 3 from <span class="math inline"><em>D</em></span> to <span class="math inline"><em>A</em></span> this is possible. The intuition of it is the following: Instead of sending a flow of 3 from <span class="math inline"><em>D</em></span> to <span class="math inline"><em>A</em></span>, we only send 2 and compensate this by sending an additional flow of 1 from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>A</em></span>, which allows us to send an additional flow of 1 along the path <span class="math inline"><em>D</em> − <em>C</em> − <em>t</em></span>.
+<center>
+<img src="&amp;imgroot&amp;/Flow8.png" alt="Fourth path" /> <img src="&amp;imgroot&amp;/Flow9.png" alt="Network after fourth path" />
+</center>
+<p>Now it is impossible to find an augmenting path between <span class="math inline"><em>s</em></span> and <span class="math inline"><em>t</em></span>, therefore this flow of <span class="math inline">10</span> is the maximal possible. We have found the maximal flow.</p>
+<p>It should be noted, that the Ford-Fulkerson method doesn't specify a method of finding the augmenting path. Possible approaches are using <a href="./graph/depth-first-search.html">DFS</a> or <a href="./graph/breadth-first-search.html">BFS</a> which both work in <span class="math inline"><em>O</em>(<em>E</em>)</span>. If all capacities of the network are integers, then for each augmenting path the flow of the network increases by at least 1 (for more details see <a href="#integral-theorem">Integral flow theorem</a>). Therefore the complexity of Ford-Fulkerson is <span class="math inline"><em>O</em>(<em>E</em><em>F</em>)</span>, where <span class="math inline"><em>F</em></span> is the maximal flow of the network. In case of rational capacities, the algorithm will also terminate, but the complexity is not bounded. In case of irrational capacities, the algorithm might never terminate, and might not even converge to the maximal flow.</p>
+<h2 id="edmonds-karp-algorithm">Edmonds-Karp algorithm</h2>
+<p>Edmonds-Karp algorithm is just an implementation of the Ford-Fulkerson method that uses <a href="./graph/breadth-first-search.html">BFS</a> for finding augmenting paths. The algorithms was first published by Yefim Dinitz in 1970, and later independently published by Jack Edmonds and Richard Karp in 1972.</p>
+<p>The complexity can be given independently of the maximal flow. The algorithm runs in <span class="math inline"><em>O</em>(<em>V</em><em>E</em><sup>2</sup>)</span> time, even for irrational capacities. The intuition is, that every time we find an augmenting path one of the edges becomes be saturated, and the distance from the edge to <span class="math inline"><em>s</em></span> will be longer, if it appears later again in an augmenting path. And the length of a simple paths is bounded by <span class="math inline"><em>V</em></span>.</p>
+<h3 id="implementation">Implementation</h3>
+<p>The matrix <code>capacity</code> stores the capacity for every pair of vertices. <code>adj</code> is the adjacency list of the <strong>undirected graph</strong>, since we have also to use the reversed of directed edges when we are looking for augmenting paths.</p>
+<p>The function <code>maxflow</code> will return the value of the maximal flow. During the algorithm the matrix <code>capacity</code> will actually store the residual capacity of the network. The value of the flow in each edge will actually no stored, but it is easy to extent the implementation - by using an additional matrix - to also store the flow and return it.</p>
+<p>```cpp edmondskarp int n; vector<vector<int>&gt; capacity; vector<vector<int>&gt; adj;</p>
+<p>int bfs(int s, int t, vector<int>&amp; parent) { fill(parent.begin(), parent.end(), -1); parent[s] = -2; queue<pair<int, int>&gt; q; q.push({s, INF});</p>
+<pre><code>while (!q.empty()) {
+    int cur = q.front().first;
+    int flow = q.front().second;
+    q.pop();
+
+    for (int next : adj[cur]) {
+        if (parent[next] == -1 &amp;&amp; capacity[cur][next]) {
+            parent[next] = cur;
+            int new_flow = min(flow, capacity[cur][next]);
+            if (next == t)
+                return new_flow;
+            q.push({next, new_flow});
+        }
+    }
+}
+
+return 0;</code></pre>
+<p>}</p>
+<p>int maxflow(int s, int t) { int flow = 0; vector<int> parent(n); int new_flow;</p>
+<pre><code>while (new_flow = bfs(s, t, parent)) {
+    flow += new_flow;
+    int cur = t;
+    while (cur != s) {
+        int prev = parent[cur];
+        capacity[prev][cur] -= new_flow;
+        capacity[cur][prev] += new_flow;
+        cur = prev;
+    }
+}
+
+return flow;</code></pre>
+<p>} ```</p>
+<h2 id="integral-theorem">Integral flow theorem</h2>
+<p>The theorem simply says, that if every capacity in the network is integer, than also the flow in each edge will be integer in the maximal flow.</p>
+<h2 id="max-flow-min-cut-theorem">Max-flow min-cut theorem</h2>
+<p>A <strong><span class="math inline"><em>s</em></span>-<span class="math inline"><em>t</em></span>-cut</strong> is a partition of the vertices of a flow network into two sets, such that a set includes the source <span class="math inline"><em>s</em></span> and the other one includes the sink <span class="math inline"><em>t</em></span>. The capacity of a <span class="math inline"><em>s</em></span>-<span class="math inline"><em>t</em></span>-cut is defined as the sum of capacities of the edges from the source side to the sink side.</p>
+<p>Obviously we cannot send more flow from <span class="math inline"><em>s</em></span> to <span class="math inline"><em>t</em></span> than the capacity of any <span class="math inline"><em>s</em></span>-<span class="math inline"><em>t</em></span>-cut. Therefore the maximum flow is bounded by the minimum cut capacity.</p>
+<p>The max-flow min-cut theorem theorem goes even farther. It says that the capacity of the maximum flow has to be equal to the capacity of the minimum cut.</p>
+In the following image you can see the minimum cut of the flow network we used earlier. It shows that the capacity of the cut <span class="math inline">$\\{s, A, D\\}$</span> and <span class="math inline">$\\{B, C, t\\}$</span> is <span class="math inline">5 + 3 + 2 = 10</span>, which is equal to the maximum flow that we found. Other cuts will have a bigger capacity, like the capacity between <span class="math inline">$\\{s, A\\}$</span> and <span class="math inline">$\\{B, C, D, t\\}$</span> is <span class="math inline">4 + 3 + 5 = 12</span>.
+<center>
+<img src="&amp;imgroot&amp;/Cut.png" alt="Minimum cut" />
+</center>
+<p>A minimum cut can be found after performing a maximum flow computation using the Ford-Fulkerson method. One possible minimum cut is the following: the set of all vertices that can be reached from <span class="math inline"><em>s</em></span> in the residual graph (using edges with positive residual capacity), and the set of all the other vertices. This partition can be easily found using <a href="./graph/depth-first-search.html">DFS</a> starting at <span class="math inline"><em>s</em></span>.</p>
+</body>
+</html>

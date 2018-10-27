@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<!--?title Games on arbitrary graphs -->
+<h1 id="games-on-arbitrary-graphs">Games on arbitrary graphs</h1>
+<p>Let a game be played by two players on an arbitrary graph <span class="math inline"><em>G</em></span>. I.e. the current state of the game is a certain vertex. The player perform moves by turns, and move from the current vertex to an adjacent vertex using a connecting edge. Depending on the game, the person that is unable to move will either lose or win the game.</p>
+<p>We consider the most general case, the case of an arbitrary directed graph with cycles. It is our task to determine, given an initial state, who will win the game if both players play with optimal strategies or determine that the result of the game will be a draw.</p>
+<p>We will solve this problem very efficiently. We will find the solution for all possible starting vertices of the graph in linear time with respect to the number of edges: <span class="math inline"><em>O</em>(<em>m</em>)</span>.</p>
+<h2 id="description-of-the-algorithm">Description of the algorithm</h2>
+<p>We will call a vertex a winning vertex, if the player starting at this state will win the game, if he plays optimal (regardless what turns the other player makes). And similarly we will call a vertex a losing vertex, if the player starting at this vertex will lose the game, if the opponent plays optimal.</p>
+<p>For some of the vertices of the graph we already know in advance that they are winning or losing vertices: namely all vertices that have no outgoing edges.</p>
+<p>Also we have the following <strong>rules</strong>:</p>
+<ul>
+<li>if a vertex has an outgoing edge that leads to a losing vertex, then the vertex itself is a winning vertex.</li>
+<li>if all outgoing edges of a certain vertex lead to winning vertices, then the vertex itself is a losing vertex.</li>
+<li>if at some point there are still undefined vertices, and neither will fit the first or the second rule, then each of these vertices, when used as a starting vertex, will lead to a draw if both player play optimal.</li>
+</ul>
+<p>Thus we can define an algorithm which runs in <span class="math inline"><em>O</em>(<em>n</em><em>m</em>)</span> time immediately. We go through all vertices and try to apply the first or second rule, and repeat.</p>
+<p>However we can accelerate this procedure, and get the complexity down to <span class="math inline"><em>O</em>(<em>m</em>)</span>.</p>
+<p>We will go over all the vertices, for which we initially know if they are winning or losing states. For each of them we start a <a href="./graph/depth-first-search.html">depth first search</a>. This DFS will move back over the reversed edges. First of all, it will not enter vertices which already are defined as winning or losing vertices. And further, if the search goes from a losing vertex to an undefined vertex, then we mark this one as a winning vertex, and continue the DFS using this new vertex. If we go from a winning vertex to an undefined vertex, then we must check whether all edges from this one leads to winning vertices. We can perform this test in <span class="math inline"><em>O</em>(1)</span> by storing the number of edges that lead to a winning vertex for each vertex. So if we go from a winning vertex to an undefined one, then we increase the counter, and check if this number is equal to the number of outgoing edges. If this is the case, we can mark this vertex as a losing vertex, and continue the DFS from this vertex. Otherwise we don't know yet, if this vertex is a winning or losing vertex, and therefore it doesn't make sense to keep continuing the DFS using it.</p>
+<p>In total we visit every winning and every losing vertex exactly once (undefined vertices are not visited), and we go over each edge also at most one time. Hence the complexity is <span class="math inline"><em>O</em>(<em>m</em>)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Here is the implementation of such a DFS. We assume that the variable <code>adj_rev</code> stores the adjacency list for the graph in <strong>reversed</strong> form, i.e. instead of storing the edge <span class="math inline">(<em>i</em>, <em>j</em>)</span> of the graph, we store <span class="math inline">(<em>j</em>, <em>i</em>)</span>. Also for each vertex we assume that the outgoing degree is already computed.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">vector&lt;vector&lt;<span class="dt">int</span>&gt;&gt; adj_rev;
+
+vector&lt;<span class="dt">bool</span>&gt; winning;
+vector&lt;<span class="dt">bool</span>&gt; losing;
+vector&lt;<span class="dt">bool</span>&gt; visited;
+vector&lt;<span class="dt">int</span>&gt; degree;
+
+<span class="dt">void</span> dfs(<span class="dt">int</span> v) {
+    visited[v] = <span class="kw">true</span>;
+    <span class="kw">for</span> (<span class="dt">int</span> u : adj_rev[v]) {
+        <span class="kw">if</span> (!visited[v]) {
+            <span class="kw">if</span> (losing[v])
+                winning[u] = <span class="kw">true</span>;
+            <span class="kw">else</span> <span class="kw">if</span> (--degree[u] == <span class="dv">0</span>)
+                losing[u] = <span class="kw">true</span>;
+            <span class="kw">else</span>
+                <span class="kw">continue</span>;
+            dfs(u);
+        }
+    }
+}</code></pre></div>
+<h2 id="example-policeman-and-thief">Example: &quot;Policeman and thief&quot;</h2>
+<p>Here is a concrete example of such a game.</p>
+<p>There is <span class="math inline"><em>m</em> × <em>n</em></span> board. Some of the cells cannot be entered. The initial coordinates of the police officer and of the thief are known. One of the cells is the exit. If the policeman and the thief are located at the same cell at any moment, the policeman wins. If the thief is at the exit cell (without the policeman also being on the cell), then the thief wins. The policeman can walk in all 8 directions, the thief only in 4 (along the coordinate axis). Both the policeman and the thief will take turns moving. However they also can skip a turn if they want to. The first move is made by the policeman.</p>
+<p>We will now <strong>construct the graph</strong>. For this we must formalize the rules of the game. The current state of the game is determined by the coordinates of the police offices <span class="math inline"><em>P</em></span>, the coordinates of the thief <span class="math inline"><em>T</em></span>, and also by whose turn it is, let's call this variable <span class="math inline"><em>P</em><sub>turn</sub></span> (which is true when it is the policeman's turn). Therefore a vertex of the graph is determined by the triple <span class="math inline">(<em>P</em>, <em>T</em>, <em>P</em><sub>turn</sub>)</span> The graph then can be easily constructed, simply by following the rules of the game.</p>
+<p>Next we need to determine which vertices are winning and which are losing ones initially. There is a <strong>subtle point</strong> here. The winning / losing vertices depend, in addition to the coordinates, also on <span class="math inline"><em>P</em><sub>turn</sub></span> - whose turn it. If it is the policeman's turn, then the vertex is a winning vertex, if the coordinates of the policeman and the thief coincide, and the vertex is a losing one if it is not a winning one and the thief is on the exit vertex. If it is the thief's turn, then a vertex is a losing vertex, if the coordinates of the two players coincide, and it is a winning vertex if it is not a losing one, and the thief is at the exit vertex.</p>
+<p>The only point before implementing is not, that you need to decide if you want to build the graph <strong>explicitly</strong> or just construct it <strong>on the fly</strong>. On one hand, building the graph explicitly will be a lot easier and there is less chance of making mistakes. On the other hand, it will increase the amount of code and the running time will be slower than if you build the graph on the fly.</p>
+<p>The following implementation will construct the graph explicitly:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">struct</span> State {
+    <span class="dt">int</span> P, T;
+    <span class="dt">bool</span> Pstep;
+};
+
+vector&lt;State&gt; adj_rev[<span class="dv">100</span>][<span class="dv">100</span>][<span class="dv">2</span>]; <span class="co">// [P][T][Pstep]</span>
+<span class="dt">bool</span> winning[<span class="dv">100</span>][<span class="dv">100</span>][<span class="dv">2</span>];
+<span class="dt">bool</span> losing[<span class="dv">100</span>][<span class="dv">100</span>][<span class="dv">2</span>];
+<span class="dt">bool</span> visited[<span class="dv">100</span>][<span class="dv">100</span>][<span class="dv">2</span>];
+<span class="dt">int</span> degree[<span class="dv">100</span>][<span class="dv">100</span>][<span class="dv">2</span>];
+
+<span class="dt">void</span> dfs(State v) {
+    visited[v.P][v.T][v.Pstep] = <span class="kw">true</span>;
+    <span class="kw">for</span> (State u : adj_rev[v.P][v.T][v.Pstep]) {
+        <span class="kw">if</span> (!visited[u.P][u.T][u.Pstep]) {
+            <span class="kw">if</span> (losing[v.P][v.T][v.Pstep])
+                winning[u.P][u.T][u.Pstep] = <span class="kw">true</span>;
+            <span class="kw">else</span> <span class="kw">if</span> (--degree[u.P][u.T][u.Pstep] == <span class="dv">0</span>)
+                losing[u.P][u.T][u.Pstep] = <span class="kw">true</span>;
+            <span class="kw">else</span>
+                <span class="kw">continue</span>;
+            dfs(u);
+        }
+    }
+}
+
+<span class="dt">int</span> main() {
+    <span class="dt">int</span> n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    vector&lt;string&gt; a(n);
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; i++)
+        cin &gt;&gt; a[i];
+
+    <span class="kw">for</span> (<span class="dt">int</span> P = <span class="dv">0</span>; P &lt; n*m; P++) {
+        <span class="kw">for</span> (<span class="dt">int</span> T = <span class="dv">0</span>; T &lt; n*m; T++) {
+            <span class="kw">for</span> (<span class="dt">int</span> Pstep = <span class="dv">0</span>; Pstep &lt;= <span class="dv">1</span>; Pstep++) {
+                <span class="dt">int</span> Px = P/m, Py = P%m, Tx = T/m, Ty = T%m;
+                <span class="kw">if</span> (a[Px][Py]==<span class="st">&#39;*&#39;</span> || a[Tx][Ty]==<span class="st">&#39;*&#39;</span>)
+                    <span class="kw">continue</span>;
+                
+                <span class="dt">bool</span>&amp; win = winning[P][T][Pstep];
+                <span class="dt">bool</span>&amp; lose = losing[P][T][Pstep];
+                <span class="kw">if</span> (Pstep) {
+                    win = Px==Tx &amp;&amp; Py==Ty;
+                    lose = !win &amp;&amp; a[Tx][Ty] == <span class="st">&#39;E&#39;</span>;
+                } <span class="kw">else</span> {
+                    lose = Px==Tx &amp;&amp; Py==Ty;
+                    win = !lose &amp;&amp; a[Tx][Ty] == <span class="st">&#39;E&#39;</span>;
+                }
+                <span class="kw">if</span> (win || lose)
+                    <span class="kw">continue</span>;
+
+                State st = {P,T,!Pstep};
+                adj_rev[P][T][Pstep].push_back(st);
+                st.Pstep = Pstep;
+                degree[P][T][Pstep]++;
+                
+                <span class="dt">const</span> <span class="dt">int</span> dx[] = {<span class="dv">-1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">-1</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="dv">1</span>};
+                <span class="dt">const</span> <span class="dt">int</span> dy[] = {<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">-1</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>};
+                <span class="kw">for</span> (<span class="dt">int</span> d = <span class="dv">0</span>; d &lt; (Pstep ? <span class="dv">8</span> : <span class="dv">4</span>); d++) {
+                    <span class="dt">int</span> PPx = Px, PPy = Py, TTx = Tx, TTy = Ty;
+                    <span class="kw">if</span> (Pstep) {
+                        PPx += dx[d];
+                        PPy += dy[d];
+                    } <span class="kw">else</span> {
+                        TTx += dx[d];
+                        TTy += dy[d];
+                    }
+
+                    <span class="kw">if</span> (PPx &gt;= <span class="dv">0</span> &amp;&amp; PPx &lt; n &amp;&amp; PPy &gt;= <span class="dv">0</span> &amp;&amp; PPy &lt; m &amp;&amp; a[PPx][PPy] != <span class="st">&#39;*&#39;</span> &amp;&amp;
+                        TTx &gt;= <span class="dv">0</span> &amp;&amp; TTx &lt; n &amp;&amp; TTy &gt;= <span class="dv">0</span> &amp;&amp; TTy &lt; m &amp;&amp; a[TTx][TTy] != <span class="st">&#39;*&#39;</span>)
+                    {
+                        adj_rev[PPx*m+PPy][TTx*m+TTy][!Pstep].push_back(st);
+                        ++degree[P][T][Pstep];
+                    }
+                }
+            }
+        }
+    }
+
+    <span class="kw">for</span> (<span class="dt">int</span> P = <span class="dv">0</span>; P &lt; n*m; P++) {
+        <span class="kw">for</span> (<span class="dt">int</span> T = <span class="dv">0</span>; T &lt; n*m; T++) {
+            <span class="kw">for</span> (<span class="dt">int</span> Pstep = <span class="dv">0</span>; Pstep &lt;= <span class="dv">1</span>; Pstep++) {
+                <span class="kw">if</span> ((winning[P][T][Pstep] || losing[P][T][Pstep]) &amp;&amp; !visited[P][T][Pstep])
+                    dfs({P, T, (<span class="dt">bool</span>)Pstep});
+            }
+        }
+    }
+
+    <span class="dt">int</span> P_st, T_st;
+    <span class="kw">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; i++) {
+        <span class="kw">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; m; j++) {
+            <span class="kw">if</span> (a[i][j] == <span class="st">&#39;P&#39;</span>)
+                P_st = i*m+j;
+            <span class="kw">else</span> <span class="kw">if</span> (a[i][j] == <span class="st">&#39;T&#39;</span>)
+                T_st = i*m+j;
+        }
+    }
+
+    <span class="kw">if</span> (winning[P_st][T_st][<span class="kw">true</span>]) {
+        cout &lt;&lt; <span class="st">&quot;Police catches the thief&quot;</span>  &lt;&lt; endl;
+    } <span class="kw">else</span> <span class="kw">if</span> (losing[P_st][T_st][<span class="kw">true</span>]) {
+        cout &lt;&lt; <span class="st">&quot;The thief escapes&quot;</span> &lt;&lt; endl;
+    } <span class="kw">else</span> {
+        cout &lt;&lt; <span class="st">&quot;Draw&quot;</span> &lt;&lt; endl;
+    }
+}</code></pre></div>
+</body>
+</html>
